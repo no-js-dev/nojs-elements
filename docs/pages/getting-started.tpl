@@ -173,33 +173,38 @@
       </div>
     </div>
     <div class="demo-tabbed-panel demo-tab-example" show="!showCode">
-      <button class="btn-primary" modal-open="gs-demo">Open Modal</button>
-
-      <div modal="gs-demo">
-        <div class="modal-content" style="padding: 2rem; max-width: 400px; background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-          <h2 style="margin: 0 0 0.5rem; font-size: 1.15rem; font-weight: 700;">Welcome!</h2>
-          <p style="margin: 0 0 1.25rem; color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.6;">This modal was created with a single HTML attribute. No JavaScript needed.</p>
-          <div style="display: flex; justify-content: flex-end;">
-            <button class="btn-primary" modal-close="gs-demo">Got it</button>
+      <template id="gs-modal">
+        <div modal>
+          <div class="modal-content" style="padding: 2rem; max-width: 400px; background: var(--color-surface); border-radius: var(--radius-xl); box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <h2 style="margin: 0 0 0.5rem; font-size: 1.15rem; font-weight: 700;">Welcome!</h2>
+            <p style="margin: 0 0 1.25rem; color: var(--color-text-muted); font-size: 0.9rem; line-height: 1.6;">This modal was created with a single HTML attribute. No JavaScript needed.</p>
+            <div style="display: flex; justify-content: flex-end;">
+              <button class="btn-primary" modal-close>Got it</button>
+            </div>
           </div>
         </div>
-      </div>
+      </template>
+      <div use="gs-modal"></div>
+      <button class="btn-primary" modal-open>Open Modal</button>
     </div>
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- Trigger --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;button</span> <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"confirm"</span><span class="hl-t">&gt;</span><span class="hl-x">Open Modal</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="hl-c">&lt;!-- Modal --&gt;</span>
-<span class="ln"> 5</span><span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"confirm"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Welcome!</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This modal was created with a single</span>
-<span class="ln"> 9</span>       <span class="hl-x">HTML attribute. No JavaScript needed.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-p">=</span><span class="hl-s">"confirm"</span><span class="hl-t">&gt;</span><span class="hl-x">Got it</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-c">&lt;!-- Template (define once) --&gt;</span>
+<span class="ln"> 2</span><span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"my-modal"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-t">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 5</span>      <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Welcome!</span><span class="hl-t">&lt;/h2&gt;</span>
+<span class="ln"> 6</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This modal was created with a single</span>
+<span class="ln"> 7</span>         <span class="hl-x">HTML attribute. No JavaScript needed.</span><span class="hl-t">&lt;/p&gt;</span>
+<span class="ln"> 8</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span><span class="hl-x">Got it</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">10</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">11</span><span class="hl-t">&lt;/template&gt;</span>
+<span class="ln">12</span>
+<span class="ln">13</span><span class="hl-c">&lt;!-- Instance + Trigger --&gt;</span>
+<span class="ln">14</span><span class="hl-t">&lt;div</span> <span class="hl-a">use</span><span class="hl-p">=</span><span class="hl-s">"my-modal"</span><span class="hl-t">&gt;&lt;/div&gt;</span>
+<span class="ln">15</span><span class="hl-t">&lt;button</span> <span class="hl-a">modal-open</span><span class="hl-t">&gt;</span><span class="hl-x">Open Modal</span><span class="hl-t">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>
