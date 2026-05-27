@@ -2,12 +2,13 @@
   /* ─── Hero (matching NoJS core landing) ─────── */
   .home-hero {
     background: linear-gradient(180deg, var(--code-bg), var(--code-surface));
-    padding: 80px 80px 72px;
+    min-height: calc(100vh - var(--header-h));
+    padding: calc(var(--header-h) + 60px) 80px 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 32px;
     text-align: center;
   }
   .home-hero .badge {
@@ -16,9 +17,9 @@
     gap: 6px;
     padding: 8px 16px;
     border-radius: 100px;
-    background: rgba(14, 165, 233, 0.1);
-    border: 1px solid rgba(14, 165, 233, 0.4);
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: #0EA5E91A;
+    border: 1px solid #0EA5E966;
+    font-family: var(--font-heading);
     font-size: 13px;
     font-weight: 600;
     color: var(--primary);
@@ -28,21 +29,21 @@
     height: 16px;
   }
   .home-hero h1 {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    font-size: 56px;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 72px;
+    font-weight: bold;
     letter-spacing: -2px;
     line-height: 1.1;
-    color: #fff;
-    max-width: 800px;
-    text-wrap: balance;
+    color: var(--white);
+    max-width: 900px;
+    white-space: pre-line;
   }
   .home-hero p {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 18px;
+    font-family: var(--font-body);
+    font-size: 20px;
     color: var(--text-dim);
     line-height: 1.6;
-    max-width: 600px;
+    max-width: 700px;
   }
   .home-hero-cta {
     display: flex;
@@ -56,9 +57,9 @@
     color: #fff;
     padding: 14px 32px;
     font-size: 16px;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-weight: 600;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius);
     text-decoration: none;
     cursor: pointer;
     transition: background 0.2s;
@@ -73,10 +74,10 @@
     color: #CBD5E1;
     padding: 14px 32px;
     font-size: 16px;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-weight: 600;
     border: 1px solid #475569;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius);
     text-decoration: none;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
@@ -125,9 +126,14 @@
   .home-hero-install-code .hl-punct { color: #E2E8F0; }
   .home-hero-install-code .hl-string { color: #A5D6FF; }
 
-  @media (max-width: 768px) {
-    .home-hero { padding: 48px 24px 40px; gap: 20px; }
-    .home-hero h1 { font-size: 32px; letter-spacing: -1px; }
+  @media (max-width: 900px) {
+    .home-hero { padding: calc(var(--header-h) + 40px) 24px 60px; }
+    .home-hero h1 { font-size: 48px; }
+    .home-hero-install { width: auto; max-width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .home-hero { min-height: auto; padding: calc(var(--header-h) + 32px) 20px 48px; }
+    .home-hero h1 { font-size: 36px; letter-spacing: -1px; }
     .home-hero p { font-size: 16px; }
     .home-hero-cta { flex-direction: column; width: 100%; }
     .home-hero-cta .btn-primary,
@@ -142,7 +148,7 @@
     margin: 0 auto;
   }
   .home-grid-header h2 {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     font-weight: 700;
     color: var(--text);

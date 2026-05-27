@@ -130,17 +130,22 @@
       color: var(--text-dim);
     }
     .eco-dropdown-menu {
-      position: absolute;
-      right: 0;
-      top: calc(100% + 6px);
       margin: 0;
       padding: 4px;
       border: 1px solid var(--border);
+      position: fixed;
+      position-anchor: --eco-anchor;
+      inset: unset;
+      top: anchor(bottom);
+      right: anchor(right);
+      margin-top: 6px;
       min-width: 220px;
       background: var(--white);
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,.12);
       z-index: 200;
+    }
+    .eco-dropdown-menu:popover-open {
       animation: ecoFadeIn 0.15s ease;
     }
     @keyframes ecoFadeIn {
@@ -444,28 +449,29 @@
 
     <nav class="header-nav">
       <a route="/">Home</a>
-      <a route="/dnd">Elements</a>
+      <a route="/getting-started">Getting Started</a>
+      <a route="/dnd">Components</a>
 
-      <!-- Ecosystem dropdown -->
-      <div class="eco-dropdown" state="{ ecoOpen: false }">
-        <button class="eco-dropdown-btn" on:click="ecoOpen = !ecoOpen">
+      <!-- Ecosystem dropdown (Popover API — matching Core) -->
+      <div class="eco-dropdown">
+        <button class="eco-dropdown-btn" popovertarget="eco-menu">
           <span>More</span>
           <svg class="eco-chevron" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
         </button>
-        <div class="eco-dropdown-menu" show="ecoOpen">
-          <a href="https://no-js.dev" target="_blank" class="eco-option" on:click="ecoOpen = false">
+        <div id="eco-menu" class="eco-dropdown-menu" popover>
+          <a href="https://no-js.dev" target="_blank" class="eco-option" popovertarget="eco-menu" popovertargetaction="hide">
             <span class="eco-option-name">No.JS</span>
             <span class="eco-option-desc">HTML-first reactive framework</span>
           </a>
-          <a href="https://lsp.no-js.dev" target="_blank" class="eco-option" on:click="ecoOpen = false">
+          <a href="https://lsp.no-js.dev" target="_blank" class="eco-option" popovertarget="eco-menu" popovertargetaction="hide">
             <span class="eco-option-name">NoJS LSP</span>
             <span class="eco-option-desc">VS Code extension</span>
           </a>
-          <a href="https://www.npmjs.com/package/@erickxavier/nojs-mcp" target="_blank" class="eco-option" on:click="ecoOpen = false">
-            <span class="eco-option-name">NoJS MCP</span>
-            <span class="eco-option-desc">AI tools server</span>
+          <a href="https://github.com/ErickXavier/nojs-skill" target="_blank" rel="noopener noreferrer" class="eco-option" popovertarget="eco-menu" popovertargetaction="hide">
+            <span class="eco-option-name">NoJS Skill</span>
+            <span class="eco-option-desc">Claude Code AI skill</span>
           </a>
-          <a class="eco-option current" on:click="ecoOpen = false">
+          <a class="eco-option current" popovertarget="eco-menu" popovertargetaction="hide">
             <span class="eco-option-name">NoJS Elements</span>
             <span class="eco-option-desc">UI component plugins (you are here)</span>
           </a>
