@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Skeleton — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <div state="{ loading: true }">
+    <!-- Text skeleton -->
+    <section>
+      <h2 skeleton="loading" data-test="text-heading">Welcome to NoJS Elements</h2>
+      <p skeleton="loading" data-test="text-paragraph">This is a paragraph with skeleton loading.</p>
+      <button data-test="toggle-loading" on:click="loading = !loading">Toggle Loading</button>
+    </section>
+
+    <!-- Multi-line skeleton -->
+    <section>
+      <div skeleton="loading" skeleton-lines="4" data-test="multiline-skeleton">
+        Multi-line content here that will show as skeleton lines.
+      </div>
+    </section>
+
+    <!-- Circle skeleton -->
+    <section>
+      <div skeleton="loading" skeleton-type="circle" data-test="circle-skeleton" style="width: 60px; height: 60px;">
+        Avatar
+      </div>
+    </section>
+
+    <!-- Rect skeleton -->
+    <section>
+      <div skeleton="loading" data-test="rect-skeleton" style="width: 200px; height: 40px;">
+        Rectangle content
+      </div>
+    </section>
+  </div>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

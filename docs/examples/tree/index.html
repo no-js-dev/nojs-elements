@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tree — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic Tree -->
+  <section>
+    <h2>Basic Tree</h2>
+    <ul tree data-test="basic-tree">
+      <li>
+        <span branch="expanded" data-test="branch-documents">Documents</span>
+        <ul subtree>
+          <li>
+            <span branch data-test="branch-work">Work</span>
+            <ul subtree>
+              <li leaf>Report.pdf</li>
+              <li leaf>Presentation.pptx</li>
+            </ul>
+          </li>
+          <li leaf>Notes.txt</li>
+        </ul>
+      </li>
+      <li>
+        <span branch data-test="branch-downloads">Downloads</span>
+        <ul subtree>
+          <li leaf>Photo.jpg</li>
+          <li leaf>Video.mp4</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Deep Nested Tree (4 levels) -->
+  <section>
+    <h2>Deep Nested Tree</h2>
+    <ul tree data-test="deep-tree">
+      <li>
+        <span branch="expanded">Level 1</span>
+        <ul subtree>
+          <li>
+            <span branch="expanded">Level 2</span>
+            <ul subtree>
+              <li>
+                <span branch="expanded">Level 3</span>
+                <ul subtree>
+                  <li>
+                    <span branch>Level 4</span>
+                    <ul subtree>
+                      <li leaf>Leaf Node A</li>
+                      <li leaf>Leaf Node B</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

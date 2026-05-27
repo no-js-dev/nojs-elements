@@ -81,12 +81,17 @@ export function registerSkeletonDirective(NoJS) {
         // ARIA
         el.removeAttribute("aria-busy");
 
-        // Remove fade class after transition completes
+        // Remove fade class after transition completes (with fallback timer)
+        let _fadeDone = false;
         const onEnd = () => {
+          if (_fadeDone) return;
+          _fadeDone = true;
           el.classList.remove("nojs-skeleton-fade");
           el.removeEventListener("transitionend", onEnd);
         };
         el.addEventListener("transitionend", onEnd);
+        // Fallback: if transitionend never fires (no transitions, headless), clean up
+        setTimeout(onEnd, 500);
       }
 
       // Initial evaluation

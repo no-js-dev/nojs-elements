@@ -47,10 +47,13 @@ test.describe('Dropdown', () => {
     await toggle.click();
     await expect(menu).toBeVisible();
 
+    // Ensure toggle retains focus before keyboard navigation (WebKit compat)
+    await toggle.focus();
+
     // Press ArrowDown to focus first item
     await page.keyboard.press('ArrowDown');
     const items = menu.locator('[dropdown-item]');
-    await expect(items.nth(0)).toBeFocused();
+    await expect(items.nth(0)).toBeFocused({ timeout: 2000 });
 
     // Press ArrowDown to focus second item
     await page.keyboard.press('ArrowDown');

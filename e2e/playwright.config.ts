@@ -9,7 +9,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: `http://localhost:${process.env.TEST_PORT || 3001}`,
     trace: 'on-first-retry',
     testIdAttribute: 'data-test',
   },
@@ -29,7 +29,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'node test-server.js',
-    port: 3001,
+    port: parseInt(process.env.TEST_PORT || '3001'),
     cwd: path.resolve(__dirname, '..'),
     reuseExistingServer: !process.env.CI,
   },

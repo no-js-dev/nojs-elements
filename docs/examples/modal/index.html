@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modal — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic Modal -->
+  <section>
+    <button data-test="open-basic" modal-open="basic-modal">Open Basic Modal</button>
+    <div modal="basic-modal" data-test="basic-modal">
+      <h2>Basic Modal</h2>
+      <p>This is a basic modal.</p>
+      <button data-test="close-basic" modal-close>Close</button>
+    </div>
+  </section>
+
+  <!-- No Escape Modal -->
+  <section>
+    <button data-test="open-no-escape" modal-open="no-escape-modal">Open No-Escape Modal</button>
+    <div modal="no-escape-modal" modal-escape="false" data-test="no-escape-modal">
+      <h2>No Escape Modal</h2>
+      <p>Pressing Escape will NOT close this modal.</p>
+      <button data-test="close-no-escape" modal-close>Close</button>
+    </div>
+  </section>
+
+  <!-- Nested Modals -->
+  <section>
+    <button data-test="open-outer" modal-open="outer-modal">Open Outer Modal</button>
+    <div modal="outer-modal" data-test="outer-modal">
+      <h2>Outer Modal</h2>
+      <button data-test="open-inner" modal-open="inner-modal">Open Inner Modal</button>
+      <div modal="inner-modal" data-test="inner-modal">
+        <h2>Inner Modal</h2>
+        <button data-test="close-inner" modal-close>Close Inner</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- No Backdrop Modal -->
+  <section>
+    <button data-test="open-no-backdrop" modal-open="no-backdrop-modal">Open No Backdrop</button>
+    <div modal="no-backdrop-modal" modal-backdrop="false" data-test="no-backdrop-modal">
+      <h2>No Backdrop Modal</h2>
+      <p>This modal has no backdrop.</p>
+      <button modal-close>Close</button>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

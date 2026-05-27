@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dropdown — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic Dropdown -->
+  <section>
+    <div dropdown>
+      <button dropdown-toggle data-test="basic-toggle">Options</button>
+      <div dropdown-menu data-test="basic-menu">
+        <button dropdown-item>Edit</button>
+        <button dropdown-item>Duplicate</button>
+        <button dropdown-item>Archive</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Dropdown with disabled item -->
+  <section>
+    <div dropdown data-test="disabled-dropdown">
+      <button dropdown-toggle>Actions</button>
+      <div dropdown-menu>
+        <button dropdown-item>Save</button>
+        <button dropdown-item disabled data-test="disabled-item">Delete (disabled)</button>
+        <button dropdown-item>Export</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Positioned dropdown (top, end) -->
+  <section style="margin-top: 200px;">
+    <div dropdown dropdown-position="top" dropdown-align="end" data-test="positioned-dropdown">
+      <button dropdown-toggle data-test="positioned-toggle">Top End</button>
+      <div dropdown-menu>
+        <button dropdown-item>Option A</button>
+        <button dropdown-item>Option B</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Link items dropdown -->
+  <section>
+    <div dropdown data-test="link-dropdown">
+      <button dropdown-toggle>Navigate</button>
+      <div dropdown-menu>
+        <a dropdown-item href="#">Home</a>
+        <a dropdown-item href="#">Settings</a>
+        <a dropdown-item href="#">Profile</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

@@ -159,8 +159,13 @@ export function registerStepper(NoJS) {
         steps.forEach((stepEl, i) => {
           const isActive = i === current;
           stepEl.setAttribute("aria-hidden", isActive ? "false" : "true");
-          if (!isActive) stepEl.setAttribute("inert", "");
-          else stepEl.removeAttribute("inert");
+          if (isActive) {
+            stepEl.removeAttribute("inert");
+            stepEl.setAttribute("aria-current", "step");
+          } else {
+            stepEl.setAttribute("inert", "");
+            stepEl.removeAttribute("aria-current");
+          }
         });
 
         // Update indicator

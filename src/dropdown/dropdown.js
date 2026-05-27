@@ -180,6 +180,27 @@ export function registerDropdownDirective(NoJS) {
       };
       el.addEventListener("keydown", keydownHandler);
 
+      // Menu-level keyboard handler for initial arrow navigation (WebKit compat)
+      const menuKeydownHandler = (e) => {
+        if (!isOpen()) return;
+        const items = _getItems(menu);
+        // Only handle if no menu item is currently focused
+        const activeItem = items.find(item => item === document.activeElement);
+        if (activeItem) return; // Item-level handlers manage navigation once an item is focused
+
+        switch (e.key) {
+          case "ArrowDown":
+            e.preventDefault();
+            _focusFirstItem(menu);
+            break;
+          case "ArrowUp":
+            e.preventDefault();
+            _focusLastItem(menu);
+            break;
+        }
+      };
+      menu.addEventListener("keydown", menuKeydownHandler);
+
       // Reposition on scroll/resize
       const repositionHandler = () => {
         if (isOpen()) _positionMenu(menu, el, wrapper);
@@ -190,6 +211,7 @@ export function registerDropdownDirective(NoJS) {
       addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
         el.removeEventListener("keydown", keydownHandler);
+        menu.removeEventListener("keydown", menuKeydownHandler);
         menu.removeEventListener("toggle", toggleEvtHandler);
         document.removeEventListener("click", outsideClick, true);
         document.removeEventListener("keydown", escHandler);

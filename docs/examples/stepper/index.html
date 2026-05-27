@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stepper — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; border: 1px solid #ddd; padding: 1rem; border-radius: 4px; }
+    input { display: block; margin: 0.5rem 0; padding: 0.4rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Linear Stepper (default mode) -->
+  <section>
+    <h2>Linear Stepper</h2>
+    <div stepper data-test="linear-stepper">
+      <div step step-label="Personal Info" data-test="step-personal">
+        <h3>Personal Information</h3>
+        <input type="text" data-test="input-name" placeholder="Name" required />
+        <input type="email" data-test="input-email" placeholder="Email" required />
+      </div>
+      <div step step-label="Address" data-test="step-address">
+        <h3>Address</h3>
+        <input type="text" data-test="input-street" placeholder="Street" required />
+        <input type="text" data-test="input-city" placeholder="City" required />
+      </div>
+      <div step step-label="Review" data-test="step-review">
+        <h3>Review</h3>
+        <p>Review your information and submit.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Free Mode Stepper -->
+  <section>
+    <h2>Free Mode Stepper</h2>
+    <div stepper stepper-mode="free" data-test="free-stepper">
+      <div step step-label="Details">
+        <h3>Step 1: Details</h3>
+        <p>Enter your details.</p>
+      </div>
+      <div step step-label="Preferences">
+        <h3>Step 2: Preferences</h3>
+        <p>Set your preferences.</p>
+      </div>
+      <div step step-label="Review">
+        <h3>Step 3: Review</h3>
+        <p>Review everything.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Manual Stepper (no built-in nav, custom buttons) -->
+  <section>
+    <h2>Manual Stepper</h2>
+    <div state="{}">
+      <div stepper stepper-nav="false" stepper-indicator="false" data-test="manual-stepper">
+        <div step step-label="Step A">
+          <p>Content A</p>
+        </div>
+        <div step step-label="Step B">
+          <p>Content B</p>
+        </div>
+        <div step step-label="Step C">
+          <p>Content C</p>
+        </div>
+      </div>
+      <button data-test="manual-prev" on:click="$stepper.prev()">Prev</button>
+      <button data-test="manual-next" on:click="$stepper.next()">Next</button>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

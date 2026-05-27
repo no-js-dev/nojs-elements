@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Split — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    .pane-content { padding: 1rem; background: #f5f5f5; min-height: 100px; }
+  </style>
+</head>
+<body>
+
+  <!-- Horizontal Split (30/70) -->
+  <section>
+    <div split data-test="h-split" style="height: 200px;">
+      <div pane="30%" data-test="h-pane-left">
+        <div class="pane-content">Left Pane (30%)</div>
+      </div>
+      <div pane="70%" data-test="h-pane-right">
+        <div class="pane-content">Right Pane (70%)</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vertical Split -->
+  <section>
+    <div split="vertical" data-test="v-split" style="height: 300px;">
+      <div pane="50%" data-test="v-pane-top">
+        <div class="pane-content">Top Pane</div>
+      </div>
+      <div pane="50%" data-test="v-pane-bottom">
+        <div class="pane-content">Bottom Pane</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Three Panes -->
+  <section>
+    <div split data-test="three-split" style="height: 200px;">
+      <div pane="33%">
+        <div class="pane-content">Pane 1</div>
+      </div>
+      <div pane="34%">
+        <div class="pane-content">Pane 2</div>
+      </div>
+      <div pane="33%">
+        <div class="pane-content">Pane 3</div>
+      </div>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

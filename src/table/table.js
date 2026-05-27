@@ -16,10 +16,15 @@ function _findEachBinding(table, NoJS) {
   const tbody = table.querySelector("tbody");
   if (!tbody) return null;
 
-  // Check tbody children (tr or template) for [each]
-  const eachEl =
-    tbody.querySelector("[each]") ||
-    tbody.querySelector("[foreach]");
+  // Check tbody itself and its children for [each] or [foreach]
+  let eachEl = null;
+  if (tbody.hasAttribute("each") || tbody.hasAttribute("foreach")) {
+    eachEl = tbody;
+  } else {
+    eachEl =
+      tbody.querySelector("[each]") ||
+      tbody.querySelector("[foreach]");
+  }
 
   if (!eachEl) return null;
 

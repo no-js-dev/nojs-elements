@@ -48,9 +48,9 @@ test.describe('Table', () => {
 
     // Click to sort ascending
     await sortName.click();
-    const headerText = await sortName.textContent();
-    // Should contain an indicator (▲ or ▼ or similar)
-    expect(headerText?.includes('▲') || headerText?.includes('▼') || headerText?.includes('↑') || headerText?.includes('↓')).toBeTruthy();
+    // Should have sort indicator via data-sort-dir attribute (visual indicator is CSS ::after)
+    const sortDir = await sortName.getAttribute('data-sort-dir');
+    expect(sortDir === 'asc' || sortDir === 'desc').toBeTruthy();
   });
 
   test('third click returns to original order', async ({ page }) => {

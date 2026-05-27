@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabs — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic Tabs -->
+  <section>
+    <div tabs data-test="basic-tabs">
+      <div tab data-test="tab-overview">Overview</div>
+      <div tab data-test="tab-details">Details</div>
+      <div tab data-test="tab-settings">Settings</div>
+
+      <div panel data-test="panel-overview">
+        <p>This is the Overview panel content.</p>
+      </div>
+      <div panel data-test="panel-details">
+        <p>This is the Details panel content.</p>
+      </div>
+      <div panel data-test="panel-settings">
+        <p>This is the Settings panel content.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Preselected Tabs (starts at index 1) -->
+  <section>
+    <div tabs="1" data-test="preselected-tabs">
+      <div tab>First</div>
+      <div tab>Second</div>
+      <div tab>Third</div>
+
+      <div panel>
+        <p>First panel</p>
+      </div>
+      <div panel>
+        <p>Second panel (preselected)</p>
+      </div>
+      <div panel>
+        <p>Third panel</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Disabled Tab -->
+  <section>
+    <div tabs data-test="disabled-tabs">
+      <div tab>Active Tab</div>
+      <div tab tab-disabled="true" data-test="disabled-tab">Disabled Tab</div>
+      <div tab>Another Tab</div>
+
+      <div panel>
+        <p>Active panel content.</p>
+      </div>
+      <div panel>
+        <p>Disabled panel content.</p>
+      </div>
+      <div panel>
+        <p>Another panel content.</p>
+      </div>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

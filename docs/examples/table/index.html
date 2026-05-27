@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Table — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+    th[data-sortable] { cursor: pointer; user-select: none; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic Sortable Table -->
+  <section>
+    <div state="{ users: [
+      { name: 'Alice', age: 30, email: 'alice@example.com' },
+      { name: 'Bob', age: 25, email: 'bob@example.com' },
+      { name: 'Charlie', age: 35, email: 'charlie@example.com' },
+      { name: 'Diana', age: 28, email: 'diana@example.com' },
+      { name: 'Eve', age: 22, email: 'eve@example.com' }
+    ] }">
+      <table sortable data-test="basic-table">
+        <thead>
+          <tr>
+            <th sort="name" data-test="sort-name">Name</th>
+            <th sort="age" sort-type="number" data-test="sort-age">Age</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody each="user in users" template="user-row-tpl">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <template id="user-row-tpl">
+    <tr>
+      <td bind="user.name"></td>
+      <td bind="user.age"></td>
+      <td bind="user.email"></td>
+    </tr>
+  </template>
+
+  <!-- Default Sort Table -->
+  <section>
+    <div state="{ people: [
+      { name: 'Zara', age: 29 },
+      { name: 'Mike', age: 33 },
+      { name: 'Anna', age: 21 },
+      { name: 'Leo', age: 45 }
+    ] }">
+      <table sortable data-test="default-sort-table">
+        <thead>
+          <tr>
+            <th sort="name" sort-default="asc">Name</th>
+            <th sort="age" sort-type="number">Age</th>
+          </tr>
+        </thead>
+        <tbody each="person in people" template="person-row-tpl">
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <template id="person-row-tpl">
+    <tr>
+      <td bind="person.name"></td>
+      <td bind="person.age"></td>
+    </tr>
+  </template>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

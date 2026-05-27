@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Toast — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    button { margin: 0.25rem; padding: 0.5rem 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Toast container (top-right, default) -->
+  <div toast-container="top-right" data-test="toast-container"></div>
+
+  <!-- Toast container (bottom-center) -->
+  <div toast-container="bottom-center" data-test="toast-bottom-container"></div>
+
+  <!-- Toast trigger buttons -->
+  <section>
+    <h2>Toast Triggers</h2>
+    <button data-test="toast-default" toast="This is a default toast">Default Toast</button>
+    <button data-test="toast-success" toast="Operation successful!" toast-type="success">Success Toast</button>
+    <button data-test="toast-error" toast="Something went wrong!" toast-type="error">Error Toast</button>
+    <button data-test="toast-warning" toast="Please check your input." toast-type="warning">Warning Toast</button>
+    <button data-test="toast-dismissible" toast="Dismiss me" toast-dismiss="true">Dismissible Toast</button>
+  </section>
+
+  <!-- Position variant trigger -->
+  <section>
+    <h2>Position Variants</h2>
+    <button data-test="toast-bottom-center" on:click="$toast('Bottom center toast', 'info', 3000)">Bottom Center Toast</button>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

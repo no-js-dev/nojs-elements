@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tooltip — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    .demo-row { display: flex; gap: 2rem; flex-wrap: wrap; margin: 1rem 0; }
+    button { padding: 0.5rem 1rem; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <!-- Tooltip positions -->
+  <section>
+    <h2>Tooltip Positions</h2>
+    <div class="demo-row">
+      <button tooltip="Tooltip on top" tooltip-position="top" data-test="tooltip-top">Top</button>
+      <button tooltip="Tooltip on bottom" tooltip-position="bottom" data-test="tooltip-bottom">Bottom</button>
+      <button tooltip="Tooltip on left" tooltip-position="left" data-test="tooltip-left">Left</button>
+      <button tooltip="Tooltip on right" tooltip-position="right" data-test="tooltip-right">Right</button>
+    </div>
+  </section>
+
+  <!-- Popover -->
+  <section>
+    <h2>Popover</h2>
+    <button popover-trigger="my-popover" data-test="popover-trigger">Toggle Popover</button>
+    <div popover="my-popover" data-test="popover-content" role="dialog">
+      <p>Popover content goes here.</p>
+      <button popover-dismiss data-test="popover-dismiss">Dismiss</button>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>
