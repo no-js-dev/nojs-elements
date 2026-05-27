@@ -1,4 +1,3 @@
-import { registerDnd, cleanupDnd } from "./dnd/index.js";
 import { registerTooltipModule, cleanupTooltip } from "./tooltip/index.js";
 import { registerPopover, cleanupPopover } from "./popover/index.js";
 import { registerModal, cleanupModal } from "./modal/index.js";
@@ -15,7 +14,6 @@ const NoJSElements = {
   name: "nojs-elements",
 
   install(NoJS, options = {}) {
-    registerDnd(NoJS, options);
     registerTooltipModule(NoJS, options);
     registerPopover(NoJS, options);
     registerModal(NoJS, options);
@@ -30,7 +28,6 @@ const NoJSElements = {
   },
 
   dispose(NoJS) {
-    cleanupDnd();
     cleanupTooltip();
     cleanupPopover();
     cleanupModal();
