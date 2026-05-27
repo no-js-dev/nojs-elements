@@ -317,7 +317,7 @@ export function registerSplitDirective(NoJS) {
       );
 
       if (panes.length < 2) {
-        NoJS._warn(
+        console.warn(
           `[split] Container requires at least 2 [pane] children, found ${panes.length}.`
         );
         return;

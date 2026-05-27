@@ -23,7 +23,7 @@ export function registerModalOpen(NoJS) {
           targetId = nearestModal.getAttribute("data-modal-id");
         }
         if (!targetId) {
-          NoJS._warn("[modal-open] requires a target modal ID, e.g. modal-open=\"my-dialog\"");
+          console.warn("[modal-open] requires a target modal ID, e.g. modal-open=\"my-dialog\"");
           return;
         }
       }
@@ -35,7 +35,7 @@ export function registerModalOpen(NoJS) {
       const clickHandler = () => {
         const modalEl = _modalRegistry.get(targetId) || document.querySelector(`[data-modal-id="${targetId}"]`);
         if (!modalEl) {
-          NoJS._warn(`[modal-open] modal "${targetId}" not found`);
+          console.warn(`[modal-open] modal "${targetId}" not found`);
           return;
         }
 
@@ -58,7 +58,7 @@ export function registerModalOpen(NoJS) {
         try {
           modalEl.showPopover();
         } catch {
-          NoJS._warn(`[modal-open] failed to open modal "${targetId}"`);
+          console.warn(`[modal-open] failed to open modal "${targetId}"`);
         }
       };
 

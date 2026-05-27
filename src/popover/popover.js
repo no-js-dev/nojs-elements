@@ -111,7 +111,7 @@ export function registerPopoverDirective(NoJS) {
           popoverId = nearestPopover.getAttribute("data-popover-id");
         }
         if (!popoverId) {
-          NoJS._warn("[popover-trigger] attribute value (popover ID) is required.");
+          console.warn("[popover-trigger] attribute value (popover ID) is required.");
           return;
         }
       }
@@ -128,7 +128,7 @@ export function registerPopoverDirective(NoJS) {
       const clickHandler = (e) => {
         const entry = _popoverRegistry.get(popoverId);
         if (!entry || !entry.popoverEl) {
-          NoJS._warn(`[popover-trigger] no popover found with id "${popoverId}".`);
+          console.warn(`[popover-trigger] no popover found with id "${popoverId}".`);
           return;
         }
         entry.popoverEl.togglePopover();

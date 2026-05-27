@@ -67,11 +67,11 @@ export function registerTabsDirective(NoJS) {
       }
 
       if (childTabs.length === 0) {
-        NoJS._warn("[tabs] No child [tab] elements found.");
+        console.warn("[tabs] No child [tab] elements found.");
         return;
       }
       if (childTabs.length !== childPanels.length) {
-        NoJS._warn("[tabs] Mismatch: " + childTabs.length + " tabs but " + childPanels.length + " panels.");
+        console.warn("[tabs] Mismatch: " + childTabs.length + " tabs but " + childPanels.length + " panels.");
       }
 
       // Position attribute

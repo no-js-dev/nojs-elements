@@ -5,6 +5,6 @@ module.exports = {
     '^.+\\.js$': 'babel-jest',
   },
   testMatch: ['**/__tests__/**/*.test.js'],
-  testPathIgnorePatterns: ['/node_modules/'],
+  testPathIgnorePatterns: ['/node_modules/', '/\\.claude/'],
   collectCoverageFrom: ['src/**/*.js'],
 };

@@ -17,7 +17,7 @@ export function registerStepper(NoJS) {
       // ── Collect [step] children ──
       const steps = Array.from(el.querySelectorAll("[step]"));
       if (!steps.length) {
-        NoJS._warn("[stepper] No [step] children found.");
+        console.warn("[stepper] No [step] children found.");
         return;
       }
 
@@ -146,7 +146,7 @@ export function registerStepper(NoJS) {
             const result = NoJS.evaluate(validateExpr, ctx);
             if (!result) return false;
           } catch (err) {
-            NoJS._warn(`[stepper] step-validate error: ${err.message}`);
+            console.warn(`[stepper] step-validate error: ${err.message}`);
             return false;
           }
         }

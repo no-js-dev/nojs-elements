@@ -23,14 +23,14 @@ export function registerModalClose(NoJS) {
           modalId = expr;
           modalEl = _modalRegistry.get(modalId);
           if (!modalEl) {
-            NoJS._warn(`[modal-close] modal "${modalId}" not found`);
+            console.warn(`[modal-close] modal "${modalId}" not found`);
             return;
           }
         } else {
           // Close the closest ancestor modal
           modalEl = el.closest("[modal]");
           if (!modalEl) {
-            NoJS._warn("[modal-close] no parent modal found");
+            console.warn("[modal-close] no parent modal found");
             return;
           }
           modalId = modalEl.getAttribute("modal");

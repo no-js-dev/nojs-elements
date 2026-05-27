@@ -76,7 +76,7 @@ export function registerTooltip(NoJS) {
 
       const text = expr;
       if (!text) {
-        NoJS._warn("[tooltip] attribute value (tooltip text) is required.");
+        console.warn("[tooltip] attribute value (tooltip text) is required.");
         return;
       }
 
