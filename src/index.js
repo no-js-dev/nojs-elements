@@ -1,3 +1,5 @@
+import { registerDnd, cleanupDnd } from "./dnd/index.js";
+import { registerValidation, cleanupValidation } from "./validate/index.js";
 import { registerTooltipModule, cleanupTooltip } from "./tooltip/index.js";
 import { registerPopover, cleanupPopover } from "./popover/index.js";
 import { registerModal, cleanupModal } from "./modal/index.js";
@@ -14,6 +16,11 @@ const NoJSElements = {
   name: "nojs-elements",
 
   install(NoJS, options = {}) {
+    // Core extracted modules (register first — other elements may integrate)
+    registerDnd(NoJS, options);
+    registerValidation(NoJS, options);
+
+    // UI elements
     registerTooltipModule(NoJS, options);
     registerPopover(NoJS, options);
     registerModal(NoJS, options);
@@ -28,6 +35,8 @@ const NoJSElements = {
   },
 
   dispose(NoJS) {
+    cleanupDnd();
+    cleanupValidation();
     cleanupTooltip();
     cleanupPopover();
     cleanupModal();

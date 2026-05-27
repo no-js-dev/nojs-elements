@@ -1,7 +1,7 @@
 {
   "name": "@erickxavier/nojs-elements",
   "version": "1.11.0",
-  "description": "Element plugins for No.JS — drag-and-drop, and more",
+  "description": "Element plugins for No.JS — drag-and-drop, validation, and more",
   "main": "dist/cjs/nojs-elements.js",
   "module": "dist/esm/nojs-elements.js",
   "browser": "dist/iife/nojs-elements.js",
@@ -28,7 +28,7 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
-    "@erickxavier/no-js": ">=1.11.0"
+    "@erickxavier/no-js": ">=1.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
@@ -45,6 +45,7 @@
     "no-js",
     "plugin",
     "drag-and-drop",
+    "validation",
     "elements",
     "html-first"
   ],
