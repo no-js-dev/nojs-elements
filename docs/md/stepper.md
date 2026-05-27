@@ -244,4 +244,98 @@ No.JS Elements automatically adds:
 
 ---
 
+## Validation Gate
+
+> Requires NoJS Elements with the Validation module. See the [migration guide](migration-from-core.md) if upgrading from Core-only validation.
+
+When a step contains a `<form validate>` element, you can add `stepper-validate` to the step to block forward navigation until the form is valid. This integrates the stepper's linear mode with the validation module's `$form.valid` state.
+
+```html
+<div stepper>
+  <!-- Step 1: gated by form validation -->
+  <div step step-label="Account" stepper-validate>
+    <form validate>
+      <input name="username" model="username" validate="required" placeholder="Username" />
+      <span if="$form.fields.username?.touched && $form.fields.username?.error"
+            bind="$form.fields.username.error" style="color: red"></span>
+
+      <input name="email" model="email" type="email" validate="required|email" placeholder="Email" />
+      <span if="$form.fields.email?.touched && $form.fields.email?.error"
+            bind="$form.fields.email.error" style="color: red"></span>
+    </form>
+  </div>
+
+  <!-- Step 2: gated by custom expression (existing feature) -->
+  <div step step-label="Terms" step-validate="acceptedTerms">
+    <label>
+      <input type="checkbox" model="acceptedTerms" />
+      I accept the terms and conditions
+    </label>
+  </div>
+
+  <!-- Step 3: no validation -->
+  <div step step-label="Confirm">
+    <p>Welcome, <span bind="username"></span>!</p>
+  </div>
+</div>
+```
+
+### How It Works
+
+1. When the user attempts to advance (via the Next button, `$stepper.next()`, or `$stepper.goTo()`), the stepper checks the current step for the `stepper-validate` attribute
+2. If present, it looks for a `<form validate>` inside the step and reads `$form.valid` from the form's context
+3. If `$form.valid` is `false`, navigation is blocked, all fields in the form are touched (making errors visible), and a `stepper:validation-blocked` event is dispatched
+4. If `$form.valid` is `true`, navigation proceeds normally
+5. Backward navigation is never blocked by the validation gate
+
+### Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `stepper-validate` | boolean attr | Place on a `[step]` element. Blocks forward navigation until the step's `<form validate>` is valid |
+
+### Events
+
+| Event | `$event.detail` | Description |
+|-------|-----------------|-------------|
+| `stepper:validation-blocked` | `{ step, form }` | Dispatched on the stepper container when forward navigation is blocked by an invalid form |
+
+```html
+<div stepper
+     on:stepper:validation-blocked="console.log('Blocked on step', $event.detail.step)">
+  <div step stepper-validate>
+    <form validate>...</form>
+  </div>
+  <div step>Done</div>
+</div>
+```
+
+### CSS Classes
+
+| Class | When applied |
+|-------|-------------|
+| `.nojs-step-invalid` | Applied to the step panel when validation blocks navigation (fields are touched and errors become visible) |
+
+### Combining with `step-validate`
+
+`stepper-validate` (form-based gate) and `step-validate` (expression-based gate) can be used together on the same step. Both must pass for forward navigation to be allowed.
+
+```html
+<div step step-label="Payment"
+     stepper-validate
+     step-validate="paymentMethod !== ''">
+  <form validate>
+    <select name="paymentMethod" model="paymentMethod" validate="required">
+      <option value="">Select payment method</option>
+      <option value="card">Credit Card</option>
+      <option value="paypal">PayPal</option>
+    </select>
+    <input name="cardNumber" model="cardNumber"
+           validate="required" validate-if="paymentMethod === 'card'" />
+  </form>
+</div>
+```
+
+---
+
 **Next:** [Skeleton →](skeleton.md)

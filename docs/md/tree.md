@@ -271,4 +271,128 @@ No.JS automatically adds:
 
 ---
 
+## Drag & Drop
+
+> Requires NoJS Elements with the DnD module. See the [migration guide](migration-from-core.md) if upgrading from Core-only DnD.
+
+Add `tree-drag-mode` to a `[tree]` element to enable drag-and-drop operations on tree items. Supports reparenting (moving a node under a new parent), reordering (changing position among siblings), or both.
+
+```html
+<!-- Reparent only: drop nodes onto other nodes to change parent -->
+<ul tree tree-drag-mode="reparent">
+  <li branch>
+    Folder A
+    <ul subtree>
+      <li>File 1</li>
+      <li>File 2</li>
+    </ul>
+  </li>
+  <li branch>
+    Folder B
+    <ul subtree>
+      <li>File 3</li>
+    </ul>
+  </li>
+</ul>
+
+<!-- Reorder only: drag nodes to change position among siblings -->
+<ul tree tree-drag-mode="reorder">
+  <li branch>Item 1 <ul subtree><li>Child</li></ul></li>
+  <li branch>Item 2 <ul subtree><li>Child</li></ul></li>
+  <li branch>Item 3 <ul subtree><li>Child</li></ul></li>
+</ul>
+
+<!-- Both: top/bottom 25% = reorder, middle 50% = reparent -->
+<ul tree tree-drag-mode="both">
+  <li branch>
+    Documents
+    <ul subtree>
+      <li>README.md</li>
+      <li>CHANGELOG.md</li>
+    </ul>
+  </li>
+  <li branch>
+    Archive
+    <ul subtree>
+      <li>Old notes</li>
+    </ul>
+  </li>
+</ul>
+```
+
+### Drag Mode Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `tree-drag-mode` | `"reparent"` \| `"reorder"` \| `"both"` | *required* | Drag-and-drop mode for the tree |
+| `tree-drag-disabled` | boolean attr | — | Place on individual `[branch]` items to prevent them from being dragged |
+
+### Drag Modes
+
+| Mode | Drop Zone | Behavior |
+|------|-----------|----------|
+| `reparent` | Entire node area | Dropped node becomes a child of the target node |
+| `reorder` | Top half / bottom half | Dropped node is inserted before or after the target node among its siblings |
+| `both` | Top 25% / middle 50% / bottom 25% | Top and bottom zones reorder; middle zone reparents |
+
+### Disabling Drag on Specific Items
+
+```html
+<ul tree tree-drag-mode="both">
+  <li branch tree-drag-disabled>
+    System (cannot be moved)
+    <ul subtree>
+      <li>config.json</li>
+    </ul>
+  </li>
+  <li branch>
+    User Files (can be moved)
+    <ul subtree>
+      <li>notes.txt</li>
+    </ul>
+  </li>
+</ul>
+```
+
+### Events
+
+| Event | `$event.detail` | Description |
+|-------|-----------------|-------------|
+| `tree:drag-start` | `{ node }` | Dispatched on the tree item when dragging begins |
+| `tree:drag-end` | `{ node }` | Dispatched on the tree item when dragging ends (regardless of outcome) |
+| `tree:reparent` | `{ node, newParent }` | Dispatched on the tree root when a node is dropped onto another node |
+| `tree:reorder` | `{ node, newIndex }` | Dispatched on the tree root when a node is reordered among siblings |
+
+```html
+<ul tree tree-drag-mode="both"
+    on:tree:reparent="console.log('Reparented', $event.detail.node, 'under', $event.detail.newParent)"
+    on:tree:reorder="console.log('Reordered to index', $event.detail.newIndex)">
+  ...
+</ul>
+```
+
+### Visual Feedback
+
+During a drag operation, the tree provides visual indicators:
+
+| Visual | Description |
+|--------|-------------|
+| `.nojs-dragging` class | Applied to the tree item being dragged |
+| `.nojs-tree-drag-over` class | Applied to the target node when hovering in "reparent" position |
+| Insertion indicator line | A horizontal line (`.nojs-tree-drag-indicator`) shown between items when hovering in "reorder" position |
+
+### Safety Checks
+
+The tree drag system prevents invalid operations:
+
+- A node cannot be dropped onto itself
+- A node cannot be dropped onto any of its descendants (prevents circular hierarchies)
+- Nodes with `tree-drag-disabled` cannot be dragged (but can be drop targets)
+
+### Interaction with Dynamic Trees
+
+When using `each` to render tree items dynamically, the drag system automatically detects new tree items via a `MutationObserver` and makes them draggable. No manual re-initialization is needed.
+
+---
+
 **Previous:** [Tabs](tabs.md)

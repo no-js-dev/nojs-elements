@@ -207,4 +207,99 @@ The `sort` directive does **not** reorder DOM nodes. Instead, it mutates the dat
 
 ---
 
+## Row Reorder (DnD)
+
+> Requires NoJS Elements with the DnD module. See the [migration guide](migration-from-core.md) if upgrading from Core-only DnD.
+
+Add `table-reorder` to a `<table>` to enable drag-and-drop row reordering. Works with `each`-bound tables — reordering mutates the backing data array in context, and `each` automatically re-renders the rows.
+
+```html
+<div state="{ users: [
+  { id: 1, name: 'Alice', role: 'Admin' },
+  { id: 2, name: 'Bob', role: 'Editor' },
+  { id: 3, name: 'Carol', role: 'Viewer' }
+] }">
+  <table sortable table-reorder>
+    <thead>
+      <tr>
+        <th sort="name">Name</th>
+        <th sort="role">Role</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr each="user in users">
+        <td bind="user.name"></td>
+        <td bind="user.role"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Reorder Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `table-reorder` | boolean attr | *required* | Enables drag-and-drop row reordering on the table |
+| `table-reorder-handle` | CSS selector | — | Restricts the drag handle to a child element within each row (e.g., `".grip"`) |
+| `table-reorder-drag-class` | string | `"nojs-row-dragging"` | CSS class applied to the row being dragged |
+| `table-reorder-over-class` | string | `"nojs-row-drag-over"` | CSS class applied to rows during hover |
+
+### Handle Example
+
+```html
+<table sortable table-reorder table-reorder-handle=".grip">
+  <thead>
+    <tr>
+      <th></th>
+      <th sort="name">Name</th>
+      <th sort="role">Role</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr each="user in users">
+      <td><span class="grip" style="cursor: grab">&#x2630;</span></td>
+      <td bind="user.name"></td>
+      <td bind="user.role"></td>
+    </tr>
+  </tbody>
+</table>
+```
+
+### Events
+
+| Event | `$event.detail` | Description |
+|-------|-----------------|-------------|
+| `table:reorder` | `{ from, to, item }` | Dispatched on the `<table>` after a row is reordered. `from` and `to` are array indices, `item` is the moved data object |
+
+```html
+<table sortable table-reorder
+       on:table:reorder="console.log('Moved from', $event.detail.from, 'to', $event.detail.to)">
+  ...
+</table>
+```
+
+### Interaction with Column Sort
+
+When a table has both `sortable` and `table-reorder`:
+
+- Reordering updates the backing array and invalidates the sort's original-order cache
+- If a column sort is active, dragging reorders the visually sorted rows and the new order persists in the data array
+- Resetting sort (clicking the sorted column a third time) restores the new reordered array, not the pre-drag order
+
+### CSS Classes
+
+| Class | When applied |
+|-------|-------------|
+| `.nojs-row-dragging` | On the `<tr>` being dragged |
+| `.nojs-reorder-insert-before` | On a `<tr>` showing an insertion line above |
+| `.nojs-reorder-insert-after` | On a `<tr>` showing an insertion line below |
+
+### Accessibility
+
+- `draggable="true"` is set on each `<tr>` in the tbody
+- `aria-grabbed="true/false"` reflects the drag state on each row
+
+---
+
 **Previous:** [Split / Pane &larr;](split.md)
