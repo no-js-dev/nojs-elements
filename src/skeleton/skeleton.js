@@ -1,5 +1,10 @@
 import { _injectSkeletonStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Skeleton directive ─────────────────────────────────────────────
 export function registerSkeletonDirective(NoJS) {
   NoJS.directive("skeleton", {
@@ -102,10 +107,10 @@ export function registerSkeletonDirective(NoJS) {
       // Reactive watch
       update();
       const unwatch = ctx.$watch(update);
-      NoJS._onDispose(unwatch);
+      addDisposer(el, unwatch);
 
       // Cleanup on dispose
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         if (_active) {
           el.classList.remove("nojs-skeleton", "nojs-skeleton-circle", "nojs-skeleton-fade");
           el.removeAttribute("aria-busy");

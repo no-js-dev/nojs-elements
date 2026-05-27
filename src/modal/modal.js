@@ -1,6 +1,11 @@
 import { _modalStack, _modalRegistry, currentZIndex } from "./state.js";
 import { _injectModalStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Focusable selector ─────────────────────────────────────────────
 const FOCUSABLE =
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -165,7 +170,7 @@ export function registerModalDirective(NoJS) {
       el.addEventListener("toggle", toggleHandler);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("click", backdropClickHandler);
         el.removeEventListener("toggle", toggleHandler);
         _removeFocusTrap(el);

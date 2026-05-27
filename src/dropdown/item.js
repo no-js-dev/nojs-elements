@@ -1,6 +1,11 @@
 import { _dropdownState } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Get navigable (non-disabled) items from the parent menu ────────
 function _getItems(menu) {
   return [...menu.querySelectorAll("[dropdown-item]")].filter(
@@ -84,7 +89,7 @@ export function registerDropdownItem(NoJS) {
         }
       };
       el.addEventListener("keydown", keydownHandler);
-      NoJS._onDispose(() => el.removeEventListener("keydown", keydownHandler));
+      addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
 
       // ── Close menu after click on item ──────────────────────────
       const clickHandler = () => {
@@ -98,7 +103,7 @@ export function registerDropdownItem(NoJS) {
         }
       };
       el.addEventListener("click", clickHandler);
-      NoJS._onDispose(() => el.removeEventListener("click", clickHandler));
+      addDisposer(el, () => el.removeEventListener("click", clickHandler));
     },
   });
 }

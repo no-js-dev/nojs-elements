@@ -1,6 +1,11 @@
 import { _splitRegistry, _paneRegistry, _resizeState } from "./state.js";
 import { _injectSplitStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 function _getSizeProperty(direction) {
@@ -379,7 +384,7 @@ export function registerSplitDirective(NoJS) {
       });
 
       // Cleanup
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         cleanups.forEach((fn) => fn());
         gutters.forEach((g) => g.remove());
         _splitRegistry.delete(el);

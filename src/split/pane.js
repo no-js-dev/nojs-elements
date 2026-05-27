@@ -1,6 +1,11 @@
 import { _paneRegistry } from "./state.js";
 import { _injectSplitStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Pane directive ─────────────────────────────────────────────────
 
 export function registerPane(NoJS) {
@@ -37,7 +42,7 @@ export function registerPane(NoJS) {
       }
 
       // Cleanup
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.classList.remove("nojs-pane");
         _paneRegistry.delete(el);
         el.style.removeProperty("minWidth");

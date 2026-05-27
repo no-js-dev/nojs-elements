@@ -1,6 +1,11 @@
 import { _stepperRegistry } from "./state.js";
 import { _injectStepperStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Stepper container directive ────────────────────────────────────
 export function registerStepper(NoJS) {
   NoJS.directive("stepper", {
@@ -256,7 +261,7 @@ export function registerStepper(NoJS) {
       _updateView();
 
       // ── Cleanup ──
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         _stepperRegistry.delete(el);
         if (indicatorEl && indicatorEl.parentNode) indicatorEl.remove();
         if (navEl && navEl.parentNode) navEl.remove();

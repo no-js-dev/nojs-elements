@@ -1,6 +1,11 @@
 import { _modalStack, _modalRegistry } from "./state.js";
 import { _injectModalStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Register the `modal-open` directive ────────────────────────────
 export function registerModalOpen(NoJS) {
   NoJS.directive("modal-open", {
@@ -86,7 +91,7 @@ export function registerModalOpen(NoJS) {
       el.addEventListener("click", clickHandler);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
         if (_observedModal && _toggleHandler) {
           _observedModal.removeEventListener("toggle", _toggleHandler);

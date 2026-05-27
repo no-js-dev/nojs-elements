@@ -1,6 +1,11 @@
 import { _treeState } from "./state.js";
 import { _injectTreeStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────
 
 /** Get all visible treeitem elements inside a tree root. */
@@ -146,7 +151,7 @@ export function registerBranch(NoJS) {
         toggleBranch(el);
       };
       el.addEventListener("click", clickHandler);
-      NoJS._onDispose(() => el.removeEventListener("click", clickHandler));
+      addDisposer(el, () => el.removeEventListener("click", clickHandler));
 
       // Keyboard handler
       const keydownHandler = (e) => {
@@ -249,10 +254,10 @@ export function registerBranch(NoJS) {
         }
       };
       el.addEventListener("keydown", keydownHandler);
-      NoJS._onDispose(() => el.removeEventListener("keydown", keydownHandler));
+      addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
 
       // Cleanup
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         _disposed = true;
         _treeState.branches.delete(el);
         if (_treeState.selectedItem === el) {

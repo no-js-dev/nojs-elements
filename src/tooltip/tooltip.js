@@ -1,6 +1,11 @@
 import { _tooltipRegistry, _tooltipTimeouts } from "./state.js";
 import { _injectTooltipStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Positioning helpers ────────────────────────────────────────────
 
 const GAP = 8; // px between trigger and tooltip
@@ -140,7 +145,7 @@ export function registerTooltip(NoJS) {
       el.addEventListener("focusout", focusoutHandler);
       el.addEventListener("keydown", keydownHandler);
 
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("mouseenter", mouseenterHandler);
         el.removeEventListener("mouseleave", mouseleaveHandler);
         el.removeEventListener("focusin", focusinHandler);

@@ -1,6 +1,11 @@
 import { _popoverRegistry } from "./state.js";
 import { _injectPopoverStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Positioning helper ─────────────────────────────────────────────
 
 const GAP = 8;
@@ -84,7 +89,7 @@ export function registerPopoverDirective(NoJS) {
       };
       el.addEventListener("toggle", toggleHandler);
 
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("toggle", toggleHandler);
         _popoverRegistry.delete(popoverId);
       });
@@ -146,7 +151,7 @@ export function registerPopoverDirective(NoJS) {
       };
       document.addEventListener("keydown", escHandler);
 
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
         document.removeEventListener("keydown", escHandler);
         const entry = _popoverRegistry.get(popoverId);
@@ -167,7 +172,7 @@ export function registerPopoverDirective(NoJS) {
       };
 
       el.addEventListener("click", clickHandler);
-      NoJS._onDispose(() => el.removeEventListener("click", clickHandler));
+      addDisposer(el, () => el.removeEventListener("click", clickHandler));
     },
   });
 

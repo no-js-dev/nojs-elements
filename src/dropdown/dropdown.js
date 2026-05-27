@@ -1,6 +1,11 @@
 import { _dropdownState } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Position the menu using fixed viewport coordinates ─────────────
 function _positionMenu(menu, toggle, wrapper) {
   const pos = wrapper.getAttribute("dropdown-position") || "bottom";
@@ -182,7 +187,7 @@ export function registerDropdownDirective(NoJS) {
       window.addEventListener("scroll", repositionHandler, true);
       window.addEventListener("resize", repositionHandler);
 
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
         el.removeEventListener("keydown", keydownHandler);
         menu.removeEventListener("toggle", toggleEvtHandler);

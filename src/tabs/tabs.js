@@ -1,6 +1,11 @@
 import { _tabsState } from "./state.js";
 import { _injectTabsStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Generate unique IDs ─────────────────────────────────────────────
 let _idCounter = 0;
 function _uid(prefix) {
@@ -216,7 +221,7 @@ export function registerTabsDirective(NoJS) {
       tablist.addEventListener("click", clickHandler);
 
       // ─── Cleanup ───────────────────────────────────────────────
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         tablist.removeEventListener("keydown", keydownHandler);
         tablist.removeEventListener("click", clickHandler);
         _tabsState.containers.delete(el);

@@ -1,6 +1,11 @@
 import { _tableState } from "./state.js";
 import { _injectTableStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /**
@@ -148,7 +153,7 @@ export function registerSort(NoJS) {
       };
 
       el.addEventListener("click", clickHandler);
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
         if (table && table._nojsOriginalOrder) {
           delete table._nojsOriginalOrder;

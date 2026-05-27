@@ -5,6 +5,11 @@ import {
 } from "./state.js";
 import { _injectToastStyles } from "./styles.js";
 
+function addDisposer(el, fn) {
+  el.__disposers = el.__disposers || [];
+  el.__disposers.push(fn);
+}
+
 // ─── Helpers ─────────────────────────────────────────────────────────
 
 const VALID_POSITIONS = new Set([
@@ -141,7 +146,7 @@ export function registerToastDirectives(NoJS) {
 
       _toastContainers.set(position, el);
 
-      NoJS._onDispose(() => {
+      addDisposer(el, () => {
         if (_toastContainers.get(position) === el) {
           _toastContainers.delete(position);
         }
@@ -167,7 +172,7 @@ export function registerToastDirectives(NoJS) {
           _createToast(container, expr, type, duration, dismiss);
         };
         el.addEventListener("click", clickHandler);
-        NoJS._onDispose(() => el.removeEventListener("click", clickHandler));
+        addDisposer(el, () => el.removeEventListener("click", clickHandler));
         return;
       }
 
@@ -186,7 +191,7 @@ export function registerToastDirectives(NoJS) {
       }
 
       const unwatch = ctx.$watch(check);
-      NoJS._onDispose(unwatch);
+      addDisposer(el, unwatch);
     },
   });
 
