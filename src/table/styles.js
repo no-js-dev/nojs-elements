@@ -34,6 +34,28 @@ export function _injectTableStyles() {
 .nojs-fixed-header .nojs-fixed-col {
   z-index: 3;
 }
+[table-reorder] tbody tr {
+  cursor: grab;
+}
+[table-reorder] tbody tr[aria-grabbed="true"] {
+  cursor: grabbing;
+}
+.nojs-row-dragging {
+  opacity: 0.4;
+  background: #f1f5f9 !important;
+}
+.nojs-reorder-insert-before {
+  box-shadow: 0 -2px 0 0 #3b82f6;
+}
+.nojs-reorder-insert-after {
+  box-shadow: 0 2px 0 0 #3b82f6;
+}
+[table-reorder][table-reorder-handle] tbody tr {
+  cursor: default;
+}
+[table-reorder-handle] {
+  cursor: grab;
+}
 `.trim();
 
   const style = document.createElement("style");
