@@ -10,6 +10,7 @@
     justify-content: center;
     gap: 32px;
     text-align: center;
+    view-transition-name: hero;
   }
   .home-hero .badge {
     display: inline-flex;
