@@ -434,6 +434,7 @@ td { font-variant-numeric: tabular-nums; }
 }
 .footer-logo .logo-img {
   height: 28px;
+  width: auto;
 }
 .footer-logo .logo-title {
   color: #F1F5F9;
