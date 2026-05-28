@@ -286,46 +286,54 @@
     }
     .mobile-nav a:hover { background: var(--hover-bg); }
 
-    /* ─── Sidebar ────────────────────────────────── */
+    /* ─── Sidebar (matching Core) ───────────────── */
     .sidebar {
       width: var(--sidebar-w);
-      flex-shrink: 0;
+      min-width: var(--sidebar-w);
       background: var(--white);
       border-right: 1px solid var(--border);
-      padding: 1.5rem 0;
+      overflow-y: auto;
+      padding: 24px 0;
+      align-self: flex-start;
       position: sticky;
       top: var(--header-h);
-      height: calc(100vh - var(--header-h));
-      overflow-y: auto;
-      scrollbar-width: thin;
-      transition: width 0.25s ease, opacity 0.2s ease, display 0.25s ease;
+      max-height: calc(100vh - var(--header-h));
     }
-    .sidebar.hidden {
-      width: 0;
-      opacity: 0;
-      overflow: hidden;
-      padding: 0;
-      border-right-width: 0;
-      display: none;
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 16px;
     }
     .sidebar-title {
-      font-size: 0.7rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      font-family: var(--font-heading);
+      font-size: 13px;
+      font-weight: bold;
       color: var(--text);
-      padding: 0.6rem 1rem 0.4rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 8px 12px;
+      margin-top: 16px;
+    }
+    .sidebar-title:first-child {
+      margin-top: 0;
     }
     .sidebar a {
       display: block;
-      padding: 0.5rem 1rem;
-      font-size: 0.875rem;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: normal;
       color: var(--text-muted);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
       text-decoration: none;
       cursor: pointer;
-      transition: color 0.12s ease;
+      transition: all 0.15s;
     }
-    .sidebar a:hover { color: var(--text); }
+    .sidebar a:hover {
+      color: var(--primary);
+      background: var(--primary-surface);
+    }
     .sidebar a:focus-visible {
       outline: 2px solid var(--primary);
       outline-offset: -2px;
@@ -341,23 +349,41 @@
       min-width: 0;
     }
 
-    /* ─── Route Header (dark gradient like NoJS) ─── */
+    /* ─── Route Header (matching Core hero-section) ─── */
     .route-header {
-      background: linear-gradient(var(--code-bg), var(--code-surface));
-      color: var(--white);
-      padding: 3rem 2.5rem;
+      background: var(--surface);
+      padding: 60px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
       text-align: center;
     }
     .route-header h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      text-wrap: balance;
+      font-family: var(--font-heading);
+      font-size: 48px;
+      font-weight: bold;
+      color: var(--text);
+      text-align: center;
     }
     .route-header p {
-      color: rgba(255,255,255,0.65);
-      margin-top: 0.5rem;
-      font-size: 0.95rem;
+      font-family: var(--font-body);
+      font-size: 18px;
+      color: var(--text-muted);
+      text-align: center;
+      max-width: 600px;
+    }
+    .route-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 16px;
+      border-radius: 100px;
+      background: var(--primary-surface);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--primary);
     }
 
     /* ─── Responsive ─────────────────────────────── */
@@ -365,6 +391,8 @@
       .header { padding: 0 24px; }
       .header-nav { display: none; }
       .mobile-menu-btn { display: flex; }
+      .route-header { padding: 40px 24px; }
+      .route-header h1 { font-size: 36px; }
     }
     @media (max-width: 768px) {
       .sidebar { display: none; }
@@ -519,20 +547,23 @@
 
     <!-- ─── Sidebar ───────────────────────────────── -->
     <nav class="sidebar" id="app-sidebar" aria-label="Component navigation">
-      <a route="/getting-started" class-active="$route.path === '/getting-started'" style="font-weight: 600; margin-bottom: 0.5rem;">Getting Started</a>
-      <div class="sidebar-title">Components</div>
-      <a route="/dnd"       class-active="$route.path === '/dnd'">Drag & Drop</a>
-      <a route="/dropdown"  class-active="$route.path === '/dropdown'">Dropdown</a>
-      <a route="/modal"     class-active="$route.path === '/modal'">Modal</a>
-      <a route="/popover"   class-active="$route.path === '/popover'">Popover</a>
-      <a route="/skeleton"  class-active="$route.path === '/skeleton'">Skeleton</a>
-      <a route="/split"     class-active="$route.path === '/split'">Split Pane</a>
-      <a route="/stepper"   class-active="$route.path === '/stepper'">Stepper</a>
-      <a route="/table"     class-active="$route.path === '/table'">Sortable Table</a>
-      <a route="/tabs"      class-active="$route.path === '/tabs'">Tabs</a>
-      <a route="/toast"     class-active="$route.path === '/toast'">Toast</a>
-      <a route="/tooltip"   class-active="$route.path === '/tooltip'">Tooltip</a>
-      <a route="/tree"      class-active="$route.path === '/tree'">Tree</a>
+      <div class="sidebar-nav">
+        <div class="sidebar-title">Getting Started</div>
+        <a route="/getting-started" class-active="$route.path === '/getting-started'">Introduction</a>
+        <div class="sidebar-title">Components</div>
+        <a route="/dnd"       class-active="$route.path === '/dnd'">Drag & Drop</a>
+        <a route="/dropdown"  class-active="$route.path === '/dropdown'">Dropdown</a>
+        <a route="/modal"     class-active="$route.path === '/modal'">Modal</a>
+        <a route="/popover"   class-active="$route.path === '/popover'">Popover</a>
+        <a route="/skeleton"  class-active="$route.path === '/skeleton'">Skeleton</a>
+        <a route="/split"     class-active="$route.path === '/split'">Split Pane</a>
+        <a route="/stepper"   class-active="$route.path === '/stepper'">Stepper</a>
+        <a route="/table"     class-active="$route.path === '/table'">Sortable Table</a>
+        <a route="/tabs"      class-active="$route.path === '/tabs'">Tabs</a>
+        <a route="/toast"     class-active="$route.path === '/toast'">Toast</a>
+        <a route="/tooltip"   class-active="$route.path === '/tooltip'">Tooltip</a>
+        <a route="/tree"      class-active="$route.path === '/tree'">Tree</a>
+      </div>
     </nav>
 
     <!-- ─── Route View ─────────────────────────────── -->
