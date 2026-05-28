@@ -451,7 +451,7 @@
     }
   </style>
 </head>
-<body state="{ mobileOpen: false }">
+<body state="{ mobileOpen: false, version: window.NoJS.version }">
 
   <!-- ─── Header ────────────────────────────────────── -->
   <header class="header">
@@ -471,7 +471,7 @@
       </svg>
       <span class="logo-title">No<span class="logo-dot">.</span>JS</span>
       <span class="logo-sub">Elements</span>
-      <span class="header-version">v1.11.0</span>
+      <span class="header-version">v<span bind="version"></span></span>
     </a>
 
     <!-- Mobile hamburger -->
@@ -616,7 +616,7 @@
       <div class="footer-divider"></div>
       <div class="footer-bottom">
         <span>2026 NoJS Elements — MIT License</span>
-        <span class="footer-version">NoJS Elements v1.11.0</span>
+        <span class="footer-version">NoJS Elements v<span bind="version"></span></span>
       </div>
     </div>
   </footer>
