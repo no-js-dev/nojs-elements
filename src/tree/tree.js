@@ -33,6 +33,27 @@ function _findTreeRoot(el) {
   return el.closest('[role="tree"]');
 }
 
+/**
+ * Find the parent branch (treeitem) of a treeitem, handling both layouts:
+ *  - child-nested: subtree is a child of the branch → walk DOM ancestors.
+ *  - sibling: subtree is the next sibling of the branch → the owning branch
+ *    is the element immediately before the enclosing subtree/group.
+ */
+function _findParentBranch(el) {
+  // Nearest enclosing group/subtree that holds this item
+  const group = el.parentElement?.closest('[role="group"], .nojs-subtree');
+  if (group) {
+    // Child-nested: the group lives inside its branch.
+    const ancestorBranch = group.parentElement?.closest('[role="treeitem"]');
+    if (ancestorBranch) return ancestorBranch;
+    // Sibling layout: the group sits right after its owning branch.
+    const prev = group.previousElementSibling;
+    if (prev?.matches?.('[role="treeitem"]')) return prev;
+  }
+  // Fallback: plain DOM ancestor walk.
+  return el.parentElement?.closest('[role="treeitem"]') || null;
+}
+
 /** Get the text label of a treeitem for typeahead matching. */
 function _getItemLabel(el) {
   // Use direct text content, excluding subtree text
@@ -78,11 +99,16 @@ export function registerBranch(NoJS) {
       el.setAttribute("role", "treeitem");
       el.setAttribute("aria-expanded", String(startExpanded));
 
-      // Roving tabindex — first branch in tree gets tabindex 0
+      // Roving tabindex — exactly one treeitem in the tree is focusable (0).
+      // Claim tabindex 0 only if no other treeitem already holds it; this is
+      // order-independent and avoids zero/multiple tabbable items when branches
+      // initialize out of order or are added dynamically.
       const treeRoot = _findTreeRoot(el);
       if (treeRoot) {
-        const firstBranch = treeRoot.querySelector('[role="treeitem"]');
-        el.setAttribute("tabindex", firstBranch === el ? "0" : "-1");
+        const existingFocusable = treeRoot.querySelector(
+          '[role="treeitem"][tabindex="0"]'
+        );
+        el.setAttribute("tabindex", existingFocusable ? "-1" : "0");
       } else {
         el.setAttribute("tabindex", "0");
       }
@@ -143,9 +169,11 @@ export function registerBranch(NoJS) {
 
       // Click handler — select and toggle on click of the branch element
       const clickHandler = (e) => {
-        // Only handle clicks directly on this branch element or its inline children
-        // (not on subtree items which are siblings, not descendants)
-        if (e.target !== el && !el.contains(e.target)) return;
+        // Only handle clicks on this branch's own label, not on a nested
+        // subtree/treeitem that lives inside this branch (child-nested layout).
+        // Walk up from the target: the nearest enclosing treeitem must be `el`.
+        const ownerItem = e.target.closest?.('[role="treeitem"]');
+        if (ownerItem !== el) return;
         e.stopPropagation();
         selectBranch(el);
         toggleBranch(el);
@@ -184,10 +212,10 @@ export function registerBranch(NoJS) {
               // Collapse expanded branch
               collapseBranch(el);
             } else {
-              // Focus parent branch
-              const parentGroup = el.parentElement?.closest('[role="treeitem"]');
-              if (parentGroup) {
-                _focusItem(parentGroup, _getVisibleItems(treeRoot));
+              // Focus parent branch (handles child-nested and sibling layouts)
+              const parentBranch = _findParentBranch(el);
+              if (parentBranch) {
+                _focusItem(parentBranch, _getVisibleItems(treeRoot));
               }
             }
             break;
@@ -235,6 +263,7 @@ export function registerBranch(NoJS) {
 
               if (_treeState.typeaheadTimer) clearTimeout(_treeState.typeaheadTimer);
               _treeState.typeaheadTimer = setTimeout(() => {
+                // Guard: bail if the originating branch was detached (Safety Rule 4)
                 _treeState.typeahead = "";
                 _treeState.typeaheadTimer = null;
               }, 500);
@@ -262,6 +291,12 @@ export function registerBranch(NoJS) {
         _treeState.branches.delete(el);
         if (_treeState.selectedItem === el) {
           _treeState.selectedItem = null;
+        }
+        // Clear pending typeahead timer (Safety Rule 4)
+        if (_treeState.typeaheadTimer) {
+          clearTimeout(_treeState.typeaheadTimer);
+          _treeState.typeaheadTimer = null;
+          _treeState.typeahead = "";
         }
       });
     },

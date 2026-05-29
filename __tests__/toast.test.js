@@ -214,6 +214,67 @@ describe('Toast Auto-Dismiss', () => {
 });
 
 // =======================================================================
+//  DECLARATIVE TOAST DIRECTIVE — DURATION PARSING (ELEM-31 #25)
+// =======================================================================
+
+describe('Declarative Toast Directive duration', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-toast]').forEach(s => s.remove());
+    resetToastState();
+  });
+
+  // Helper: build a state container with a button that fires a declarative toast
+  function setupDeclarativeButton(durationAttr) {
+    const container = setupContainer('top-right');
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('state', '{}');
+    const btn = document.createElement('button');
+    btn.setAttribute('toast', "'Declared message'");
+    if (durationAttr !== undefined) btn.setAttribute('toast-duration', durationAttr);
+    wrapper.appendChild(btn);
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    return { container, btn };
+  }
+
+  test('31 — toast-duration="0" is persistent (no auto-dismiss timer)', () => {
+    const { container, btn } = setupDeclarativeButton('0');
+    btn.click();
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(1);
+    // No timer should have been scheduled for a persistent toast
+    expect(_toastTimers.size).toBe(0);
+    jest.advanceTimersByTime(100000);
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(1);
+  });
+
+  test('32 — toast-duration="1500" auto-dismisses at that duration', () => {
+    const { container, btn } = setupDeclarativeButton('1500');
+    btn.click();
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(1);
+    jest.advanceTimersByTime(1499);
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(1);
+    jest.advanceTimersByTime(1);
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(0);
+  });
+
+  test('33 — missing/invalid toast-duration falls back to 3000ms', () => {
+    const { container, btn } = setupDeclarativeButton(undefined);
+    btn.click();
+    jest.advanceTimersByTime(2999);
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(1);
+    jest.advanceTimersByTime(1);
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(0);
+  });
+});
+
+// =======================================================================
 //  MANUAL DISMISS TESTS
 // =======================================================================
 
@@ -244,6 +305,25 @@ describe('Toast Manual Dismiss', () => {
     expect(_toastTimers.size).toBe(0);
 
     jest.runOnlyPendingTimers();
+    jest.useRealTimers();
+  });
+
+  test('31b — dismiss(id) with special chars does not throw (ELEM-31 #55)', () => {
+    setupContainer();
+    expect(() => {
+      NoJS.toast.dismiss('weird"id]with[brackets');
+    }).not.toThrow();
+  });
+
+  test('31c — auto-dismiss timer on a detached toast is a no-op (ELEM-31 #10)', () => {
+    jest.useFakeTimers();
+    const container = setupContainer();
+    const toast = callToast('Detach me', 'info', 1000);
+    // Detach the toast out-of-band before its timer fires
+    toast.remove();
+    expect(() => jest.advanceTimersByTime(1000)).not.toThrow();
+    expect(container.querySelectorAll('.nojs-toast').length).toBe(0);
+    expect(_toastTimers.size).toBe(0);
     jest.useRealTimers();
   });
 });

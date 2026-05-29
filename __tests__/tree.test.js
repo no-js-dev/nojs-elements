@@ -203,6 +203,78 @@ describe('Tree Click Interaction', () => {
 });
 
 // =======================================================================
+//  LEAF CLICK BUBBLING (ELEM-31 #26)
+// =======================================================================
+
+describe('Tree Leaf Click Bubbling', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-tree]').forEach(s => s.remove());
+  });
+
+  // Build a branch with a child-nested subtree that holds a plain leaf <li>
+  // (no `branch` attr → marked nojs-tree-leaf by the subtree directive).
+  function setupBranchWithLeaf() {
+    const parent = document.createElement('div');
+    parent.setAttribute('state', '{}');
+
+    const tree = document.createElement('ul');
+    tree.setAttribute('tree', '');
+
+    const branch = document.createElement('li');
+    branch.setAttribute('branch', 'expanded');
+    branch.textContent = 'Parent';
+
+    const subtree = document.createElement('ul');
+    subtree.setAttribute('subtree', '');
+
+    const leaf = document.createElement('li');
+    leaf.textContent = 'Plain Leaf'; // no branch attr → real leaf
+    subtree.appendChild(leaf);
+
+    branch.appendChild(subtree);
+    tree.appendChild(branch);
+    parent.appendChild(tree);
+    document.body.appendChild(parent);
+    NoJS.processTree(parent);
+
+    return { parent, tree, branch, subtree, leaf };
+  }
+
+  test('27 — leaf is marked as nojs-tree-leaf treeitem', async () => {
+    const { leaf } = setupBranchWithLeaf();
+    await flushMicrotasks();
+    expect(leaf.classList.contains('nojs-tree-leaf')).toBe(true);
+    expect(leaf.getAttribute('role')).toBe('treeitem');
+  });
+
+  test('28 — clicking a leaf does NOT collapse its ancestor branch', async () => {
+    const { branch, subtree, leaf } = setupBranchWithLeaf();
+    await flushMicrotasks();
+
+    expect(branch.getAttribute('aria-expanded')).toBe('true');
+    expect(subtree.getAttribute('aria-hidden')).toBe('false');
+
+    // Click bubbles from leaf → branch; must NOT toggle the branch closed.
+    leaf.click();
+
+    expect(branch.getAttribute('aria-expanded')).toBe('true');
+    expect(subtree.getAttribute('aria-hidden')).toBe('false');
+  });
+
+  test('29 — clicking the branch label still toggles the branch', async () => {
+    const { branch, subtree } = setupBranchWithLeaf();
+    await flushMicrotasks();
+
+    expect(branch.getAttribute('aria-expanded')).toBe('true');
+    // Clicking the branch itself collapses it.
+    branch.click();
+    expect(branch.getAttribute('aria-expanded')).toBe('false');
+    expect(subtree.getAttribute('aria-hidden')).toBe('true');
+  });
+});
+
+// =======================================================================
 //  KEYBOARD NAVIGATION TESTS
 // =======================================================================
 
