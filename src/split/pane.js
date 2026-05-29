@@ -45,12 +45,13 @@ export function registerPane(NoJS) {
       addDisposer(el, () => {
         el.classList.remove("nojs-pane");
         _paneRegistry.delete(el);
-        el.style.removeProperty("minWidth");
-        el.style.removeProperty("minHeight");
-        el.style.removeProperty("maxWidth");
-        el.style.removeProperty("maxHeight");
-        el.style.removeProperty("flexBasis");
-        el.style.removeProperty("flexGrow");
+        // removeProperty requires kebab-case names; camelCase is silently ignored
+        el.style.removeProperty("min-width");
+        el.style.removeProperty("min-height");
+        el.style.removeProperty("max-width");
+        el.style.removeProperty("max-height");
+        el.style.removeProperty("flex-basis");
+        el.style.removeProperty("flex-grow");
       });
     },
   });

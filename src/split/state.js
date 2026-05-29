@@ -18,6 +18,7 @@ export const _resizeState = {
   startPrevSize: 0,
   startNextSize: 0,
   containerSize: 0,
+  sign: 1,
 };
 
 export function resetSplitState() {
@@ -33,4 +34,5 @@ export function resetSplitState() {
   _resizeState.startPrevSize = 0;
   _resizeState.startNextSize = 0;
   _resizeState.containerSize = 0;
+  _resizeState.sign = 1;
 }

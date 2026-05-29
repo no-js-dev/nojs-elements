@@ -530,3 +530,163 @@ describe('Split Persistence', () => {
     expect(stored).not.toBeNull();
   });
 });
+
+// =======================================================================
+//  HARDENING TESTS (ELEM-33)
+// =======================================================================
+
+describe('Split Hardening (ELEM-33)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-split]').forEach(s => s.remove());
+    _splitRegistry.clear();
+    _paneRegistry.clear();
+    _resizeState.active = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  });
+
+  // ── Finding #4 (pane.js): removeProperty must use kebab-case names ──
+  test('28 — pane dispose clears inline min/max via kebab-case removeProperty', () => {
+    const { splitEl } = setupSplit('horizontal', [
+      { min: 100, max: 400 },
+      {},
+    ]);
+    const pane = splitEl.querySelectorAll('.nojs-pane')[0];
+    expect(pane.style.minWidth).toBe('100px');
+    expect(pane.style.maxWidth).toBe('400px');
+
+    // Run the pane's disposer
+    (pane.__disposers || []).forEach((fn) => fn());
+
+    expect(pane.style.minWidth).toBe('');
+    expect(pane.style.maxWidth).toBe('');
+    expect(pane.style.flexBasis).toBe('');
+    expect(pane.style.flexGrow).toBe('');
+  });
+
+  // ── Finding #40 (split.js:133): RTL inverts horizontal drag delta ──
+  test('29 — RTL horizontal drag inverts the resize direction', () => {
+    const parent = document.createElement('div');
+    parent.setAttribute('state', '{}');
+    parent.setAttribute('dir', 'rtl');
+
+    const splitEl = document.createElement('div');
+    splitEl.setAttribute('split', 'horizontal');
+    [{ size: '200px' }, { size: '200px' }].forEach((attrs, i) => {
+      const pane = document.createElement('div');
+      pane.setAttribute('pane', attrs.size);
+      pane.textContent = `Pane ${i}`;
+      splitEl.appendChild(pane);
+    });
+    parent.appendChild(splitEl);
+    document.body.appendChild(parent);
+    NoJS.processTree(parent);
+
+    const gutter = splitEl.querySelector('.nojs-gutter');
+    const panes = splitEl.querySelectorAll('.nojs-pane');
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(splitEl, 'offsetWidth', { value: 406, configurable: true });
+    Object.defineProperty(gutter, 'offsetWidth', { value: 6, configurable: true });
+
+    // Pointer moves +30 in client coords; under RTL the prev pane should SHRINK.
+    gutter.dispatchEvent(createPointerEvent('pointerdown', { clientX: 200 }));
+    gutter.dispatchEvent(createPointerEvent('pointermove', { clientX: 230 }));
+
+    expect(panes[0].style.flexBasis).toBe('170px');
+    expect(panes[1].style.flexBasis).toBe('230px');
+  });
+
+  test('30 — LTR horizontal drag keeps natural direction (sign = 1)', () => {
+    const { splitEl } = setupSplit('horizontal', [{ size: '200px' }, { size: '200px' }]);
+    const gutter = splitEl.querySelector('.nojs-gutter');
+    const panes = splitEl.querySelectorAll('.nojs-pane');
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(splitEl, 'offsetWidth', { value: 406, configurable: true });
+    Object.defineProperty(gutter, 'offsetWidth', { value: 6, configurable: true });
+
+    gutter.dispatchEvent(createPointerEvent('pointerdown', { clientX: 200 }));
+    gutter.dispatchEvent(createPointerEvent('pointermove', { clientX: 230 }));
+
+    expect(panes[0].style.flexBasis).toBe('230px');
+    expect(panes[1].style.flexBasis).toBe('170px');
+  });
+
+  // ── Finding #48 (split.js:220): keyboard re-clamps prev after rebalance ──
+  test('31 — keyboard resize re-clamps prev pane after balancing next', () => {
+    // prev max 250, next max 120, total 400, prev currently 200.
+    // ArrowLeft requests prev=190; rebalancing onto next clamps next to its
+    // max (120), which pushes the rebalanced prev to 280 (> its own max 250).
+    // The fix re-clamps prev back to 250 and gives the remainder (150) to next.
+    const { splitEl } = setupSplit('horizontal', [
+      { size: '200px', max: 250 },
+      { size: '200px', max: 120 },
+    ]);
+    const gutter = splitEl.querySelector('.nojs-gutter');
+    const panes = splitEl.querySelectorAll('.nojs-pane');
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 200, configurable: true });
+
+    gutter.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+
+    // prev must respect its own max (250); remainder (150) goes to next.
+    expect(panes[0].style.flexBasis).toBe('250px');
+    expect(panes[1].style.flexBasis).toBe('150px');
+  });
+
+  // ── Finding #49 (split.js:259): expand resolves percentage restore size ──
+  test('32 — double-click expand resolves a percentage pre-collapse size to px', () => {
+    const { splitEl } = setupSplit('horizontal', [
+      { collapsible: true },
+      {},
+    ]);
+    const gutter = splitEl.querySelector('.nojs-gutter');
+    const panes = splitEl.querySelectorAll('.nojs-pane');
+    const info = _paneRegistry.get(panes[0]);
+
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 200, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 200, configurable: true });
+
+    // Simulate a collapsed pane whose stored size is a percentage string.
+    info.collapsed = true;
+    info.preCollapseSize = '25%';
+    panes[0].setAttribute('data-collapsed', 'true');
+    panes[0].style.flexBasis = '0px';
+
+    // total = 0 (collapsed) + 200 = wait, mocks above. Expand:
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 0, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 400, configurable: true });
+
+    gutter.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+
+    // total = 400; 25% → 100px for target, 300px for the sibling.
+    expect(panes[0].style.flexBasis).toBe('100px');
+    expect(panes[1].style.flexBasis).toBe('300px');
+  });
+
+  test('33 — double-click expand clamps a restore size larger than the total', () => {
+    const { splitEl } = setupSplit('horizontal', [
+      { collapsible: true },
+      {},
+    ]);
+    const gutter = splitEl.querySelector('.nojs-gutter');
+    const panes = splitEl.querySelectorAll('.nojs-pane');
+    const info = _paneRegistry.get(panes[0]);
+
+    info.collapsed = true;
+    info.preCollapseSize = '9999px';
+    panes[0].setAttribute('data-collapsed', 'true');
+    panes[0].style.flexBasis = '0px';
+
+    Object.defineProperty(panes[0], 'offsetWidth', { value: 0, configurable: true });
+    Object.defineProperty(panes[1], 'offsetWidth', { value: 300, configurable: true });
+
+    gutter.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+
+    // Sibling basis must never go negative.
+    expect(panes[0].style.flexBasis).toBe('300px');
+    expect(panes[1].style.flexBasis).toBe('0px');
+  });
+});
