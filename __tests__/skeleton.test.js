@@ -254,4 +254,63 @@ describe('Skeleton Cleanup', () => {
     expect(el.style.height).toBe('');
     expect(el.querySelectorAll('.nojs-skeleton-line').length).toBe(0);
   });
+
+  test('17 -- fallback timer removes fade class on next tick (no transitionend)', () => {
+    jest.useFakeTimers();
+    try {
+      const { el, ctx } = setupSkeleton('loading', { state: '{ loading: true }' });
+      ctx.$set('loading', false);
+      expect(el.classList.contains('nojs-skeleton-fade')).toBe(true);
+
+      // Fallback safety-net timer fires on the next tick (|| 0), not after 500ms.
+      jest.advanceTimersByTime(0);
+      expect(el.classList.contains('nojs-skeleton-fade')).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  test('18 -- dispose tears down pending fade timer and listener', () => {
+    jest.useFakeTimers();
+    const clearSpy = jest.spyOn(global, 'clearTimeout');
+    try {
+      const { el, ctx } = setupSkeleton('loading', { state: '{ loading: true }' });
+
+      // Trigger a fade so a transitionend listener + fallback timer are pending.
+      ctx.$set('loading', false);
+      expect(el.classList.contains('nojs-skeleton-fade')).toBe(true);
+
+      // Dispose the element while the fade is still in flight.
+      const removeSpy = jest.spyOn(el, 'removeEventListener');
+      el.__disposers.forEach((fn) => fn());
+
+      // The pending fallback timer must have been cleared by the disposer.
+      expect(clearSpy).toHaveBeenCalled();
+      // The transitionend listener must have been removed.
+      expect(removeSpy).toHaveBeenCalledWith('transitionend', expect.any(Function));
+
+      // Advancing timers after dispose must not throw.
+      expect(() => jest.advanceTimersByTime(1000)).not.toThrow();
+    } finally {
+      clearSpy.mockRestore();
+      jest.useRealTimers();
+    }
+  });
+
+  test('19 -- detached element fade callback is isConnected-guarded (no throw)', () => {
+    jest.useFakeTimers();
+    try {
+      const { el, ctx } = setupSkeleton('loading', { state: '{ loading: true }' });
+      ctx.$set('loading', false);
+
+      // Detach the element before the fallback timer fires.
+      el.remove();
+      expect(el.isConnected).toBe(false);
+
+      // Firing the safety-net timer on a detached node must not throw.
+      expect(() => jest.advanceTimersByTime(0)).not.toThrow();
+    } finally {
+      jest.useRealTimers();
+    }
+  });
 });
