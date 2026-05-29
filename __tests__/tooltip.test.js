@@ -175,6 +175,86 @@ describe('Tooltip Directive', () => {
 
     expect(el.hasAttribute('aria-describedby')).toBe(false);
   });
+
+  // ─── Hardening (ELEM-32) ──────────────────────────────────────────
+
+  test('24 - tooltip-delay="0" shows immediately (falsy-zero respected)', () => {
+    const { el } = setupTooltip('Instant', { 'tooltip-delay': '0' });
+    const tooltipId = el.getAttribute('aria-describedby');
+
+    el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    // Zero delay → next macrotask tick shows it; default 300ms must NOT apply.
+    jest.advanceTimersByTime(0);
+    expect(document.getElementById(tooltipId)).not.toBeNull();
+  });
+
+  test('25 - repositions on scroll while visible', () => {
+    const { el } = setupTooltip('Tracking');
+    const tooltipId = el.getAttribute('aria-describedby');
+
+    // jsdom lacks requestAnimationFrame timing — drive it synchronously.
+    const rafSpy = jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((cb) => { cb(); return 1; });
+
+    el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    jest.advanceTimersByTime(300);
+    const tooltipEl = document.getElementById(tooltipId);
+    expect(tooltipEl).not.toBeNull();
+
+    // Should not throw and should keep positioning the tooltip.
+    expect(() => window.dispatchEvent(new Event('scroll'))).not.toThrow();
+    expect(tooltipEl.style.top).not.toBe('');
+    expect(tooltipEl.style.left).not.toBe('');
+
+    rafSpy.mockRestore();
+  });
+
+  test('26 - scroll listener is removed after hide', () => {
+    const { el } = setupTooltip('Tracking removal');
+    const removeSpy = jest.spyOn(window, 'removeEventListener');
+
+    el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    jest.advanceTimersByTime(300);
+    el.dispatchEvent(new MouseEvent('mouseleave', { bubbles: true }));
+
+    const removed = removeSpy.mock.calls.map((c) => c[0]);
+    expect(removed).toContain('scroll');
+    expect(removed).toContain('resize');
+    removeSpy.mockRestore();
+  });
+
+  test('27 - reactive tooltip-disabled hides a visible tooltip', () => {
+    const { el, parent } = setupTooltip('Reactive disable', {
+      state: '{ "off": false }',
+      'tooltip-disabled': 'off',
+    });
+    const tooltipId = el.getAttribute('aria-describedby');
+
+    // Show it while enabled.
+    el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    jest.advanceTimersByTime(300);
+    expect(document.getElementById(tooltipId)).not.toBeNull();
+
+    // Flip the bound state to disabled and notify the context.
+    const ctx = NoJS.findContext(parent);
+    ctx.off = true;
+    ctx.$notify();
+
+    expect(document.getElementById(tooltipId)).toBeNull();
+  });
+
+  test('28 - tooltip-disabled prevents showing', () => {
+    const { el } = setupTooltip('Blocked', {
+      state: '{ "off": true }',
+      'tooltip-disabled': 'off',
+    });
+    const tooltipId = el.getAttribute('aria-describedby');
+
+    el.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }));
+    jest.advanceTimersByTime(300);
+    expect(document.getElementById(tooltipId)).toBeNull();
+  });
 });
 
 // =======================================================================

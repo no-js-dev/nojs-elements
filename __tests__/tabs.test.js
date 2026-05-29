@@ -373,4 +373,100 @@ describe('Tabs Cleanup', () => {
     const { container } = setupTabs(2, { 'tab-position': 'left' });
     expect(container.getAttribute('data-position')).toBe('left');
   });
+
+  // ─── Hardening (ELEM-32) ──────────────────────────────────────────
+
+  test('23 — unpaired extra panels are hidden, not left visible', () => {
+    // 2 tabs but 3 panels: the 3rd panel has no controlling tab.
+    const parent = document.createElement('div');
+    parent.setAttribute('state', '{}');
+    const container = document.createElement('div');
+    container.setAttribute('tabs', '');
+
+    for (let i = 0; i < 2; i++) {
+      const tab = document.createElement('button');
+      tab.setAttribute('tab', '');
+      tab.textContent = `Tab ${i}`;
+      container.appendChild(tab);
+      const panel = document.createElement('div');
+      panel.setAttribute('panel', '');
+      panel.textContent = `Panel ${i}`;
+      container.appendChild(panel);
+    }
+    // Extra unpaired panel
+    const extra = document.createElement('div');
+    extra.setAttribute('panel', '');
+    extra.textContent = 'Orphan panel';
+    container.appendChild(extra);
+
+    parent.appendChild(container);
+    document.body.appendChild(parent);
+    NoJS.processTree(parent);
+
+    expect(extra.getAttribute('aria-hidden')).toBe('true');
+    expect(extra.inert).toBe(true);
+  });
+
+  test('24 — all tabs disabled still reveals the initial panel', () => {
+    const parent = document.createElement('div');
+    parent.setAttribute('state', '{}');
+    const container = document.createElement('div');
+    container.setAttribute('tabs', '');
+
+    for (let i = 0; i < 2; i++) {
+      const tab = document.createElement('button');
+      tab.setAttribute('tab', '');
+      tab.setAttribute('tab-disabled', 'true');
+      tab.textContent = `Tab ${i}`;
+      container.appendChild(tab);
+      const panel = document.createElement('div');
+      panel.setAttribute('panel', '');
+      panel.textContent = `Panel ${i}`;
+      container.appendChild(panel);
+    }
+
+    parent.appendChild(container);
+    document.body.appendChild(parent);
+    NoJS.processTree(parent);
+
+    const state = _tabsState.containers.get(container);
+    expect(state.activeIndex).toBe(0);
+    const panels = Array.from(container.querySelectorAll('[role="tabpanel"]'));
+    expect(panels[0].getAttribute('aria-hidden')).toBe('false');
+  });
+
+  test('25 — reactive tab-disabled re-enables a tab when state flips', () => {
+    const { container, tabs } = setupTabs(2, {
+      state: '{ "locked": true }',
+      'tab-1-disabled': 'locked',
+    });
+
+    expect(tabs[1].getAttribute('aria-disabled')).toBe('true');
+
+    // Flip the bound state and notify the context.
+    const ctx = NoJS.findContext(container);
+    ctx.locked = false;
+    ctx.$notify();
+
+    expect(tabs[1].getAttribute('aria-disabled')).toBeNull();
+
+    // Now the previously disabled tab can be activated.
+    tabs[1].click();
+    expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+  });
+
+  test('26 — clicking a disabled tab does not move focus to it', () => {
+    const { tabs } = setupTabs(2, {
+      state: '{}',
+      'tab-1-disabled': 'true',
+    });
+
+    tabs[0].focus();
+    expect(tabs[1].getAttribute('aria-disabled')).toBe('true');
+
+    tabs[1].click();
+    // Focus must not move onto the disabled tab.
+    expect(document.activeElement).not.toBe(tabs[1]);
+    expect(tabs[1].getAttribute('aria-selected')).toBe('false');
+  });
 });
