@@ -115,24 +115,24 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;table</span> <span class="hl-a">sortable</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;thead&gt;&lt;tr&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"name"</span><span class="hl-t">&gt;</span><span class="hl-x">Name</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"age"</span>
-<span class="ln"> 5</span>        <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Age</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"email"</span><span class="hl-t">&gt;</span><span class="hl-x">Email</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"status"</span><span class="hl-t">&gt;</span><span class="hl-x">Status</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;/tr&gt;&lt;/thead&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;tbody&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;tr&gt;</span>
-<span class="ln">11</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Alice Johnson</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">12</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">30</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">13</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">alice@example.com</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Active</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">15</span>    <span class="hl-t">&lt;/tr&gt;</span>
-<span class="ln">16</span>    <span class="hl-c">&lt;!-- more rows... --&gt;</span>
-<span class="ln">17</span>  <span class="hl-t">&lt;/tbody&gt;</span>
-<span class="ln">18</span><span class="hl-t">&lt;/table&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;table</span> <span class="hl-attr">sortable</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"name"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Name</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"age"</span>
+<span class="ln"> 5</span>        <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Age</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"email"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Email</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"status"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Status</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;tbody&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;tr&gt;</span>
+<span class="ln">11</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Alice Johnson</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">12</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">30</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">13</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">alice@example.com</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Active</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">15</span>    <span class="hl-tag">&lt;/tr&gt;</span>
+<span class="ln">16</span>    <span class="hl-cmt">&lt;!-- more rows... --&gt;</span>
+<span class="ln">17</span>  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="ln">18</span><span class="hl-tag">&lt;/table&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -178,22 +178,22 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;table</span> <span class="hl-a">sortable</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;thead&gt;&lt;tr&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"name"</span>
-<span class="ln"> 4</span>        <span class="hl-a">sort-default</span><span class="hl-p">=</span><span class="hl-s">"asc"</span><span class="hl-t">&gt;</span><span class="hl-x">Name</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"role"</span><span class="hl-t">&gt;</span><span class="hl-x">Role</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"dept"</span><span class="hl-t">&gt;</span><span class="hl-x">Department</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;/tr&gt;&lt;/thead&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;tbody&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;tr&gt;</span>
-<span class="ln">10</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Anna Schmidt</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">11</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Engineering Manager</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">12</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Engineering</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;/tr&gt;</span>
-<span class="ln">14</span>    <span class="hl-c">&lt;!-- more rows... --&gt;</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;/tbody&gt;</span>
-<span class="ln">16</span><span class="hl-t">&lt;/table&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;table</span> <span class="hl-attr">sortable</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"name"</span>
+<span class="ln"> 4</span>        <span class="hl-attr">sort-default</span><span class="hl-op">=</span><span class="hl-str">"asc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Name</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"role"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Role</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"dept"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Department</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;tbody&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;tr&gt;</span>
+<span class="ln">10</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Anna Schmidt</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">11</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Engineering Manager</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">12</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Engineering</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;/tr&gt;</span>
+<span class="ln">14</span>    <span class="hl-cmt">&lt;!-- more rows... --&gt;</span>
+<span class="ln">15</span>  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="ln">16</span><span class="hl-tag">&lt;/table&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -240,25 +240,25 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;table</span> <span class="hl-a">sortable</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;thead&gt;&lt;tr&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"name"</span><span class="hl-t">&gt;</span><span class="hl-x">Project</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"owner"</span><span class="hl-t">&gt;</span><span class="hl-x">Owner</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"date"</span>
-<span class="ln"> 6</span>        <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"date"</span><span class="hl-t">&gt;</span><span class="hl-x">Created</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"budget"</span>
-<span class="ln"> 8</span>        <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Budget</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/tr&gt;&lt;/thead&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;tbody&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;tr&gt;</span>
-<span class="ln">12</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Project Alpha</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">13</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Alice</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">2024-03-15</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">15</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">$45,000</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;/tr&gt;</span>
-<span class="ln">17</span>    <span class="hl-c">&lt;!-- more rows... --&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;/tbody&gt;</span>
-<span class="ln">19</span><span class="hl-t">&lt;/table&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;table</span> <span class="hl-attr">sortable</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"name"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Project</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"owner"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Owner</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"date"</span>
+<span class="ln"> 6</span>        <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"date"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Created</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"budget"</span>
+<span class="ln"> 8</span>        <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Budget</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;tbody&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;tr&gt;</span>
+<span class="ln">12</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Project Alpha</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">13</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Alice</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">2024-03-15</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">15</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">$45,000</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;/tr&gt;</span>
+<span class="ln">17</span>    <span class="hl-cmt">&lt;!-- more rows... --&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="ln">19</span><span class="hl-tag">&lt;/table&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -317,30 +317,30 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"scroll-container"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;table</span> <span class="hl-a">sortable</span> <span class="hl-a">fixed-header</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;thead&gt;&lt;tr&gt;</span>
-<span class="ln"> 4</span>      <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"id"</span>
-<span class="ln"> 5</span>          <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">ID</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 6</span>      <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"product"</span><span class="hl-t">&gt;</span><span class="hl-x">Product</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 7</span>      <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"category"</span><span class="hl-t">&gt;</span><span class="hl-x">Category</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 8</span>      <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"price"</span>
-<span class="ln"> 9</span>          <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Price</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln">10</span>      <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"stock"</span>
-<span class="ln">11</span>          <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Stock</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;/tr&gt;&lt;/thead&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;tbody&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;tr&gt;</span>
-<span class="ln">15</span>        <span class="hl-t">&lt;td&gt;</span><span class="hl-x">1</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">16</span>        <span class="hl-t">&lt;td&gt;</span><span class="hl-x">MacBook Pro 16"</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">17</span>        <span class="hl-t">&lt;td&gt;</span><span class="hl-x">Laptops</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">18</span>        <span class="hl-t">&lt;td&gt;</span><span class="hl-x">$2,499</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">19</span>        <span class="hl-t">&lt;td&gt;</span><span class="hl-x">24</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">20</span>      <span class="hl-t">&lt;/tr&gt;</span>
-<span class="ln">21</span>      <span class="hl-c">&lt;!-- 14 more rows... --&gt;</span>
-<span class="ln">22</span>    <span class="hl-t">&lt;/tbody&gt;</span>
-<span class="ln">23</span>  <span class="hl-t">&lt;/table&gt;</span>
-<span class="ln">24</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"scroll-container"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;table</span> <span class="hl-attr">sortable</span> <span class="hl-attr">fixed-header</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;</span>
+<span class="ln"> 4</span>      <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"id"</span>
+<span class="ln"> 5</span>          <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">ID</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 6</span>      <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"product"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Product</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 7</span>      <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"category"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Category</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 8</span>      <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"price"</span>
+<span class="ln"> 9</span>          <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Price</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln">10</span>      <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"stock"</span>
+<span class="ln">11</span>          <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Stock</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;tbody&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;tr&gt;</span>
+<span class="ln">15</span>        <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">1</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">16</span>        <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">MacBook Pro 16"</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">17</span>        <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">Laptops</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">18</span>        <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">$2,499</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">19</span>        <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">24</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">20</span>      <span class="hl-tag">&lt;/tr&gt;</span>
+<span class="ln">21</span>      <span class="hl-cmt">&lt;!-- 14 more rows... --&gt;</span>
+<span class="ln">22</span>    <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="ln">23</span>  <span class="hl-tag">&lt;/table&gt;</span>
+<span class="ln">24</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -393,26 +393,26 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;table</span> <span class="hl-a">sortable</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;thead&gt;&lt;tr&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">fixed-col</span>
-<span class="ln"> 4</span>        <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"name"</span><span class="hl-t">&gt;</span><span class="hl-x">Name</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"q1"</span>
-<span class="ln"> 6</span>        <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Q1 Revenue</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;th</span> <span class="hl-a">sort</span><span class="hl-p">=</span><span class="hl-s">"q2"</span>
-<span class="ln"> 8</span>        <span class="hl-a">sort-type</span><span class="hl-p">=</span><span class="hl-s">"number"</span><span class="hl-t">&gt;</span><span class="hl-x">Q2 Revenue</span><span class="hl-t">&lt;/th&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-c">&lt;!-- Q3, Q4, Total, Region, Status --&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;/tr&gt;&lt;/thead&gt;</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;tbody&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;tr&gt;</span>
-<span class="ln">13</span>      <span class="hl-t">&lt;td</span> <span class="hl-a">fixed-col</span><span class="hl-t">&gt;</span><span class="hl-x">Acme Corp</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">$120K</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">15</span>      <span class="hl-t">&lt;td&gt;</span><span class="hl-x">$145K</span><span class="hl-t">&lt;/td&gt;</span>
-<span class="ln">16</span>      <span class="hl-c">&lt;!-- ... --&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;/tr&gt;</span>
-<span class="ln">18</span>    <span class="hl-c">&lt;!-- more rows... --&gt;</span>
-<span class="ln">19</span>  <span class="hl-t">&lt;/tbody&gt;</span>
-<span class="ln">20</span><span class="hl-t">&lt;/table&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;table</span> <span class="hl-attr">sortable</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;thead&gt;&lt;tr&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">fixed-col</span>
+<span class="ln"> 4</span>        <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"name"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Name</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"q1"</span>
+<span class="ln"> 6</span>        <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Q1 Revenue</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;th</span> <span class="hl-attr">sort</span><span class="hl-op">=</span><span class="hl-str">"q2"</span>
+<span class="ln"> 8</span>        <span class="hl-attr">sort-type</span><span class="hl-op">=</span><span class="hl-str">"number"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Q2 Revenue</span><span class="hl-tag">&lt;/th&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-cmt">&lt;!-- Q3, Q4, Total, Region, Status --&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;/tr&gt;&lt;/thead&gt;</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;tbody&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;tr&gt;</span>
+<span class="ln">13</span>      <span class="hl-tag">&lt;td</span> <span class="hl-attr">fixed-col</span><span class="hl-tag">&gt;</span><span class="hl-expr">Acme Corp</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">$120K</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">15</span>      <span class="hl-tag">&lt;td&gt;</span><span class="hl-expr">$145K</span><span class="hl-tag">&lt;/td&gt;</span>
+<span class="ln">16</span>      <span class="hl-cmt">&lt;!-- ... --&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;/tr&gt;</span>
+<span class="ln">18</span>    <span class="hl-cmt">&lt;!-- more rows... --&gt;</span>
+<span class="ln">19</span>  <span class="hl-tag">&lt;/tbody&gt;</span>
+<span class="ln">20</span><span class="hl-tag">&lt;/table&gt;</span></pre>
       </div>
     </div>
   </div>

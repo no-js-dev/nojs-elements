@@ -121,24 +121,24 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Overview</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Details</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Settings</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Overview</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Details</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Settings</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 5</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Project Overview</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">NoJS Elements is a plugin that provides accessible, interactive UI components using only HTML attributes. No JavaScript knowledge is required to build rich interfaces. Each element is fully keyboard-navigable and follows WAI-ARIA best practices.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Technical Details</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">The tabs element manages focus, selection state, and panel visibility automatically. It supports horizontal and vertical orientations, disabled tabs, keyboard support, and pre-selected indices. All ARIA roles and properties are applied at initialization.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Configuration Settings</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">You can customize tab behavior through HTML attributes. Use tab-position to change layout orientation, the disabled attribute to prevent interaction, and set a numeric value on the tabs attribute to pre-select a tab.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">17</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">21</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Project Overview</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">NoJS Elements is a plugin that provides accessible, interactive UI components using only HTML attributes. No JavaScript knowledge is required to build rich interfaces. Each element is fully keyboard-navigable and follows WAI-ARIA best practices.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Technical Details</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">The tabs element manages focus, selection state, and panel visibility automatically. It supports horizontal and vertical orientations, disabled tabs, keyboard support, and pre-selected indices. All ARIA roles and properties are applied at initialization.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Configuration Settings</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">You can customize tab behavior through HTML attributes. Use tab-position to change layout orientation, the disabled attribute to prevent interaction, and set a numeric value on the tabs attribute to pre-select a tab.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">17</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">21</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -181,21 +181,21 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span><span class="hl-p">=</span><span class="hl-s">"1"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">First</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Second</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Third</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span><span class="hl-op">=</span><span class="hl-str">"1"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">First</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Second</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Third</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 5</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">First panel (hidden on load).</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Second panel (visible by default).</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Third panel.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">14</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">15</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">First panel (hidden on load).</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Second panel (visible by default).</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">12</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Third panel.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">14</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">15</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -241,27 +241,27 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span> <span class="hl-a">tab-position</span><span class="hl-p">=</span><span class="hl-s">"left"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Profile</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Security</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Notifications</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span> <span class="hl-attr">tab-position</span><span class="hl-op">=</span><span class="hl-str">"left"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Profile</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Security</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Notifications</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 5</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Profile Settings</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Manage your display name,</span>
-<span class="ln"> 9</span>       <span class="hl-x">avatar, and bio.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Security Settings</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Configure 2FA and manage</span>
-<span class="ln">14</span>       <span class="hl-x">active sessions.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Notification Preferences</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">18</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Choose which notifications</span>
-<span class="ln">19</span>       <span class="hl-x">you receive.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">20</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">21</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Profile Settings</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Manage your display name,</span>
+<span class="ln"> 9</span>       <span class="hl-expr">avatar, and bio.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Security Settings</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Configure 2FA and manage</span>
+<span class="ln">14</span>       <span class="hl-expr">active sessions.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">15</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Notification Preferences</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">18</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Choose which notifications</span>
+<span class="ln">19</span>       <span class="hl-expr">you receive.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">20</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">21</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -318,23 +318,23 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- Constrain width to trigger scroll --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;div</span> <span class="hl-a">style</span><span class="hl-p">=</span><span class="hl-s">"max-width: 400px"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Dashboard</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Analytics</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Reports</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Users</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Settings</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Billing</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Integrations</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">11</span>    <span class="hl-c">&lt;!-- ... more tabs --&gt;</span>
+<span class="ln"> 1</span><span class="hl-cmt">&lt;!-- Constrain width to trigger scroll --&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">style</span><span class="hl-op">=</span><span class="hl-str">"max-width: 400px"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Dashboard</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Analytics</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Reports</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Users</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Settings</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Billing</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Integrations</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">11</span>    <span class="hl-cmt">&lt;!-- ... more tabs --&gt;</span>
 <span class="ln">12</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span><span class="hl-t">&lt;p&gt;</span><span class="hl-x">Dashboard overview...</span><span class="hl-t">&lt;/p&gt;&lt;/div&gt;</span>
-<span class="ln">14</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span><span class="hl-t">&lt;p&gt;</span><span class="hl-x">Analytics data...</span><span class="hl-t">&lt;/p&gt;&lt;/div&gt;</span>
-<span class="ln">15</span>    <span class="hl-c">&lt;!-- ... more panels --&gt;</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">17</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">13</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span><span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Dashboard overview...</span><span class="hl-tag">&lt;/p&gt;&lt;/div&gt;</span>
+<span class="ln">14</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span><span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Analytics data...</span><span class="hl-tag">&lt;/p&gt;&lt;/div&gt;</span>
+<span class="ln">15</span>    <span class="hl-cmt">&lt;!-- ... more panels --&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">17</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -377,24 +377,24 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Available</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span>
-<span class="ln"> 4</span>    <span class="hl-a">tab-disabled</span><span class="hl-p">=</span><span class="hl-s">"true"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-x">Unavailable</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Also Available</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Available</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span>
+<span class="ln"> 4</span>    <span class="hl-attr">tab-disabled</span><span class="hl-op">=</span><span class="hl-str">"true"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-expr">Unavailable</span>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Also Available</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 8</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">First tab panel.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Disabled tab panel (unreachable).</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">14</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Third tab panel.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">17</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">18</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">First tab panel.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">12</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Disabled tab panel (unreachable).</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">14</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">15</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Third tab panel.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">17</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">18</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>

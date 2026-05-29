@@ -217,30 +217,30 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ fruits: ['Apple','Banana','Cherry'], basket: [] }"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ fruits: ['Apple','Banana','Cherry'], basket: [] }"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 2</span>
-<span class="ln"> 3</span>  <span class="hl-c">&lt;!-- Source palette (drag-list-copy keeps items) --&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;div</span>
-<span class="ln"> 5</span>    <span class="hl-a">drag-list</span><span class="hl-p">=</span><span class="hl-s">"fruits"</span>
-<span class="ln"> 6</span>    <span class="hl-a">template</span><span class="hl-p">=</span><span class="hl-s">"fruit-tpl"</span>
-<span class="ln"> 7</span>    <span class="hl-a">drag-type</span><span class="hl-p">=</span><span class="hl-s">"fruit"</span>
-<span class="ln"> 8</span>    <span class="hl-a">drag-list-copy</span><span class="hl-t">&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-cmt">&lt;!-- Source palette (drag-list-copy keeps items) --&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;div</span>
+<span class="ln"> 5</span>    <span class="hl-attr">drag-list</span><span class="hl-op">=</span><span class="hl-str">"fruits"</span>
+<span class="ln"> 6</span>    <span class="hl-attr">template</span><span class="hl-op">=</span><span class="hl-str">"fruit-tpl"</span>
+<span class="ln"> 7</span>    <span class="hl-attr">drag-type</span><span class="hl-op">=</span><span class="hl-str">"fruit"</span>
+<span class="ln"> 8</span>    <span class="hl-attr">drag-list-copy</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">10</span>
-<span class="ln">11</span>  <span class="hl-c">&lt;!-- Target basket --&gt;</span>
-<span class="ln">12</span>  <span class="hl-t">&lt;div</span>
-<span class="ln">13</span>    <span class="hl-a">drag-list</span><span class="hl-p">=</span><span class="hl-s">"basket"</span>
-<span class="ln">14</span>    <span class="hl-a">template</span><span class="hl-p">=</span><span class="hl-s">"fruit-tpl"</span>
-<span class="ln">15</span>    <span class="hl-a">drop-accept</span><span class="hl-p">=</span><span class="hl-s">"fruit"</span>
-<span class="ln">16</span>    <span class="hl-a">drop-sort</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln">17</span>    <span class="hl-a">drop-placeholder</span><span class="hl-p">=</span><span class="hl-s">"auto"</span><span class="hl-t">&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">11</span>  <span class="hl-cmt">&lt;!-- Target basket --&gt;</span>
+<span class="ln">12</span>  <span class="hl-tag">&lt;div</span>
+<span class="ln">13</span>    <span class="hl-attr">drag-list</span><span class="hl-op">=</span><span class="hl-str">"basket"</span>
+<span class="ln">14</span>    <span class="hl-attr">template</span><span class="hl-op">=</span><span class="hl-str">"fruit-tpl"</span>
+<span class="ln">15</span>    <span class="hl-attr">drop-accept</span><span class="hl-op">=</span><span class="hl-str">"fruit"</span>
+<span class="ln">16</span>    <span class="hl-attr">drop-sort</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln">17</span>    <span class="hl-attr">drop-placeholder</span><span class="hl-op">=</span><span class="hl-str">"auto"</span><span class="hl-tag">&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">19</span>
-<span class="ln">20</span>  <span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"fruit-tpl"</span><span class="hl-t">&gt;</span>
-<span class="ln">21</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"item"</span><span class="hl-t">&gt;&lt;/div&gt;</span>
-<span class="ln">22</span>  <span class="hl-t">&lt;/template&gt;</span>
+<span class="ln">20</span>  <span class="hl-tag">&lt;template</span> <span class="hl-attr">id</span><span class="hl-op">=</span><span class="hl-str">"fruit-tpl"</span><span class="hl-tag">&gt;</span>
+<span class="ln">21</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"item"</span><span class="hl-tag">&gt;&lt;/div&gt;</span>
+<span class="ln">22</span>  <span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">23</span>
-<span class="ln">24</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">24</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -284,26 +284,26 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ tasks: [</span>
-<span class="ln"> 2</span><span class="hl-s">  {id:1, title:'Design mockups'},</span>
-<span class="ln"> 3</span><span class="hl-s">  {id:2, title:'Write tests'},</span>
-<span class="ln"> 4</span><span class="hl-s">  {id:3, title:'Code review'},</span>
-<span class="ln"> 5</span><span class="hl-s">  {id:4, title:'Deploy to staging'}</span>
-<span class="ln"> 6</span><span class="hl-s">] }"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ tasks: [</span>
+<span class="ln"> 2</span><span class="hl-str">  {id:1, title:'Design mockups'},</span>
+<span class="ln"> 3</span><span class="hl-str">  {id:2, title:'Write tests'},</span>
+<span class="ln"> 4</span><span class="hl-str">  {id:3, title:'Code review'},</span>
+<span class="ln"> 5</span><span class="hl-str">  {id:4, title:'Deploy to staging'}</span>
+<span class="ln"> 6</span><span class="hl-str">] }"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 7</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;div</span>
-<span class="ln"> 9</span>    <span class="hl-a">drag-list</span><span class="hl-p">=</span><span class="hl-s">"tasks"</span>
-<span class="ln">10</span>    <span class="hl-a">template</span><span class="hl-p">=</span><span class="hl-s">"task-tpl"</span>
-<span class="ln">11</span>    <span class="hl-a">drag-list-key</span><span class="hl-p">=</span><span class="hl-s">"id"</span>
-<span class="ln">12</span>    <span class="hl-a">drop-sort</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln">13</span>    <span class="hl-a">drop-placeholder</span><span class="hl-p">=</span><span class="hl-s">"auto"</span><span class="hl-t">&gt;</span>
-<span class="ln">14</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;div</span>
+<span class="ln"> 9</span>    <span class="hl-attr">drag-list</span><span class="hl-op">=</span><span class="hl-str">"tasks"</span>
+<span class="ln">10</span>    <span class="hl-attr">template</span><span class="hl-op">=</span><span class="hl-str">"task-tpl"</span>
+<span class="ln">11</span>    <span class="hl-attr">drag-list-key</span><span class="hl-op">=</span><span class="hl-str">"id"</span>
+<span class="ln">12</span>    <span class="hl-attr">drop-sort</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln">13</span>    <span class="hl-attr">drop-placeholder</span><span class="hl-op">=</span><span class="hl-str">"auto"</span><span class="hl-tag">&gt;</span>
+<span class="ln">14</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">15</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"task-tpl"</span><span class="hl-t">&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"item.title"</span><span class="hl-t">&gt;&lt;/div&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;/template&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;template</span> <span class="hl-attr">id</span><span class="hl-op">=</span><span class="hl-str">"task-tpl"</span><span class="hl-tag">&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"item.title"</span><span class="hl-tag">&gt;&lt;/div&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">19</span>
-<span class="ln">20</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">20</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -369,37 +369,37 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ todo: [...], done: [...] }"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ todo: [...], done: [...] }"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 2</span>
-<span class="ln"> 3</span>  <span class="hl-c">&lt;!-- To Do column --&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;div</span>
-<span class="ln"> 5</span>    <span class="hl-a">drag-list</span><span class="hl-p">=</span><span class="hl-s">"todo"</span>
-<span class="ln"> 6</span>    <span class="hl-a">template</span><span class="hl-p">=</span><span class="hl-s">"kanban-tpl"</span>
-<span class="ln"> 7</span>    <span class="hl-a">drag-list-key</span><span class="hl-p">=</span><span class="hl-s">"id"</span>
-<span class="ln"> 8</span>    <span class="hl-a">drag-type</span><span class="hl-p">=</span><span class="hl-s">"task"</span>
-<span class="ln"> 9</span>    <span class="hl-a">drop-accept</span><span class="hl-p">=</span><span class="hl-s">"task"</span>
-<span class="ln">10</span>    <span class="hl-a">drop-sort</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln">11</span>    <span class="hl-a">drag-list-remove</span>
-<span class="ln">12</span>    <span class="hl-a">drop-placeholder</span><span class="hl-p">=</span><span class="hl-s">"auto"</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-cmt">&lt;!-- To Do column --&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;div</span>
+<span class="ln"> 5</span>    <span class="hl-attr">drag-list</span><span class="hl-op">=</span><span class="hl-str">"todo"</span>
+<span class="ln"> 6</span>    <span class="hl-attr">template</span><span class="hl-op">=</span><span class="hl-str">"kanban-tpl"</span>
+<span class="ln"> 7</span>    <span class="hl-attr">drag-list-key</span><span class="hl-op">=</span><span class="hl-str">"id"</span>
+<span class="ln"> 8</span>    <span class="hl-attr">drag-type</span><span class="hl-op">=</span><span class="hl-str">"task"</span>
+<span class="ln"> 9</span>    <span class="hl-attr">drop-accept</span><span class="hl-op">=</span><span class="hl-str">"task"</span>
+<span class="ln">10</span>    <span class="hl-attr">drop-sort</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln">11</span>    <span class="hl-attr">drag-list-remove</span>
+<span class="ln">12</span>    <span class="hl-attr">drop-placeholder</span><span class="hl-op">=</span><span class="hl-str">"auto"</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">14</span>
-<span class="ln">15</span>  <span class="hl-c">&lt;!-- Done column --&gt;</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;div</span>
-<span class="ln">17</span>    <span class="hl-a">drag-list</span><span class="hl-p">=</span><span class="hl-s">"done"</span>
-<span class="ln">18</span>    <span class="hl-a">template</span><span class="hl-p">=</span><span class="hl-s">"kanban-tpl"</span>
-<span class="ln">19</span>    <span class="hl-a">drag-list-key</span><span class="hl-p">=</span><span class="hl-s">"id"</span>
-<span class="ln">20</span>    <span class="hl-a">drag-type</span><span class="hl-p">=</span><span class="hl-s">"task"</span>
-<span class="ln">21</span>    <span class="hl-a">drop-accept</span><span class="hl-p">=</span><span class="hl-s">"task"</span>
-<span class="ln">22</span>    <span class="hl-a">drop-sort</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln">23</span>    <span class="hl-a">drag-list-remove</span>
-<span class="ln">24</span>    <span class="hl-a">drop-placeholder</span><span class="hl-p">=</span><span class="hl-s">"auto"</span><span class="hl-t">&gt;</span>
-<span class="ln">25</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">15</span>  <span class="hl-cmt">&lt;!-- Done column --&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;div</span>
+<span class="ln">17</span>    <span class="hl-attr">drag-list</span><span class="hl-op">=</span><span class="hl-str">"done"</span>
+<span class="ln">18</span>    <span class="hl-attr">template</span><span class="hl-op">=</span><span class="hl-str">"kanban-tpl"</span>
+<span class="ln">19</span>    <span class="hl-attr">drag-list-key</span><span class="hl-op">=</span><span class="hl-str">"id"</span>
+<span class="ln">20</span>    <span class="hl-attr">drag-type</span><span class="hl-op">=</span><span class="hl-str">"task"</span>
+<span class="ln">21</span>    <span class="hl-attr">drop-accept</span><span class="hl-op">=</span><span class="hl-str">"task"</span>
+<span class="ln">22</span>    <span class="hl-attr">drop-sort</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln">23</span>    <span class="hl-attr">drag-list-remove</span>
+<span class="ln">24</span>    <span class="hl-attr">drop-placeholder</span><span class="hl-op">=</span><span class="hl-str">"auto"</span><span class="hl-tag">&gt;</span>
+<span class="ln">25</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">26</span>
-<span class="ln">27</span>  <span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"kanban-tpl"</span><span class="hl-t">&gt;</span>
-<span class="ln">28</span>    <span class="hl-t">&lt;div&gt;</span><span class="hl-t">&lt;span</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"item.title"</span><span class="hl-t">&gt;&lt;/span&gt;&lt;/div&gt;</span>
-<span class="ln">29</span>  <span class="hl-t">&lt;/template&gt;</span>
+<span class="ln">27</span>  <span class="hl-tag">&lt;template</span> <span class="hl-attr">id</span><span class="hl-op">=</span><span class="hl-str">"kanban-tpl"</span><span class="hl-tag">&gt;</span>
+<span class="ln">28</span>    <span class="hl-tag">&lt;div&gt;</span><span class="hl-tag">&lt;span</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"item.title"</span><span class="hl-tag">&gt;&lt;/span&gt;&lt;/div&gt;</span>
+<span class="ln">29</span>  <span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">30</span>
-<span class="ln">31</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">31</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -463,20 +463,20 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">drag</span><span class="hl-p">=</span><span class="hl-s">"'Red'"</span>
-<span class="ln"> 2</span>     <span class="hl-a">drag-type</span><span class="hl-p">=</span><span class="hl-s">"color"</span>
-<span class="ln"> 3</span>     <span class="hl-a">drag-group</span><span class="hl-p">=</span><span class="hl-s">"palette"</span>
-<span class="ln"> 4</span>     <span class="hl-a">drag-multiple</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>  <span class="hl-x">Red</span>
-<span class="ln"> 6</span><span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">drag</span><span class="hl-op">=</span><span class="hl-str">"'Red'"</span>
+<span class="ln"> 2</span>     <span class="hl-attr">drag-type</span><span class="hl-op">=</span><span class="hl-str">"color"</span>
+<span class="ln"> 3</span>     <span class="hl-attr">drag-group</span><span class="hl-op">=</span><span class="hl-str">"palette"</span>
+<span class="ln"> 4</span>     <span class="hl-attr">drag-multiple</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-expr">Red</span>
+<span class="ln"> 6</span><span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln"> 7</span>
-<span class="ln"> 8</span><span class="hl-c">&lt;!-- Repeat for Green, Blue, Yellow... --&gt;</span>
+<span class="ln"> 8</span><span class="hl-cmt">&lt;!-- Repeat for Green, Blue, Yellow... --&gt;</span>
 <span class="ln"> 9</span>
-<span class="ln">10</span><span class="hl-t">&lt;div</span>
-<span class="ln">11</span>  <span class="hl-a">drop</span><span class="hl-p">=</span><span class="hl-s">"received = [...received,</span>
-<span class="ln">12</span><span class="hl-s">    ...(Array.isArray($drag) ? $drag : [$drag])]"</span>
-<span class="ln">13</span>  <span class="hl-a">drop-accept</span><span class="hl-p">=</span><span class="hl-s">"color"</span><span class="hl-t">&gt;</span>
-<span class="ln">14</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">10</span><span class="hl-tag">&lt;div</span>
+<span class="ln">11</span>  <span class="hl-attr">drop</span><span class="hl-op">=</span><span class="hl-str">"received = [...received,</span>
+<span class="ln">12</span><span class="hl-str">    ...(Array.isArray($drag) ? $drag : [$drag])]"</span>
+<span class="ln">13</span>  <span class="hl-attr">drop-accept</span><span class="hl-op">=</span><span class="hl-str">"color"</span><span class="hl-tag">&gt;</span>
+<span class="ln">14</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -542,11 +542,11 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln">1</span><span class="hl-t">&lt;div</span>
-<span class="ln">2</span>  <span class="hl-a">drop</span><span class="hl-p">=</span><span class="hl-s">"slots = [...slots, $drag]"</span>
-<span class="ln">3</span>  <span class="hl-a">drop-accept</span><span class="hl-p">=</span><span class="hl-s">"any"</span>
-<span class="ln">4</span>  <span class="hl-a">drop-max</span><span class="hl-p">=</span><span class="hl-s">"2"</span><span class="hl-t">&gt;</span>
-<span class="ln">5</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">1</span><span class="hl-tag">&lt;div</span>
+<span class="ln">2</span>  <span class="hl-attr">drop</span><span class="hl-op">=</span><span class="hl-str">"slots = [...slots, $drag]"</span>
+<span class="ln">3</span>  <span class="hl-attr">drop-accept</span><span class="hl-op">=</span><span class="hl-str">"any"</span>
+<span class="ln">4</span>  <span class="hl-attr">drop-max</span><span class="hl-op">=</span><span class="hl-str">"2"</span><span class="hl-tag">&gt;</span>
+<span class="ln">5</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>

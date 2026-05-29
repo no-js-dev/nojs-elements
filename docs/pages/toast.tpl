@@ -102,28 +102,28 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 2</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"This is a default toast"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-x">Default</span>
-<span class="ln"> 4</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 2</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"This is a default toast"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-expr">Default</span>
+<span class="ln"> 4</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 7</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Success!"</span>
-<span class="ln"> 8</span>  <span class="hl-a">toast-type</span><span class="hl-p">=</span><span class="hl-s">"success"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-x">Success</span>
-<span class="ln">10</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 6</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 7</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Success!"</span>
+<span class="ln"> 8</span>  <span class="hl-attr">toast-type</span><span class="hl-op">=</span><span class="hl-str">"success"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-expr">Success</span>
+<span class="ln">10</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">11</span>
-<span class="ln">12</span><span class="hl-t">&lt;button</span>
-<span class="ln">13</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Error!"</span>
-<span class="ln">14</span>  <span class="hl-a">toast-type</span><span class="hl-p">=</span><span class="hl-s">"error"</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>  <span class="hl-x">Error</span>
-<span class="ln">16</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln">12</span><span class="hl-tag">&lt;button</span>
+<span class="ln">13</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Error!"</span>
+<span class="ln">14</span>  <span class="hl-attr">toast-type</span><span class="hl-op">=</span><span class="hl-str">"error"</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>  <span class="hl-expr">Error</span>
+<span class="ln">16</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">17</span>
-<span class="ln">18</span><span class="hl-t">&lt;button</span>
-<span class="ln">19</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Warning!"</span>
-<span class="ln">20</span>  <span class="hl-a">toast-type</span><span class="hl-p">=</span><span class="hl-s">"warning"</span><span class="hl-t">&gt;</span>
-<span class="ln">21</span>  <span class="hl-x">Warning</span>
-<span class="ln">22</span><span class="hl-t">&lt;/button&gt;</span></pre>
+<span class="ln">18</span><span class="hl-tag">&lt;button</span>
+<span class="ln">19</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Warning!"</span>
+<span class="ln">20</span>  <span class="hl-attr">toast-type</span><span class="hl-op">=</span><span class="hl-str">"warning"</span><span class="hl-tag">&gt;</span>
+<span class="ln">21</span>  <span class="hl-expr">Warning</span>
+<span class="ln">22</span><span class="hl-tag">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -167,18 +167,18 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ msg: '' }"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;input</span>
-<span class="ln"> 3</span>    <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln"> 4</span>    <span class="hl-a">model</span><span class="hl-p">=</span><span class="hl-s">"msg"</span>
-<span class="ln"> 5</span>    <span class="hl-a">placeholder</span><span class="hl-p">=</span><span class="hl-s">"Type a message..."</span> <span class="hl-t">/&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ msg: '' }"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;input</span>
+<span class="ln"> 3</span>    <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln"> 4</span>    <span class="hl-attr">model</span><span class="hl-op">=</span><span class="hl-str">"msg"</span>
+<span class="ln"> 5</span>    <span class="hl-attr">placeholder</span><span class="hl-op">=</span><span class="hl-str">"Type a message..."</span> <span class="hl-tag">/&gt;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;button</span>
-<span class="ln"> 8</span>    <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"NoJS.toast(msg, 'info')"</span>
-<span class="ln"> 9</span>    <span class="hl-a">bind-disabled</span><span class="hl-p">=</span><span class="hl-s">"!msg.trim()"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>    <span class="hl-x">Show Toast</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">12</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;button</span>
+<span class="ln"> 8</span>    <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"NoJS.toast(msg, 'info')"</span>
+<span class="ln"> 9</span>    <span class="hl-attr">bind-disabled</span><span class="hl-op">=</span><span class="hl-str">"!msg.trim()"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>    <span class="hl-expr">Show Toast</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">12</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -213,12 +213,12 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln">1</span><span class="hl-t">&lt;button</span>
-<span class="ln">2</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Dismiss me"</span>
-<span class="ln">3</span>  <span class="hl-a">toast-type</span><span class="hl-p">=</span><span class="hl-s">"info"</span>
-<span class="ln">4</span>  <span class="hl-a">toast-duration</span><span class="hl-p">=</span><span class="hl-s">"0"</span><span class="hl-t">&gt;</span>
-<span class="ln">5</span>  <span class="hl-x">Show Dismissible Toast</span>
-<span class="ln">6</span><span class="hl-t">&lt;/button&gt;</span></pre>
+<span class="ln">1</span><span class="hl-tag">&lt;button</span>
+<span class="ln">2</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Dismiss me"</span>
+<span class="ln">3</span>  <span class="hl-attr">toast-type</span><span class="hl-op">=</span><span class="hl-str">"info"</span>
+<span class="ln">4</span>  <span class="hl-attr">toast-duration</span><span class="hl-op">=</span><span class="hl-str">"0"</span><span class="hl-tag">&gt;</span>
+<span class="ln">5</span>  <span class="hl-expr">Show Dismissible Toast</span>
+<span class="ln">6</span><span class="hl-tag">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -252,22 +252,22 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 2</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Top right toast"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-x">Top Right</span>
-<span class="ln"> 4</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 2</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Top right toast"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-expr">Top Right</span>
+<span class="ln"> 4</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 5</span>
-<span class="ln"> 6</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 7</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Bottom center toast"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-x">Bottom Center</span>
-<span class="ln"> 9</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 6</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 7</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Bottom center toast"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-expr">Bottom Center</span>
+<span class="ln"> 9</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">10</span>
-<span class="ln">11</span><span class="hl-t">&lt;button</span>
-<span class="ln">12</span>  <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Top left toast"</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>  <span class="hl-x">Top Left</span>
-<span class="ln">14</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln">11</span><span class="hl-tag">&lt;button</span>
+<span class="ln">12</span>  <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Top left toast"</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>  <span class="hl-expr">Top Left</span>
+<span class="ln">14</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">15</span>
-<span class="ln">16</span><span class="hl-t">&lt;div</span> <span class="hl-a">toast-container</span><span class="hl-p">=</span><span class="hl-s">"bottom-center"</span><span class="hl-t">&gt;&lt;/div&gt;</span></pre>
+<span class="ln">16</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">toast-container</span><span class="hl-op">=</span><span class="hl-str">"bottom-center"</span><span class="hl-tag">&gt;&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>

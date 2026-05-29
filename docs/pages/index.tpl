@@ -124,8 +124,8 @@
   }
   .home-hero-install-code .hl-tag { color: #F47067; }
   .home-hero-install-code .hl-attr { color: #79C0FF; }
-  .home-hero-install-code .hl-punct { color: #E2E8F0; }
-  .home-hero-install-code .hl-string { color: #A5D6FF; }
+  .home-hero-install-code .hl-op { color: #E2E8F0; }
+  .home-hero-install-code .hl-str { color: #A5D6FF; }
 
   @media (max-width: 900px) {
     .home-hero { padding: calc(var(--header-h) + 40px) 24px 60px; }
@@ -238,8 +238,8 @@
   <div class="home-hero-install">
     <div class="home-hero-install-tabs"><span>CDN</span></div>
     <div class="home-hero-install-code">
-      <pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-punct">=</span><span class="hl-string">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
-<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-punct">=</span><span class="hl-string">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+      <pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
     </div>
   </div>
 </section>

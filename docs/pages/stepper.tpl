@@ -155,42 +155,42 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ name: '', email: '', street: '', city: '' }"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">stepper</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ name: '', email: '', street: '', city: '' }"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">stepper</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 3</span>
-<span class="ln"> 4</span>    <span class="hl-c">&lt;!-- Step 1: Personal Info --&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Personal Info"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 6</span>      <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Personal Information</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 7</span>      <span class="hl-t">&lt;label&gt;</span><span class="hl-x">Full Name</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln"> 8</span>      <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln"> 9</span>        <span class="hl-a">model</span><span class="hl-p">=</span><span class="hl-s">"name"</span> <span class="hl-a">required</span> <span class="hl-t">/&gt;</span>
-<span class="ln">10</span>      <span class="hl-t">&lt;label&gt;</span><span class="hl-x">Email Address</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln">11</span>      <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"email"</span>
-<span class="ln">12</span>        <span class="hl-a">model</span><span class="hl-p">=</span><span class="hl-s">"email"</span> <span class="hl-a">required</span> <span class="hl-t">/&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-cmt">&lt;!-- Step 1: Personal Info --&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Personal Info"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 6</span>      <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Personal Information</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 7</span>      <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">Full Name</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln"> 8</span>      <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln"> 9</span>        <span class="hl-attr">model</span><span class="hl-op">=</span><span class="hl-str">"name"</span> <span class="hl-attr">required</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">10</span>      <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">Email Address</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln">11</span>      <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"email"</span>
+<span class="ln">12</span>        <span class="hl-attr">model</span><span class="hl-op">=</span><span class="hl-str">"email"</span> <span class="hl-attr">required</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">14</span>
-<span class="ln">15</span>    <span class="hl-c">&lt;!-- Step 2: Address --&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Address"</span><span class="hl-t">&gt;</span>
-<span class="ln">17</span>      <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Address Details</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">18</span>      <span class="hl-t">&lt;label&gt;</span><span class="hl-x">Street</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln">19</span>      <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln">20</span>        <span class="hl-a">model</span><span class="hl-p">=</span><span class="hl-s">"street"</span> <span class="hl-a">required</span> <span class="hl-t">/&gt;</span>
-<span class="ln">21</span>      <span class="hl-t">&lt;label&gt;</span><span class="hl-x">City</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln">22</span>      <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln">23</span>        <span class="hl-a">model</span><span class="hl-p">=</span><span class="hl-s">"city"</span> <span class="hl-a">required</span> <span class="hl-t">/&gt;</span>
-<span class="ln">24</span>    <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">15</span>    <span class="hl-cmt">&lt;!-- Step 2: Address --&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Address"</span><span class="hl-tag">&gt;</span>
+<span class="ln">17</span>      <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Address Details</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">18</span>      <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">Street</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln">19</span>      <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln">20</span>        <span class="hl-attr">model</span><span class="hl-op">=</span><span class="hl-str">"street"</span> <span class="hl-attr">required</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">21</span>      <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">City</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln">22</span>      <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln">23</span>        <span class="hl-attr">model</span><span class="hl-op">=</span><span class="hl-str">"city"</span> <span class="hl-attr">required</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">24</span>    <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">25</span>
-<span class="ln">26</span>    <span class="hl-c">&lt;!-- Step 3: Review --&gt;</span>
-<span class="ln">27</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Review"</span><span class="hl-t">&gt;</span>
-<span class="ln">28</span>      <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Review Your Info</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">29</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Name: </span><span class="hl-t">&lt;span</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"name"</span><span class="hl-t">&gt;&lt;/span&gt;&lt;/p&gt;</span>
-<span class="ln">30</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Email: </span><span class="hl-t">&lt;span</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"email"</span><span class="hl-t">&gt;&lt;/span&gt;&lt;/p&gt;</span>
-<span class="ln">31</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Street: </span><span class="hl-t">&lt;span</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"street"</span><span class="hl-t">&gt;&lt;/span&gt;&lt;/p&gt;</span>
-<span class="ln">32</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">City: </span><span class="hl-t">&lt;span</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"city"</span><span class="hl-t">&gt;&lt;/span&gt;&lt;/p&gt;</span>
-<span class="ln">33</span>    <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">26</span>    <span class="hl-cmt">&lt;!-- Step 3: Review --&gt;</span>
+<span class="ln">27</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Review"</span><span class="hl-tag">&gt;</span>
+<span class="ln">28</span>      <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Review Your Info</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">29</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Name: </span><span class="hl-tag">&lt;span</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"name"</span><span class="hl-tag">&gt;&lt;/span&gt;&lt;/p&gt;</span>
+<span class="ln">30</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Email: </span><span class="hl-tag">&lt;span</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"email"</span><span class="hl-tag">&gt;&lt;/span&gt;&lt;/p&gt;</span>
+<span class="ln">31</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Street: </span><span class="hl-tag">&lt;span</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"street"</span><span class="hl-tag">&gt;&lt;/span&gt;&lt;/p&gt;</span>
+<span class="ln">32</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">City: </span><span class="hl-tag">&lt;span</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"city"</span><span class="hl-tag">&gt;&lt;/span&gt;&lt;/p&gt;</span>
+<span class="ln">33</span>    <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">34</span>
-<span class="ln">35</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">36</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">35</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">36</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -249,33 +249,33 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">stepper</span> <span class="hl-a">stepper-mode</span><span class="hl-p">=</span><span class="hl-s">"free"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">stepper</span> <span class="hl-attr">stepper-mode</span><span class="hl-op">=</span><span class="hl-str">"free"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 2</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Account"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Account Setup</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Configure your account username</span>
-<span class="ln"> 6</span>       <span class="hl-x">and password.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;label&gt;</span><span class="hl-x">Username</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln"> 9</span>      <span class="hl-a">placeholder</span><span class="hl-p">=</span><span class="hl-s">"Choose a username"</span> <span class="hl-t">/&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Account"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Account Setup</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Configure your account username</span>
+<span class="ln"> 6</span>       <span class="hl-expr">and password.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">Username</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln"> 9</span>      <span class="hl-attr">placeholder</span><span class="hl-op">=</span><span class="hl-str">"Choose a username"</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">11</span>
-<span class="ln">12</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Profile"</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Profile Details</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">14</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Add your profile information</span>
-<span class="ln">15</span>       <span class="hl-x">and bio.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;label&gt;</span><span class="hl-x">Bio</span><span class="hl-t">&lt;/label&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;input</span> <span class="hl-a">type</span><span class="hl-p">=</span><span class="hl-s">"text"</span>
-<span class="ln">18</span>      <span class="hl-a">placeholder</span><span class="hl-p">=</span><span class="hl-s">"Tell us about yourself"</span> <span class="hl-t">/&gt;</span>
-<span class="ln">19</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">12</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Profile"</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Profile Details</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">14</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Add your profile information</span>
+<span class="ln">15</span>       <span class="hl-expr">and bio.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;label&gt;</span><span class="hl-expr">Bio</span><span class="hl-tag">&lt;/label&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;input</span> <span class="hl-attr">type</span><span class="hl-op">=</span><span class="hl-str">"text"</span>
+<span class="ln">18</span>      <span class="hl-attr">placeholder</span><span class="hl-op">=</span><span class="hl-str">"Tell us about yourself"</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">19</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">20</span>
-<span class="ln">21</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Review"</span><span class="hl-t">&gt;</span>
-<span class="ln">22</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Review</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">23</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Review your account and profile</span>
-<span class="ln">24</span>       <span class="hl-x">details before submitting.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">25</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">21</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Review"</span><span class="hl-tag">&gt;</span>
+<span class="ln">22</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Review</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">23</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Review your account and profile</span>
+<span class="ln">24</span>       <span class="hl-expr">details before submitting.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">25</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">26</span>
-<span class="ln">27</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">27</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -332,37 +332,37 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">stepper</span>
-<span class="ln"> 2</span>  <span class="hl-a">stepper-nav</span><span class="hl-p">=</span><span class="hl-s">"false"</span>
-<span class="ln"> 3</span>  <span class="hl-a">stepper-indicator</span><span class="hl-p">=</span><span class="hl-s">"false"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">stepper</span>
+<span class="ln"> 2</span>  <span class="hl-attr">stepper-nav</span><span class="hl-op">=</span><span class="hl-str">"false"</span>
+<span class="ln"> 3</span>  <span class="hl-attr">stepper-indicator</span><span class="hl-op">=</span><span class="hl-str">"false"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 4</span>
-<span class="ln"> 5</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Step 1"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">First Step</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This is the first step with</span>
-<span class="ln"> 8</span>       <span class="hl-x">manual navigation.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Step 1"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">First Step</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">This is the first step with</span>
+<span class="ln"> 8</span>       <span class="hl-expr">manual navigation.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">10</span>
-<span class="ln">11</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Step 2"</span><span class="hl-t">&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Second Step</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This is the second step with</span>
-<span class="ln">14</span>       <span class="hl-x">manual navigation.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">11</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Step 2"</span><span class="hl-tag">&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Second Step</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">This is the second step with</span>
+<span class="ln">14</span>       <span class="hl-expr">manual navigation.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">15</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">16</span>
-<span class="ln">17</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">step</span> <span class="hl-a">step-label</span><span class="hl-p">=</span><span class="hl-s">"Step 3"</span><span class="hl-t">&gt;</span>
-<span class="ln">18</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Third Step</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">19</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This is the final step with</span>
-<span class="ln">20</span>       <span class="hl-x">manual navigation.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">21</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">17</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">step</span> <span class="hl-attr">step-label</span><span class="hl-op">=</span><span class="hl-str">"Step 3"</span><span class="hl-tag">&gt;</span>
+<span class="ln">18</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Third Step</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">19</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">This is the final step with</span>
+<span class="ln">20</span>       <span class="hl-expr">manual navigation.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">21</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">22</span>
-<span class="ln">23</span><span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">23</span><span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">24</span>
-<span class="ln">25</span><span class="hl-c">&lt;!-- Custom navigation buttons --&gt;</span>
-<span class="ln">26</span><span class="hl-t">&lt;button</span> <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"$stepper.prev()"</span><span class="hl-t">&gt;</span>
-<span class="ln">27</span>  <span class="hl-x">Previous</span>
-<span class="ln">28</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">29</span><span class="hl-t">&lt;button</span> <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"$stepper.next()"</span><span class="hl-t">&gt;</span>
-<span class="ln">30</span>  <span class="hl-x">Next</span>
-<span class="ln">31</span><span class="hl-t">&lt;/button&gt;</span></pre>
+<span class="ln">25</span><span class="hl-cmt">&lt;!-- Custom navigation buttons --&gt;</span>
+<span class="ln">26</span><span class="hl-tag">&lt;button</span> <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"$stepper.prev()"</span><span class="hl-tag">&gt;</span>
+<span class="ln">27</span>  <span class="hl-expr">Previous</span>
+<span class="ln">28</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">29</span><span class="hl-tag">&lt;button</span> <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"$stepper.next()"</span><span class="hl-tag">&gt;</span>
+<span class="ln">30</span>  <span class="hl-expr">Next</span>
+<span class="ln">31</span><span class="hl-tag">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>

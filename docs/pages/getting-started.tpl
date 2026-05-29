@@ -126,14 +126,14 @@
     <div class="demo-tabbed-panel demo-tab-code" style="display: block;">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- 1. Load No.JS core --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;script</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"https://cdn.no-js.dev/"</span><span class="hl-t">&gt;&lt;/script&gt;</span>
+<span class="ln"> 1</span><span class="hl-cmt">&lt;!-- 1. Load No.JS core --&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
 <span class="ln"> 3</span>
-<span class="ln"> 4</span><span class="hl-c">&lt;!-- 2. Load Elements (auto-installs itself) --&gt;</span>
-<span class="ln"> 5</span><span class="hl-t">&lt;script</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"https://cdn-elements.no-js.dev/"</span><span class="hl-t">&gt;&lt;/script&gt;</span>
+<span class="ln"> 4</span><span class="hl-cmt">&lt;!-- 2. Load Elements (auto-installs itself) --&gt;</span>
+<span class="ln"> 5</span><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="hl-c">&lt;!-- That's it — start using elements --&gt;</span>
-<span class="ln"> 8</span><span class="hl-t">&lt;button</span> <span class="hl-a">tooltip</span><span class="hl-p">=</span><span class="hl-s">"Hello!"</span><span class="hl-t">&gt;</span><span class="hl-x">Hover me</span><span class="hl-t">&lt;/button&gt;</span></pre>
+<span class="ln"> 7</span><span class="hl-cmt">&lt;!-- That's it — start using elements --&gt;</span>
+<span class="ln"> 8</span><span class="hl-tag">&lt;button</span> <span class="hl-attr">tooltip</span><span class="hl-op">=</span><span class="hl-str">"Hello!"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Hover me</span><span class="hl-tag">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -190,21 +190,21 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- Template (define once) --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"my-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>      <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Welcome!</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln"> 6</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This modal was created with a single</span>
-<span class="ln"> 7</span>         <span class="hl-x">HTML attribute. No JavaScript needed.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 8</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span><span class="hl-x">Got it</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">11</span><span class="hl-t">&lt;/template&gt;</span>
+<span class="ln"> 1</span><span class="hl-cmt">&lt;!-- Template (define once) --&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;template</span> <span class="hl-attr">id</span><span class="hl-op">=</span><span class="hl-str">"my-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">modal</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>      <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Welcome!</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln"> 6</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">This modal was created with a single</span>
+<span class="ln"> 7</span>         <span class="hl-expr">HTML attribute. No JavaScript needed.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 8</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span><span class="hl-expr">Got it</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">11</span><span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">12</span>
-<span class="ln">13</span><span class="hl-c">&lt;!-- Instance + Trigger --&gt;</span>
-<span class="ln">14</span><span class="hl-t">&lt;div</span> <span class="hl-a">use</span><span class="hl-p">=</span><span class="hl-s">"my-modal"</span><span class="hl-t">&gt;&lt;/div&gt;</span>
-<span class="ln">15</span><span class="hl-t">&lt;button</span> <span class="hl-a">modal-open</span><span class="hl-t">&gt;</span><span class="hl-x">Open Modal</span><span class="hl-t">&lt;/button&gt;</span></pre>
+<span class="ln">13</span><span class="hl-cmt">&lt;!-- Instance + Trigger --&gt;</span>
+<span class="ln">14</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"my-modal"</span><span class="hl-tag">&gt;&lt;/div&gt;</span>
+<span class="ln">15</span><span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span><span class="hl-tag">&gt;</span><span class="hl-expr">Open Modal</span><span class="hl-tag">&lt;/button&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -228,33 +228,33 @@
     <div class="demo-tabbed-panel demo-tab-code" style="display: block;">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;!DOCTYPE html&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;html</span> <span class="hl-a">lang</span><span class="hl-p">=</span><span class="hl-s">"en"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span><span class="hl-t">&lt;head&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-t">&lt;meta</span> <span class="hl-a">charset</span><span class="hl-p">=</span><span class="hl-s">"UTF-8"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>  <span class="hl-t">&lt;title&gt;</span><span class="hl-x">My App</span><span class="hl-t">&lt;/title&gt;</span>
-<span class="ln"> 6</span><span class="hl-t">&lt;/head&gt;</span>
-<span class="ln"> 7</span><span class="hl-t">&lt;body&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;html</span> <span class="hl-attr">lang</span><span class="hl-op">=</span><span class="hl-str">"en"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span><span class="hl-tag">&lt;head&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-tag">&lt;meta</span> <span class="hl-attr">charset</span><span class="hl-op">=</span><span class="hl-str">"UTF-8"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-tag">&lt;title&gt;</span><span class="hl-expr">My App</span><span class="hl-tag">&lt;/title&gt;</span>
+<span class="ln"> 6</span><span class="hl-tag">&lt;/head&gt;</span>
+<span class="ln"> 7</span><span class="hl-tag">&lt;body&gt;</span>
 <span class="ln"> 8</span>
-<span class="ln"> 9</span>  <span class="hl-c">&lt;!-- Tabs --&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">tabs</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Profile</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">tab</span><span class="hl-t">&gt;</span><span class="hl-x">Settings</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span><span class="hl-x">Profile content</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">panel</span><span class="hl-t">&gt;</span><span class="hl-x">Settings content</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-cmt">&lt;!-- Tabs --&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">tabs</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Profile</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">tab</span><span class="hl-tag">&gt;</span><span class="hl-expr">Settings</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span><span class="hl-expr">Profile content</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">panel</span><span class="hl-tag">&gt;</span><span class="hl-expr">Settings content</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">15</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">16</span>
-<span class="ln">17</span>  <span class="hl-c">&lt;!-- Tooltip --&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">tooltip</span><span class="hl-p">=</span><span class="hl-s">"Save your changes"</span><span class="hl-t">&gt;</span><span class="hl-x">Save</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln">17</span>  <span class="hl-cmt">&lt;!-- Tooltip --&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">tooltip</span><span class="hl-op">=</span><span class="hl-str">"Save your changes"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Save</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">19</span>
-<span class="ln">20</span>  <span class="hl-c">&lt;!-- Toast notifications --&gt;</span>
-<span class="ln">21</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">toast-container</span><span class="hl-p">=</span><span class="hl-s">"top-right"</span><span class="hl-t">&gt;&lt;/div&gt;</span>
-<span class="ln">22</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">toast</span><span class="hl-p">=</span><span class="hl-s">"Saved!"</span> <span class="hl-a">toast-type</span><span class="hl-p">=</span><span class="hl-s">"success"</span><span class="hl-t">&gt;</span><span class="hl-x">Save &amp; Notify</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln">20</span>  <span class="hl-cmt">&lt;!-- Toast notifications --&gt;</span>
+<span class="ln">21</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">toast-container</span><span class="hl-op">=</span><span class="hl-str">"top-right"</span><span class="hl-tag">&gt;&lt;/div&gt;</span>
+<span class="ln">22</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">toast</span><span class="hl-op">=</span><span class="hl-str">"Saved!"</span> <span class="hl-attr">toast-type</span><span class="hl-op">=</span><span class="hl-str">"success"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Save &amp; Notify</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">23</span>
-<span class="ln">24</span>  <span class="hl-t">&lt;script</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"https://cdn.no-js.dev/"</span><span class="hl-t">&gt;&lt;/script&gt;</span>
-<span class="ln">25</span>  <span class="hl-t">&lt;script</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"https://cdn-elements.no-js.dev/"</span><span class="hl-t">&gt;&lt;/script&gt;</span>
-<span class="ln">26</span><span class="hl-t">&lt;/body&gt;</span>
-<span class="ln">27</span><span class="hl-t">&lt;/html&gt;</span></pre>
+<span class="ln">24</span>  <span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="ln">25</span>  <span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="ln">26</span><span class="hl-tag">&lt;/body&gt;</span>
+<span class="ln">27</span><span class="hl-tag">&lt;/html&gt;</span></pre>
       </div>
     </div>
   </div>
