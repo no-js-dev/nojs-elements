@@ -594,3 +594,109 @@ describe('Modal Edge Cases', () => {
     expect(modalEl.hasAttribute('data-nojs-no-backdrop')).toBe(true);
   });
 });
+
+// =======================================================================
+//  MODAL STACK INTEGRITY (ELEM-28)
+// =======================================================================
+
+describe('Modal Stack Integrity', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-modal]').forEach(s => s.remove());
+    resetModalState();
+    jest.useRealTimers();
+  });
+
+  test('32 - stacked open A, open B, close B, close A keeps stack consistent', () => {
+    jest.useFakeTimers();
+    const { modalEl: modalA, triggerEl: triggerA } = setupModal('intg-a');
+    const { modalEl: modalB, triggerEl: triggerB } = setupModal('intg-b');
+
+    triggerA.click();
+    jest.runAllTimers();
+    expect(_modalStack.map(m => m.id)).toEqual(['intg-a']);
+
+    triggerB.click();
+    jest.runAllTimers();
+    expect(_modalStack.map(m => m.id)).toEqual(['intg-a', 'intg-b']);
+
+    modalB.hidePopover();
+    jest.runAllTimers();
+    expect(_modalStack.map(m => m.id)).toEqual(['intg-a']);
+
+    modalA.hidePopover();
+    jest.runAllTimers();
+    expect(_modalStack.length).toBe(0);
+  });
+
+  test('33 - a throwing showPopover does NOT leave a phantom stack entry', () => {
+    const { modalEl, triggerEl } = setupModal('intg-throw');
+    modalEl.showPopover = jest.fn(() => { throw new Error('popover failure'); });
+
+    expect(() => triggerEl.click()).not.toThrow();
+    expect(_modalStack.some(m => m.id === 'intg-throw')).toBe(false);
+    expect(_modalStack.length).toBe(0);
+    // ARIA should not claim expanded when the show failed
+    expect(triggerEl.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  test('34 - re-clicking an already-open trigger does not duplicate the entry', () => {
+    const { triggerEl } = setupModal('intg-dup');
+    triggerEl.click();
+    triggerEl.click();
+    triggerEl.click();
+    const matches = _modalStack.filter(m => m.id === 'intg-dup');
+    expect(matches.length).toBe(1);
+  });
+
+  test('35 - opening same modal via two triggers does not duplicate the entry', () => {
+    const { modalEl, triggerEl: trigger1 } = setupModal('intg-multi');
+
+    // Second trigger for the same modal
+    const trigger2 = document.createElement('button');
+    trigger2.setAttribute('modal-open', 'intg-multi');
+    document.body.appendChild(trigger2);
+    NoJS.processTree(trigger2);
+
+    trigger1.click();
+    trigger2.click();
+    expect(_modalStack.filter(m => m.id === 'intg-multi').length).toBe(1);
+  });
+
+  test('36 - $modal.open does not leave a phantom entry when show throws', () => {
+    const { modalEl } = setupModal('intg-api-throw');
+    modalEl.showPopover = jest.fn(() => { throw new Error('fail'); });
+
+    const result = NoJS.modal.open('intg-api-throw');
+    expect(result).toBe(false);
+    expect(_modalStack.some(m => m.id === 'intg-api-throw')).toBe(false);
+  });
+
+  test('37 - $modal.open does not duplicate when already open', () => {
+    setupModal('intg-api-dup');
+    expect(NoJS.modal.open('intg-api-dup')).toBe(true);
+    expect(NoJS.modal.open('intg-api-dup')).toBe(true);
+    expect(_modalStack.filter(m => m.id === 'intg-api-dup').length).toBe(1);
+  });
+
+  test('38 - special characters in modal id resolve without selector injection', () => {
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('state', '{}');
+    const modalEl = document.createElement('div');
+    const trickyId = 'a"]:focus';
+    modalEl.setAttribute('modal', trickyId);
+    const trigger = document.createElement('button');
+    trigger.setAttribute('modal-open', trickyId);
+    wrapper.appendChild(modalEl);
+    wrapper.appendChild(trigger);
+    document.body.appendChild(wrapper);
+    polyfillPopover(modalEl);
+    NoJS.processTree(wrapper);
+
+    // Clear the registry entry to force the data-modal-id lookup path
+    _modalRegistry.delete(trickyId);
+
+    expect(() => trigger.click()).not.toThrow();
+    expect(modalEl.showPopover).toHaveBeenCalled();
+  });
+});
