@@ -2,7 +2,7 @@
   .modal-content {
     padding: 2rem;
     max-width: 480px;
-    background: var(--color-surface);
+    background: var(--surface);
     border-radius: var(--radius-xl);
     box-shadow: 0 20px 60px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1);
   }
@@ -10,11 +10,11 @@
     margin: 0 0 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--text);
   }
   .modal-content .modal-desc {
     margin: 0 0 1.5rem;
-    color: var(--color-text-muted);
+    color: var(--text-muted);
     font-size: 0.9rem;
     line-height: 1.6;
   }
@@ -23,25 +23,25 @@
     gap: 0.5rem;
     justify-content: flex-end;
     padding-top: 1rem;
-    border-top: 1px solid var(--color-hover);
+    border-top: 1px solid var(--hover-bg);
   }
   .modal-actions button {
     padding: 0.55rem 1.2rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: var(--color-surface);
+    background: var(--surface);
     cursor: pointer;
     font-size: 0.875rem;
     font-weight: 500;
     transition: all 0.15s ease;
   }
-  .modal-actions button:hover { background: var(--color-bg); }
+  .modal-actions button:hover { background: var(--white); }
   .modal-actions button.primary {
-    background: var(--color-accent);
-    color: var(--color-surface);
-    border-color: var(--color-accent);
+    background: var(--primary);
+    color: var(--surface);
+    border-color: var(--primary);
   }
-  .modal-actions button.primary:hover { background: var(--color-accent-hover); }
+  .modal-actions button.primary:hover { background: var(--primary-dark); }
   .modal-icon {
     width: 44px; height: 44px;
     border-radius: 10px;
@@ -49,21 +49,21 @@
     margin-bottom: 1rem;
     font-size: 1.4rem;
   }
-  .icon-info  { background: var(--color-accent-bg); color: var(--color-accent-hover); }
-  .icon-warn  { background: #FFF7ED; color: var(--color-warning-hover); }
+  .icon-info  { background: var(--primary-surface); color: var(--primary-dark); }
+  .icon-warn  { background: #FFF7ED; color: var(--warning); }
   .icon-lock  { background: #FFF1F2; color: #E11D48; }
-  .icon-stack { background: #F0FDF4; color: var(--color-success-hover); }
+  .icon-stack { background: #F0FDF4; color: var(--success); }
   .trigger-btn {
     padding: 0.6rem 1.2rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border);
     border-radius: 8px;
-    background: var(--color-surface);
+    background: var(--surface);
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.15s ease;
   }
-  .trigger-btn:hover { background: var(--color-hover); border-color: var(--color-hover-border); }
+  .trigger-btn:hover { background: var(--hover-bg); border-color: var(--hover-border); }
 </style>
 
 <div class="route-header">
@@ -132,25 +132,25 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 2</span>  <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"trigger-btn"</span>
-<span class="ln"> 3</span>  <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"basic-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-x">Open Basic Modal</span>
-<span class="ln"> 5</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 2</span>  <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"trigger-btn"</span>
+<span class="ln"> 3</span>  <span class="hl-attr">modal-open</span><span class="hl-op">=</span><span class="hl-str">"basic-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-expr">Open Basic Modal</span>
+<span class="ln"> 5</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"basic-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-icon icon-info"</span><span class="hl-t">&gt;</span><span class="hl-x">&amp;#9432;</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Basic Modal</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span><span class="hl-t">&gt;</span><span class="hl-x">This is a simple modal dialog. You can close it by clicking the button below, pressing Escape, or clicking the backdrop.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span><span class="hl-x">Cancel</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>        <span class="hl-x">Confirm</span>
-<span class="ln">16</span>      <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">19</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 7</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">modal</span><span class="hl-op">=</span><span class="hl-str">"basic-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-icon icon-info"</span><span class="hl-tag">&gt;</span><span class="hl-expr">&amp;#9432;</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Basic Modal</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">This is a simple modal dialog. You can close it by clicking the button below, pressing Escape, or clicking the backdrop.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span><span class="hl-expr">Cancel</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>        <span class="hl-expr">Confirm</span>
+<span class="ln">16</span>      <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">19</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -190,26 +190,26 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 2</span>  <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"trigger-btn"</span>
-<span class="ln"> 3</span>  <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"no-escape-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-x">Open No-Escape Modal</span>
-<span class="ln"> 5</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 2</span>  <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"trigger-btn"</span>
+<span class="ln"> 3</span>  <span class="hl-attr">modal-open</span><span class="hl-op">=</span><span class="hl-str">"no-escape-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-expr">Open No-Escape Modal</span>
+<span class="ln"> 5</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="hl-t">&lt;div</span>
-<span class="ln"> 8</span>  <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"no-escape-modal"</span>
-<span class="ln"> 9</span>  <span class="hl-a">modal-escape</span><span class="hl-p">=</span><span class="hl-s">"false"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-icon icon-lock"</span><span class="hl-t">&gt;</span><span class="hl-x">&amp;#128274;</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">No Escape Modal</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span><span class="hl-t">&gt;</span><span class="hl-x">Pressing Escape will not close this modal. You must click the close button to dismiss it.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">14</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span>
-<span class="ln">16</span>        <span class="hl-x">I Understand</span>
-<span class="ln">17</span>      <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">18</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">19</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">20</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 7</span><span class="hl-tag">&lt;div</span>
+<span class="ln"> 8</span>  <span class="hl-attr">modal</span><span class="hl-op">=</span><span class="hl-str">"no-escape-modal"</span>
+<span class="ln"> 9</span>  <span class="hl-attr">modal-escape</span><span class="hl-op">=</span><span class="hl-str">"false"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-icon icon-lock"</span><span class="hl-tag">&gt;</span><span class="hl-expr">&amp;#128274;</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">No Escape Modal</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Pressing Escape will not close this modal. You must click the close button to dismiss it.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">14</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span>
+<span class="ln">16</span>        <span class="hl-expr">I Understand</span>
+<span class="ln">17</span>      <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">18</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">19</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">20</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -249,24 +249,24 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 2</span>  <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"trigger-btn"</span>
-<span class="ln"> 3</span>  <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"no-backdrop-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>  <span class="hl-x">Open No-Backdrop Modal</span>
-<span class="ln"> 5</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 2</span>  <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"trigger-btn"</span>
+<span class="ln"> 3</span>  <span class="hl-attr">modal-open</span><span class="hl-op">=</span><span class="hl-str">"no-backdrop-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>  <span class="hl-expr">Open No-Backdrop Modal</span>
+<span class="ln"> 5</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 6</span>
-<span class="ln"> 7</span><span class="hl-t">&lt;div</span>
-<span class="ln"> 8</span>  <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"no-backdrop-modal"</span>
-<span class="ln"> 9</span>  <span class="hl-a">modal-backdrop</span><span class="hl-p">=</span><span class="hl-s">"false"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-icon icon-warn"</span><span class="hl-t">&gt;</span><span class="hl-x">&amp;#9888;</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">No Backdrop Modal</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span><span class="hl-t">&gt;</span><span class="hl-x">This modal has no backdrop behind it. The page content remains visible and accessible.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span><span class="hl-x">Close</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">15</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">17</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 7</span><span class="hl-tag">&lt;div</span>
+<span class="ln"> 8</span>  <span class="hl-attr">modal</span><span class="hl-op">=</span><span class="hl-str">"no-backdrop-modal"</span>
+<span class="ln"> 9</span>  <span class="hl-attr">modal-backdrop</span><span class="hl-op">=</span><span class="hl-str">"false"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-icon icon-warn"</span><span class="hl-tag">&gt;</span><span class="hl-expr">&amp;#9888;</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">No Backdrop Modal</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">This modal has no backdrop behind it. The page content remains visible and accessible.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span><span class="hl-expr">Close</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">15</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">17</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -317,44 +317,44 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- Trigger --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;button</span>
-<span class="ln"> 3</span>  <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"trigger-btn"</span>
-<span class="ln"> 4</span>  <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"outer-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>  <span class="hl-x">Open Outer Modal</span>
-<span class="ln"> 6</span><span class="hl-t">&lt;/button&gt;</span>
+<span class="ln"> 1</span><span class="hl-cmt">&lt;!-- Trigger --&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;button</span>
+<span class="ln"> 3</span>  <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"trigger-btn"</span>
+<span class="ln"> 4</span>  <span class="hl-attr">modal-open</span><span class="hl-op">=</span><span class="hl-str">"outer-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-expr">Open Outer Modal</span>
+<span class="ln"> 6</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 7</span>
-<span class="ln"> 8</span><span class="hl-c">&lt;!-- Outer modal --&gt;</span>
-<span class="ln"> 9</span><span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"outer-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-icon icon-stack"</span><span class="hl-t">&gt;</span><span class="hl-x">&amp;#9776;</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Outer Modal</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">13</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span><span class="hl-t">&gt;</span><span class="hl-x">This is the outer modal. Click below to open a nested inner modal on top of this one.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">14</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span>
-<span class="ln">16</span>        <span class="hl-x">Close Outer</span>
-<span class="ln">17</span>      <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">18</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span>
-<span class="ln">19</span>        <span class="hl-a">modal-open</span><span class="hl-p">=</span><span class="hl-s">"inner-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln">20</span>        <span class="hl-x">Open Inner Modal</span>
-<span class="ln">21</span>      <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">22</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">23</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">24</span><span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 8</span><span class="hl-cmt">&lt;!-- Outer modal --&gt;</span>
+<span class="ln"> 9</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">modal</span><span class="hl-op">=</span><span class="hl-str">"outer-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-icon icon-stack"</span><span class="hl-tag">&gt;</span><span class="hl-expr">&amp;#9776;</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Outer Modal</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">13</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">This is the outer modal. Click below to open a nested inner modal on top of this one.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">14</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span>
+<span class="ln">16</span>        <span class="hl-expr">Close Outer</span>
+<span class="ln">17</span>      <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">18</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span>
+<span class="ln">19</span>        <span class="hl-attr">modal-open</span><span class="hl-op">=</span><span class="hl-str">"inner-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln">20</span>        <span class="hl-expr">Open Inner Modal</span>
+<span class="ln">21</span>      <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">22</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">23</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">24</span><span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">25</span>
-<span class="ln">26</span><span class="hl-c">&lt;!-- Inner modal --&gt;</span>
-<span class="ln">27</span><span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-p">=</span><span class="hl-s">"inner-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln">28</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln">29</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-icon icon-info"</span><span class="hl-t">&gt;</span><span class="hl-x">&amp;#10003;</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">30</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Inner Modal</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">31</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span><span class="hl-t">&gt;</span><span class="hl-x">This is the nested inner modal. Closing it will return you to the outer modal.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">31</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln">32</span>      <span class="hl-t">&lt;button</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span>
-<span class="ln">33</span>        <span class="hl-x">Close Inner</span>
-<span class="ln">34</span>      <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">35</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">36</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">37</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">26</span><span class="hl-cmt">&lt;!-- Inner modal --&gt;</span>
+<span class="ln">27</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">modal</span><span class="hl-op">=</span><span class="hl-str">"inner-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln">28</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln">29</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-icon icon-info"</span><span class="hl-tag">&gt;</span><span class="hl-expr">&amp;#10003;</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">30</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Inner Modal</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">31</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span><span class="hl-tag">&gt;</span><span class="hl-expr">This is the nested inner modal. Closing it will return you to the outer modal.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">31</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln">32</span>      <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span>
+<span class="ln">33</span>        <span class="hl-expr">Close Inner</span>
+<span class="ln">34</span>      <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">35</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">36</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">37</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -402,7 +402,7 @@
              var-onConfirm="() => { deleted = true }">
         </div>
         <button modal-open class="primary">Delete Item</button>
-        <span show="deleted" style="margin-left: 0.5rem; color: var(--color-danger); font-size: 0.85rem;">Deleted!</span>
+        <span show="deleted" style="margin-left: 0.5rem; color: var(--error); font-size: 0.85rem;">Deleted!</span>
       </div>
 
       <div style="margin-top: 1rem;"></div>
@@ -416,51 +416,51 @@
              var-onConfirm="() => { archived = true }">
         </div>
         <button modal-open>Archive Project</button>
-        <span show="archived" style="margin-left: 0.5rem; color: var(--color-success); font-size: 0.85rem;">Archived!</span>
+        <span show="archived" style="margin-left: 0.5rem; color: var(--success); font-size: 0.85rem;">Archived!</span>
       </div>
     </div>
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-c">&lt;!-- Define once --&gt;</span>
-<span class="ln"> 2</span><span class="hl-t">&lt;template</span> <span class="hl-a">id</span><span class="hl-p">=</span><span class="hl-s">"confirm-modal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">modal</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-content"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>      <span class="hl-t">&lt;h2</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"title"</span><span class="hl-t">&gt;&lt;/h2&gt;</span>
-<span class="ln"> 6</span>      <span class="hl-t">&lt;p</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-desc"</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"message"</span><span class="hl-t">&gt;&lt;/p&gt;</span>
-<span class="ln"> 7</span>      <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"modal-actions"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 8</span>        <span class="hl-t">&lt;button</span> <span class="hl-a">modal-close</span><span class="hl-t">&gt;</span><span class="hl-x">Cancel</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln"> 9</span>        <span class="hl-t">&lt;button</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span>
-<span class="ln">10</span>          <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"onConfirm()"</span>
-<span class="ln">11</span>          <span class="hl-a">modal-close</span>
-<span class="ln">12</span>          <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"confirmLabel || 'Confirm'"</span><span class="hl-t">&gt;</span>
-<span class="ln">13</span>        <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">15</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">16</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">17</span><span class="hl-t">&lt;/template&gt;</span>
+<span class="ln"> 1</span><span class="hl-cmt">&lt;!-- Define once --&gt;</span>
+<span class="ln"> 2</span><span class="hl-tag">&lt;template</span> <span class="hl-attr">id</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">modal</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-content"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>      <span class="hl-tag">&lt;h2</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"title"</span><span class="hl-tag">&gt;&lt;/h2&gt;</span>
+<span class="ln"> 6</span>      <span class="hl-tag">&lt;p</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-desc"</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"message"</span><span class="hl-tag">&gt;&lt;/p&gt;</span>
+<span class="ln"> 7</span>      <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 8</span>        <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span><span class="hl-expr">Cancel</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 9</span>        <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span>
+<span class="ln">10</span>          <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"onConfirm()"</span>
+<span class="ln">11</span>          <span class="hl-attr">modal-close</span>
+<span class="ln">12</span>          <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"confirmLabel || 'Confirm'"</span><span class="hl-tag">&gt;</span>
+<span class="ln">13</span>        <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">15</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">16</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">17</span><span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">18</span>
-<span class="ln">19</span><span class="hl-c">&lt;!-- Instance 1: Delete --&gt;</span>
-<span class="ln">20</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ deleted: false }"</span><span class="hl-t">&gt;</span>
-<span class="ln">21</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">use</span><span class="hl-p">=</span><span class="hl-s">"confirm-modal"</span>
-<span class="ln">22</span>    <span class="hl-a">var-title</span><span class="hl-p">=</span><span class="hl-s">"'Delete Item?'"</span>
-<span class="ln">23</span>    <span class="hl-a">var-message</span><span class="hl-p">=</span><span class="hl-s">"'This action cannot be undone. The item will be permanently removed.'"</span>
-<span class="ln">24</span>    <span class="hl-a">var-confirmLabel</span><span class="hl-p">=</span><span class="hl-s">"'Delete'"</span>
-<span class="ln">25</span>    <span class="hl-a">var-onConfirm</span><span class="hl-p">=</span><span class="hl-s">"() =&gt; { deleted = true }"</span><span class="hl-t">&gt;</span>
-<span class="ln">26</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">27</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">modal-open</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"primary"</span><span class="hl-t">&gt;</span><span class="hl-x">Delete Item</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">28</span><span class="hl-t">&lt;/div&gt;</span>
+<span class="ln">19</span><span class="hl-cmt">&lt;!-- Instance 1: Delete --&gt;</span>
+<span class="ln">20</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ deleted: false }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">21</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span>
+<span class="ln">22</span>    <span class="hl-attr">var-title</span><span class="hl-op">=</span><span class="hl-str">"'Delete Item?'"</span>
+<span class="ln">23</span>    <span class="hl-attr">var-message</span><span class="hl-op">=</span><span class="hl-str">"'This action cannot be undone. The item will be permanently removed.'"</span>
+<span class="ln">24</span>    <span class="hl-attr">var-confirmLabel</span><span class="hl-op">=</span><span class="hl-str">"'Delete'"</span>
+<span class="ln">25</span>    <span class="hl-attr">var-onConfirm</span><span class="hl-op">=</span><span class="hl-str">"() =&gt; { deleted = true }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">26</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">27</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Delete Item</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">28</span><span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">29</span>
-<span class="ln">30</span><span class="hl-c">&lt;!-- Instance 2: Archive --&gt;</span>
-<span class="ln">31</span><span class="hl-t">&lt;div</span> <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ archived: false }"</span><span class="hl-t">&gt;</span>
-<span class="ln">32</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">use</span><span class="hl-p">=</span><span class="hl-s">"confirm-modal"</span>
-<span class="ln">33</span>    <span class="hl-a">var-title</span><span class="hl-p">=</span><span class="hl-s">"'Archive Project?'"</span>
-<span class="ln">34</span>    <span class="hl-a">var-message</span><span class="hl-p">=</span><span class="hl-s">"'The project will be moved to the archive. You can restore it later.'"</span>
-<span class="ln">35</span>    <span class="hl-a">var-confirmLabel</span><span class="hl-p">=</span><span class="hl-s">"'Archive'"</span>
-<span class="ln">36</span>    <span class="hl-a">var-onConfirm</span><span class="hl-p">=</span><span class="hl-s">"() =&gt; { archived = true }"</span><span class="hl-t">&gt;</span>
-<span class="ln">37</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">38</span>  <span class="hl-t">&lt;button</span> <span class="hl-a">modal-open</span><span class="hl-t">&gt;</span><span class="hl-x">Archive Project</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">39</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">30</span><span class="hl-cmt">&lt;!-- Instance 2: Archive --&gt;</span>
+<span class="ln">31</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ archived: false }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">32</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span>
+<span class="ln">33</span>    <span class="hl-attr">var-title</span><span class="hl-op">=</span><span class="hl-str">"'Archive Project?'"</span>
+<span class="ln">34</span>    <span class="hl-attr">var-message</span><span class="hl-op">=</span><span class="hl-str">"'The project will be moved to the archive. You can restore it later.'"</span>
+<span class="ln">35</span>    <span class="hl-attr">var-confirmLabel</span><span class="hl-op">=</span><span class="hl-str">"'Archive'"</span>
+<span class="ln">36</span>    <span class="hl-attr">var-onConfirm</span><span class="hl-op">=</span><span class="hl-str">"() =&gt; { archived = true }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">37</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">38</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span><span class="hl-tag">&gt;</span><span class="hl-expr">Archive Project</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">39</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>

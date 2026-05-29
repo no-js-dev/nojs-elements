@@ -1,14 +1,16 @@
 <style>
   /* ─── Hero (matching NoJS core landing) ─────── */
   .home-hero {
-    background: linear-gradient(180deg, var(--color-header), var(--color-header-end));
-    padding: 80px 80px 72px;
+    background: linear-gradient(180deg, var(--code-bg), var(--code-surface));
+    min-height: calc(100vh - var(--header-h));
+    padding: calc(var(--header-h) + 60px) 80px 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 24px;
+    gap: 32px;
     text-align: center;
+    view-transition-name: hero;
   }
   .home-hero .badge {
     display: inline-flex;
@@ -16,33 +18,33 @@
     gap: 6px;
     padding: 8px 16px;
     border-radius: 100px;
-    background: rgba(14, 165, 233, 0.1);
-    border: 1px solid rgba(14, 165, 233, 0.4);
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background: #0EA5E91A;
+    border: 1px solid #0EA5E966;
+    font-family: var(--font-heading);
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-accent);
+    color: var(--primary);
   }
   .home-hero .badge svg {
     width: 16px;
     height: 16px;
   }
   .home-hero h1 {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
-    font-size: 56px;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 72px;
+    font-weight: bold;
     letter-spacing: -2px;
     line-height: 1.1;
-    color: #fff;
-    max-width: 800px;
-    text-wrap: balance;
+    color: var(--white);
+    max-width: 900px;
+    white-space: pre-line;
   }
   .home-hero p {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 18px;
-    color: var(--color-text-faint);
+    font-family: var(--font-body);
+    font-size: 20px;
+    color: var(--text-dim);
     line-height: 1.6;
-    max-width: 600px;
+    max-width: 700px;
   }
   .home-hero-cta {
     display: flex;
@@ -52,13 +54,13 @@
     margin-top: 8px;
   }
   .home-hero-cta .btn-primary {
-    background: var(--color-accent);
+    background: var(--primary);
     color: #fff;
     padding: 14px 32px;
     font-size: 16px;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-weight: 600;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius);
     text-decoration: none;
     cursor: pointer;
     transition: background 0.2s;
@@ -67,16 +69,16 @@
     gap: 8px;
     border: none;
   }
-  .home-hero-cta .btn-primary:hover { background: var(--color-accent-hover); }
+  .home-hero-cta .btn-primary:hover { background: var(--primary-dark); }
   .home-hero-cta .btn-outline {
     background: transparent;
     color: #CBD5E1;
     padding: 14px 32px;
     font-size: 16px;
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-weight: 600;
     border: 1px solid #475569;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius);
     text-decoration: none;
     cursor: pointer;
     transition: border-color 0.2s, color 0.2s;
@@ -84,11 +86,11 @@
     align-items: center;
     gap: 8px;
   }
-  .home-hero-cta .btn-outline:hover { border-color: var(--color-text-faint); color: #E2E8F0; }
+  .home-hero-cta .btn-outline:hover { border-color: var(--text-dim); color: #E2E8F0; }
 
   /* ─── Install snippet ──────────────────────── */
   .home-hero-install {
-    background: var(--color-header-end);
+    background: var(--code-surface);
     border: 1px solid #334155;
     border-radius: var(--radius-lg);
     overflow: hidden;
@@ -98,15 +100,15 @@
   }
   .home-hero-install-tabs {
     display: flex;
-    background: var(--color-header);
+    background: var(--code-bg);
   }
   .home-hero-install-tabs span {
     padding: 10px 18px;
     font-family: 'Space Grotesk', system-ui, sans-serif;
     font-size: 13px;
     font-weight: 600;
-    color: var(--color-accent);
-    background: var(--color-header-end);
+    color: var(--primary);
+    background: var(--code-surface);
   }
   .home-hero-install-code {
     padding: 14px 20px;
@@ -122,12 +124,17 @@
   }
   .home-hero-install-code .hl-tag { color: #F47067; }
   .home-hero-install-code .hl-attr { color: #79C0FF; }
-  .home-hero-install-code .hl-punct { color: #E2E8F0; }
-  .home-hero-install-code .hl-string { color: #A5D6FF; }
+  .home-hero-install-code .hl-op { color: #E2E8F0; }
+  .home-hero-install-code .hl-str { color: #A5D6FF; }
 
-  @media (max-width: 768px) {
-    .home-hero { padding: 48px 24px 40px; gap: 20px; }
-    .home-hero h1 { font-size: 32px; letter-spacing: -1px; }
+  @media (max-width: 900px) {
+    .home-hero { padding: calc(var(--header-h) + 40px) 24px 60px; }
+    .home-hero h1 { font-size: 48px; }
+    .home-hero-install { width: auto; max-width: 100%; }
+  }
+  @media (max-width: 640px) {
+    .home-hero { min-height: auto; padding: calc(var(--header-h) + 32px) 20px 48px; }
+    .home-hero h1 { font-size: 36px; letter-spacing: -1px; }
     .home-hero p { font-size: 16px; }
     .home-hero-cta { flex-direction: column; width: 100%; }
     .home-hero-cta .btn-primary,
@@ -142,15 +149,15 @@
     margin: 0 auto;
   }
   .home-grid-header h2 {
-    font-family: 'Space Grotesk', system-ui, sans-serif;
+    font-family: var(--font-heading);
     font-size: 28px;
     font-weight: 700;
-    color: var(--color-text);
+    color: var(--text);
     letter-spacing: -0.5px;
   }
   .home-grid-header p {
     font-size: 15px;
-    color: var(--color-text-muted);
+    color: var(--text-muted);
     margin-top: 0.5rem;
   }
   .home-grid {
@@ -162,10 +169,10 @@
     margin: 0 auto;
   }
   .card {
-    background: var(--color-surface);
+    background: var(--surface);
     border-radius: var(--radius-lg);
     padding: 1.25rem 1.5rem;
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border);
     text-decoration: none;
     color: inherit;
     cursor: pointer;
@@ -173,22 +180,22 @@
     display: block;
   }
   .card:hover {
-    border-color: var(--color-accent);
-    box-shadow: 0 1px 4px var(--color-accent-ring);
+    border-color: var(--primary);
+    box-shadow: 0 1px 4px var(--primary-light);
   }
   .card:focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
   .card h2 {
     font-size: 1rem;
     font-weight: 600;
     margin-bottom: 0.25rem;
-    color: var(--color-text);
+    color: var(--text);
   }
   .card p {
     font-size: 0.85rem;
-    color: var(--color-text-muted);
+    color: var(--text-muted);
     line-height: 1.5;
   }
   .card-placeholder {
@@ -196,16 +203,16 @@
     cursor: default;
   }
   .card-placeholder:hover {
-    border-color: var(--color-border);
+    border-color: var(--border);
     box-shadow: none;
   }
-  .card-placeholder h2 { color: var(--color-text-faint); }
-  .card-placeholder p { color: var(--color-text-faint); }
+  .card-placeholder h2 { color: var(--text-dim); }
+  .card-placeholder p { color: var(--text-dim); }
   .card .tag {
     display: inline-block;
     padding: 0.15rem 0.5rem;
-    background: var(--color-accent-bg);
-    color: var(--color-accent-dark);
+    background: var(--primary-surface);
+    color: var(--primary-dark);
     border-radius: var(--radius-sm);
     font-size: 0.7rem;
     font-weight: 600;
@@ -231,8 +238,8 @@
   <div class="home-hero-install">
     <div class="home-hero-install-tabs"><span>CDN</span></div>
     <div class="home-hero-install-code">
-      <pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-punct">=</span><span class="hl-string">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
-<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-punct">=</span><span class="hl-string">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
+      <pre><span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span>
+<span class="hl-tag">&lt;script</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"https://cdn-elements.no-js.dev/"</span><span class="hl-tag">&gt;&lt;/script&gt;</span></pre>
     </div>
   </div>
 </section>

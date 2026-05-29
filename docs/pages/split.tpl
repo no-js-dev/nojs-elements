@@ -1,6 +1,6 @@
 <style>
   .split-demo {
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
   }
@@ -10,11 +10,11 @@
   }
 
   .pane-sidebar {
-    background: var(--color-hover);
+    background: var(--hover-bg);
   }
 
   .pane-content {
-    background: var(--color-surface);
+    background: var(--surface);
   }
 
   .pane-editor {
@@ -30,15 +30,15 @@
   }
 
   .pane-nav {
-    background: var(--color-accent-bg);
+    background: var(--primary-surface);
   }
 
   .pane-main {
-    background: var(--color-surface);
+    background: var(--surface);
   }
 
   .pane-aside {
-    background: var(--color-bg);
+    background: var(--white);
   }
 </style>
 
@@ -113,16 +113,16 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-p">=</span><span class="hl-s">"horizontal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"30%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Sidebar</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Navigation links...</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 5</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"70%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Main Content</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Drag the gutter to resize.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-op">=</span><span class="hl-str">"horizontal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"30%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Sidebar</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Navigation links...</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"70%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Main Content</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Drag the gutter to resize.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -164,20 +164,20 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln"> 2</span>     <span class="hl-a">style</span><span class="hl-p">=</span><span class="hl-s">"height: 400px"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"60%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Editor</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">function greet(name) {</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">&amp;nbsp;&amp;nbsp;return `Hello, ${name}!`;</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">}</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"40%"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Console</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">&gt; greet("World")</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">"Hello, World!"</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln"> 2</span>     <span class="hl-attr">style</span><span class="hl-op">=</span><span class="hl-str">"height: 400px"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"60%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Editor</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">function greet(name) {</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">&amp;nbsp;&amp;nbsp;return `Hello, ${name}!`;</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">}</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"40%"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Console</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">&gt; greet("World")</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">"Hello, World!"</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -220,20 +220,20 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-p">=</span><span class="hl-s">"horizontal"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"20%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Nav</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">File tree</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 5</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"50%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Editor</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Main workspace</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"30%"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Preview</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Live output</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-op">=</span><span class="hl-str">"horizontal"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"20%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Nav</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">File tree</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 5</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"50%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Editor</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Main workspace</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"30%"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Preview</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Live output</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -272,20 +272,20 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span>
-<span class="ln"> 3</span>       <span class="hl-a">pane-min</span><span class="hl-p">=</span><span class="hl-s">"100"</span>
-<span class="ln"> 4</span>       <span class="hl-a">pane-max</span><span class="hl-p">=</span><span class="hl-s">"500"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Constrained Left</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 6</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Min: 100px, Max: 500px</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 8</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span>
-<span class="ln"> 9</span>       <span class="hl-a">pane-min</span><span class="hl-p">=</span><span class="hl-s">"100"</span>
-<span class="ln">10</span>       <span class="hl-a">pane-max</span><span class="hl-p">=</span><span class="hl-s">"500"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Constrained Right</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Min: 100px, Max: 500px</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span>
+<span class="ln"> 3</span>       <span class="hl-attr">pane-min</span><span class="hl-op">=</span><span class="hl-str">"100"</span>
+<span class="ln"> 4</span>       <span class="hl-attr">pane-max</span><span class="hl-op">=</span><span class="hl-str">"500"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Constrained Left</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Min: 100px, Max: 500px</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 8</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span>
+<span class="ln"> 9</span>       <span class="hl-attr">pane-min</span><span class="hl-op">=</span><span class="hl-str">"100"</span>
+<span class="ln">10</span>       <span class="hl-attr">pane-max</span><span class="hl-op">=</span><span class="hl-str">"500"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Constrained Right</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Min: 100px, Max: 500px</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -336,25 +336,25 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-p">=</span><span class="hl-s">"horizontal"</span>
-<span class="ln"> 2</span>     <span class="hl-a">style</span><span class="hl-p">=</span><span class="hl-s">"height: 400px"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"20%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Explorer</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">src/</span><span class="hl-t">&lt;br&gt;</span><span class="hl-x">  index.js</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"80%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-c">&lt;!-- Nested vertical split --&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;div</span> <span class="hl-a">split</span><span class="hl-p">=</span><span class="hl-s">"vertical"</span>
-<span class="ln">10</span>         <span class="hl-a">style</span><span class="hl-p">=</span><span class="hl-s">"height: 100%"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>      <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"65%"</span><span class="hl-t">&gt;</span>
-<span class="ln">12</span>        <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Editor</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">13</span>      <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">14</span>      <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"35%"</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>        <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Terminal</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">16</span>      <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">18</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">19</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-op">=</span><span class="hl-str">"horizontal"</span>
+<span class="ln"> 2</span>     <span class="hl-attr">style</span><span class="hl-op">=</span><span class="hl-str">"height: 400px"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"20%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Explorer</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">src/</span><span class="hl-tag">&lt;br&gt;</span><span class="hl-expr">  index.js</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"80%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-cmt">&lt;!-- Nested vertical split --&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span><span class="hl-op">=</span><span class="hl-str">"vertical"</span>
+<span class="ln">10</span>         <span class="hl-attr">style</span><span class="hl-op">=</span><span class="hl-str">"height: 100%"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>      <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"65%"</span><span class="hl-tag">&gt;</span>
+<span class="ln">12</span>        <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Editor</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">13</span>      <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">14</span>      <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"35%"</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>        <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Terminal</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">16</span>      <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">18</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">19</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -393,17 +393,17 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">split</span>
-<span class="ln"> 2</span>     <span class="hl-a">split-gutter</span><span class="hl-p">=</span><span class="hl-s">"12"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"40%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 4</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Panel A</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 5</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Wider drag handle.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln"> 6</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 7</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">pane</span><span class="hl-p">=</span><span class="hl-s">"60%"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;h3&gt;</span><span class="hl-x">Panel B</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln"> 9</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">12px gutter instead of default.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">11</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">split</span>
+<span class="ln"> 2</span>     <span class="hl-attr">split-gutter</span><span class="hl-op">=</span><span class="hl-str">"12"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"40%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 4</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Panel A</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 5</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Wider drag handle.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 6</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">pane</span><span class="hl-op">=</span><span class="hl-str">"60%"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;h3&gt;</span><span class="hl-expr">Panel B</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln"> 9</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">12px gutter instead of default.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">11</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>

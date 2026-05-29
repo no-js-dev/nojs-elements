@@ -2,7 +2,7 @@
   .skeleton-demo { margin-bottom: 2rem; }
   .card-layout {
     display: flex; gap: 1rem; padding: 1.5rem;
-    background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   }
   .card-avatar { flex-shrink: 0; }
   .card-body { flex: 1; }
@@ -64,7 +64,7 @@
           <h2 skeleton="loading">Welcome to NoJS Elements</h2>
           <p skeleton="loading">This is the real content that appears when loading is complete. NoJS Elements provides a rich set of UI components that work with simple HTML attributes.</p>
         </div>
-        <p style="text-align:center; color: var(--color-text-faint); margin-top: 0.5rem;" bind="'Loading... ' + countdown + 's'"></p>
+        <p style="text-align:center; color: var(--text-dim); margin-top: 0.5rem;" bind="'Loading... ' + countdown + 's'"></p>
       </div>
       <div show="!loading" style="text-align:center;">
         <div class="content-text">
@@ -77,29 +77,29 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span>
-<span class="ln"> 2</span>  <span class="hl-a">state</span><span class="hl-p">=</span><span class="hl-s">"{ loading: true, countdown: 3 }"</span>
-<span class="ln"> 3</span>  <span class="hl-a">on:mounted</span><span class="hl-p">=</span><span class="hl-s">"const tick = () =&gt; {</span>
-<span class="ln"> 4</span>    <span class="hl-s">if(countdown &gt; 0) { countdown--;</span>
-<span class="ln"> 5</span>    <span class="hl-s">setTimeout(tick, 1000); }</span>
-<span class="ln"> 6</span>    <span class="hl-s">else { loading = false; }</span>
-<span class="ln"> 7</span>  <span class="hl-s">}; setTimeout(tick, 1000)"</span><span class="hl-t">&gt;</span>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span>
+<span class="ln"> 2</span>  <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ loading: true, countdown: 3 }"</span>
+<span class="ln"> 3</span>  <span class="hl-attr">on:mounted</span><span class="hl-op">=</span><span class="hl-str">"const tick = () =&gt; {</span>
+<span class="ln"> 4</span>    <span class="hl-str">if(countdown &gt; 0) { countdown--;</span>
+<span class="ln"> 5</span>    <span class="hl-str">setTimeout(tick, 1000); }</span>
+<span class="ln"> 6</span>    <span class="hl-str">else { loading = false; }</span>
+<span class="ln"> 7</span>  <span class="hl-str">}; setTimeout(tick, 1000)"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 8</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">show</span><span class="hl-p">=</span><span class="hl-s">"loading"</span><span class="hl-t">&gt;</span>
-<span class="ln">10</span>    <span class="hl-t">&lt;h2</span> <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span><span class="hl-t">&gt;</span><span class="hl-x">Welcome</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span><span class="hl-t">&gt;</span><span class="hl-x">Content...</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;p</span> <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"'Loading... ' + countdown + 's'"</span><span class="hl-t">&gt;&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-t">&lt;/div&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span>
+<span class="ln">10</span>    <span class="hl-tag">&lt;h2</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Welcome</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Content...</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"'Loading... ' + countdown + 's'"</span><span class="hl-tag">&gt;&lt;/p&gt;</span>
+<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">14</span>
-<span class="ln">15</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">show</span><span class="hl-p">=</span><span class="hl-s">"!loading"</span><span class="hl-t">&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;h2&gt;</span><span class="hl-x">Welcome to NoJS Elements</span><span class="hl-t">&lt;/h2&gt;</span>
-<span class="ln">17</span>    <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Content loaded!</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">18</span>    <span class="hl-t">&lt;button</span> <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"loading = true;</span>
-<span class="ln">19</span>      <span class="hl-s">countdown = 3; /* restart */"</span><span class="hl-t">&gt;</span>
-<span class="ln">20</span>      <span class="hl-x">Play Again</span>
-<span class="ln">21</span>    <span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">22</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">23</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">15</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"!loading"</span><span class="hl-tag">&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Welcome to NoJS Elements</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln">17</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Content loaded!</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">18</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"loading = true;</span>
+<span class="ln">19</span>      <span class="hl-str">countdown = 3; /* restart */"</span><span class="hl-tag">&gt;</span>
+<span class="ln">20</span>      <span class="hl-expr">Play Again</span>
+<span class="ln">21</span>    <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">22</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">23</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -131,13 +131,13 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln">1</span><span class="hl-t">&lt;div</span>
-<span class="ln">2</span>  <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span>
-<span class="ln">3</span>  <span class="hl-a">skeleton-lines</span><span class="hl-p">=</span><span class="hl-s">"4"</span><span class="hl-t">&gt;</span>
-<span class="ln">4</span>  <span class="hl-t">&lt;p&gt;</span><span class="hl-x">This content is hidden</span>
-<span class="ln">5</span>     <span class="hl-x">behind 4 skeleton lines</span>
-<span class="ln">6</span>     <span class="hl-x">while loading.</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">7</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">1</span><span class="hl-tag">&lt;div</span>
+<span class="ln">2</span>  <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span>
+<span class="ln">3</span>  <span class="hl-attr">skeleton-lines</span><span class="hl-op">=</span><span class="hl-str">"4"</span><span class="hl-tag">&gt;</span>
+<span class="ln">4</span>  <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">This content is hidden</span>
+<span class="ln">5</span>     <span class="hl-expr">behind 4 skeleton lines</span>
+<span class="ln">6</span>     <span class="hl-expr">while loading.</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">7</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -169,13 +169,13 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln">1</span><span class="hl-t">&lt;div</span>
-<span class="ln">2</span>  <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span>
-<span class="ln">3</span>  <span class="hl-a">skeleton-type</span><span class="hl-p">=</span><span class="hl-s">"circle"</span>
-<span class="ln">4</span>  <span class="hl-a">skeleton-size</span><span class="hl-p">=</span><span class="hl-s">"80"</span><span class="hl-t">&gt;</span>
-<span class="ln">5</span>  <span class="hl-t">&lt;img</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"avatar.png"</span>
-<span class="ln">6</span>       <span class="hl-a">alt</span><span class="hl-p">=</span><span class="hl-s">"Avatar"</span> <span class="hl-t">/&gt;</span>
-<span class="ln">7</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">1</span><span class="hl-tag">&lt;div</span>
+<span class="ln">2</span>  <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span>
+<span class="ln">3</span>  <span class="hl-attr">skeleton-type</span><span class="hl-op">=</span><span class="hl-str">"circle"</span>
+<span class="ln">4</span>  <span class="hl-attr">skeleton-size</span><span class="hl-op">=</span><span class="hl-str">"80"</span><span class="hl-tag">&gt;</span>
+<span class="ln">5</span>  <span class="hl-tag">&lt;img</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"avatar.png"</span>
+<span class="ln">6</span>       <span class="hl-attr">alt</span><span class="hl-op">=</span><span class="hl-str">"Avatar"</span> <span class="hl-tag">/&gt;</span>
+<span class="ln">7</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -209,12 +209,12 @@
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln">1</span><span class="hl-t">&lt;div</span>
-<span class="ln">2</span>  <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span>
-<span class="ln">3</span>  <span class="hl-a">skeleton-type</span><span class="hl-p">=</span><span class="hl-s">"rect"</span>
-<span class="ln">4</span>  <span class="hl-a">skeleton-size</span><span class="hl-p">=</span><span class="hl-s">"200"</span><span class="hl-t">&gt;</span>
-<span class="ln">5</span>  <span class="hl-t">&lt;div&gt;</span><span class="hl-x">Image Placeholder</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">6</span><span class="hl-t">&lt;/div&gt;</span></pre>
+<span class="ln">1</span><span class="hl-tag">&lt;div</span>
+<span class="ln">2</span>  <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span>
+<span class="ln">3</span>  <span class="hl-attr">skeleton-type</span><span class="hl-op">=</span><span class="hl-str">"rect"</span>
+<span class="ln">4</span>  <span class="hl-attr">skeleton-size</span><span class="hl-op">=</span><span class="hl-str">"200"</span><span class="hl-tag">&gt;</span>
+<span class="ln">5</span>  <span class="hl-tag">&lt;div&gt;</span><span class="hl-expr">Image Placeholder</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">6</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
@@ -253,36 +253,36 @@
         </div>
       </div>
       <button class="btn btn-primary" on:click="loading = !loading">Toggle Loading</button>
-      <span style="margin-left: 0.75rem; font-size: 0.85rem; color: var(--color-text-faint);">loading: <span bind="loading ? 'true' : 'false'"></span></span>
+      <span style="margin-left: 0.75rem; font-size: 0.85rem; color: var(--text-dim);">loading: <span bind="loading ? 'true' : 'false'"></span></span>
     </div>
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"card-layout"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 2</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"card-avatar"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 3</span>    <span class="hl-t">&lt;div</span>
-<span class="ln"> 4</span>      <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span>
-<span class="ln"> 5</span>      <span class="hl-a">skeleton-type</span><span class="hl-p">=</span><span class="hl-s">"circle"</span>
-<span class="ln"> 6</span>      <span class="hl-a">skeleton-size</span><span class="hl-p">=</span><span class="hl-s">"48"</span><span class="hl-t">&gt;</span>
-<span class="ln"> 7</span>      <span class="hl-t">&lt;img</span> <span class="hl-a">src</span><span class="hl-p">=</span><span class="hl-s">"user.png"</span> <span class="hl-t">/&gt;</span>
-<span class="ln"> 8</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln"> 9</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">10</span>  <span class="hl-t">&lt;div</span> <span class="hl-a">class</span><span class="hl-p">=</span><span class="hl-s">"card-body"</span><span class="hl-t">&gt;</span>
-<span class="ln">11</span>    <span class="hl-t">&lt;h3</span> <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span><span class="hl-t">&gt;</span><span class="hl-x">Jane Doe</span><span class="hl-t">&lt;/h3&gt;</span>
-<span class="ln">12</span>    <span class="hl-t">&lt;div</span>
-<span class="ln">13</span>      <span class="hl-a">skeleton</span><span class="hl-p">=</span><span class="hl-s">"loading"</span>
-<span class="ln">14</span>      <span class="hl-a">skeleton-lines</span><span class="hl-p">=</span><span class="hl-s">"3"</span><span class="hl-t">&gt;</span>
-<span class="ln">15</span>      <span class="hl-t">&lt;p&gt;</span><span class="hl-x">Software engineer...</span><span class="hl-t">&lt;/p&gt;</span>
-<span class="ln">16</span>    <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">17</span>  <span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">18</span><span class="hl-t">&lt;/div&gt;</span>
-<span class="ln">19</span><span class="hl-t">&lt;button</span>
-<span class="ln">20</span>  <span class="hl-a">on:click</span><span class="hl-p">=</span><span class="hl-s">"loading = !loading"</span><span class="hl-t">&gt;</span>
-<span class="ln">21</span>  <span class="hl-x">Toggle Loading</span>
-<span class="ln">22</span><span class="hl-t">&lt;/button&gt;</span>
-<span class="ln">23</span><span class="hl-t">&lt;span</span>
-<span class="ln">24</span>  <span class="hl-a">bind</span><span class="hl-p">=</span><span class="hl-s">"loading ? 'true' : 'false'"</span><span class="hl-t">&gt;</span>
-<span class="ln">25</span><span class="hl-t">&lt;/span&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"card-layout"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"card-avatar"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 3</span>    <span class="hl-tag">&lt;div</span>
+<span class="ln"> 4</span>      <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span>
+<span class="ln"> 5</span>      <span class="hl-attr">skeleton-type</span><span class="hl-op">=</span><span class="hl-str">"circle"</span>
+<span class="ln"> 6</span>      <span class="hl-attr">skeleton-size</span><span class="hl-op">=</span><span class="hl-str">"48"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 7</span>      <span class="hl-tag">&lt;img</span> <span class="hl-attr">src</span><span class="hl-op">=</span><span class="hl-str">"user.png"</span> <span class="hl-tag">/&gt;</span>
+<span class="ln"> 8</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln"> 9</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">10</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"card-body"</span><span class="hl-tag">&gt;</span>
+<span class="ln">11</span>    <span class="hl-tag">&lt;h3</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Jane Doe</span><span class="hl-tag">&lt;/h3&gt;</span>
+<span class="ln">12</span>    <span class="hl-tag">&lt;div</span>
+<span class="ln">13</span>      <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span>
+<span class="ln">14</span>      <span class="hl-attr">skeleton-lines</span><span class="hl-op">=</span><span class="hl-str">"3"</span><span class="hl-tag">&gt;</span>
+<span class="ln">15</span>      <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Software engineer...</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln">16</span>    <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">17</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">18</span><span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">19</span><span class="hl-tag">&lt;button</span>
+<span class="ln">20</span>  <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"loading = !loading"</span><span class="hl-tag">&gt;</span>
+<span class="ln">21</span>  <span class="hl-expr">Toggle Loading</span>
+<span class="ln">22</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">23</span><span class="hl-tag">&lt;span</span>
+<span class="ln">24</span>  <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"loading ? 'true' : 'false'"</span><span class="hl-tag">&gt;</span>
+<span class="ln">25</span><span class="hl-tag">&lt;/span&gt;</span></pre>
       </div>
     </div>
   </div>
