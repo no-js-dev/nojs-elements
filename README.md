@@ -1,6 +1,6 @@
 # NoJS Elements
 
-![version](https://img.shields.io/badge/version-1.13.0-blue)
+![version](https://img.shields.io/badge/version-1.13.1-blue)
 
 **UI element plugins for No.JS** -- declarative, accessible, zero JavaScript required.
 
