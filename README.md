@@ -1,6 +1,6 @@
 # NoJS Elements
 
-![version](https://img.shields.io/badge/version-1.11.0-blue)
+![version](https://img.shields.io/badge/version-1.13.0-blue)
 
 **UI element plugins for No.JS** -- declarative, accessible, zero JavaScript required.
 
@@ -115,7 +115,7 @@ When loaded via `<script>` tag, NoJS Elements auto-installs itself — no `NoJS.
 
 ## Peer Dependency
 
-This plugin requires **No.JS >= 1.11.0** as a peer dependency.
+This plugin requires **No.JS >= 1.13.0** as a peer dependency.
 
 ---
 
