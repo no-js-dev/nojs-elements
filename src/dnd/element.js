@@ -1,5 +1,18 @@
 import { _dndState, _dragListRegistry } from "./state.js";
 import { _injectDndStyles } from "./styles.js";
+import { _internal } from "../_compat.js";
+
+// Guarded helper: remove a core directive stub, warn on old cores that lack the API.
+function _removeCoreStub(NoJS, name) {
+  const removeCore = _internal(NoJS, 'removeCoreDirective');
+  if (typeof removeCore === 'function') {
+    removeCore(name);
+  } else {
+    (_internal(NoJS, 'warn') || console.warn)(
+      `[nojs-elements] core too old (<1.13.0): cannot remove "${name}" stub; update NoJS core to 1.13.0+.`
+    );
+  }
+}
 
 function addDisposer(el, fn) {
   el.__disposers = el.__disposers || [];
@@ -175,7 +188,7 @@ function _buildStackGhost(sourceEl, count) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDrag(NoJS) {
-  NoJS.internals.removeCoreDirective("drag");
+  _removeCoreStub(NoJS, "drag");
 
   NoJS.directive("drag", {
     priority: 15,
@@ -405,7 +418,7 @@ export function registerDrag(NoJS) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDrop(NoJS) {
-  NoJS.internals.removeCoreDirective("drop");
+  _removeCoreStub(NoJS, "drop");
 
   NoJS.directive("drop", {
     priority: 15,
@@ -564,7 +577,14 @@ export function registerDrop(NoJS) {
           $el: el,
         };
 
-        NoJS.internals.execStatement(expr, ctx, extraVars);
+        const execStatement = _internal(NoJS, 'execStatement');
+        if (typeof execStatement === 'function') {
+          execStatement(expr, ctx, extraVars);
+        } else {
+          (_internal(NoJS, 'warn') || console.warn)(
+            '[nojs-elements] core too old (<1.13.0): internals.execStatement unavailable; drop expression skipped.'
+          );
+        }
 
         // Clear dragging state BEFORE dispatch to prevent re-entry
         _dndState.dragging = null;
@@ -614,7 +634,7 @@ export function registerDrop(NoJS) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDragList(NoJS) {
-  NoJS.internals.removeCoreDirective("drag-list");
+  _removeCoreStub(NoJS, "drag-list");
 
   NoJS.directive("drag-list", {
     priority: 10,
@@ -671,7 +691,8 @@ export function registerDragList(NoJS) {
         const tpl = tplId ? document.getElementById(tplId) : null;
         if (!tpl) return;
 
-        NoJS.internals.disposeChildren(el);
+        const disposeChildren = _internal(NoJS, 'disposeChildren');
+        if (typeof disposeChildren === 'function') disposeChildren(el);
         el.innerHTML = "";
         const count = list.length;
 
@@ -691,7 +712,8 @@ export function registerDragList(NoJS) {
           const wrapper = document.createElement("div");
           wrapper.style.display = "contents";
           wrapper.__ctx = childCtx;
-          wrapper.setAttribute("role", "option");
+          // role="option" goes on the rendered, focusable item (dragEl) below —
+          // the display:contents wrapper is not a perceivable a11y node.
 
           // Append clone first so we can access the visible child
           wrapper.appendChild(clone);
@@ -701,6 +723,7 @@ export function registerDragList(NoJS) {
           // (display:contents wrapper has no box, so draggable must be on a rendered element)
           const dragEl = wrapper.firstElementChild || wrapper;
           dragEl.draggable = true;
+          dragEl.setAttribute("role", "option");
           dragEl.setAttribute("aria-grabbed", "false");
           if (!dragEl.getAttribute("tabindex")) dragEl.setAttribute("tabindex", "0");
 
@@ -754,6 +777,10 @@ export function registerDragList(NoJS) {
           const itemKeydown = (e) => {
             if (e.key === " " && !_dndState.dragging) {
               e.preventDefault();
+              // Stop the grab keypress from bubbling to the list container's
+              // Enter/Space drop handler, which would otherwise immediately drop
+              // the item we just grabbed (grab + drop in one keystroke).
+              e.stopPropagation();
               _dndState.dragging = {
                 item,
                 type,
@@ -766,10 +793,16 @@ export function registerDragList(NoJS) {
               };
               dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.add(c));
               dragEl.setAttribute("aria-grabbed", "true");
-            } else if (e.key === "Escape" && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
+            } else if (e.key === "Escape" && _dndState.dragging) {
               e.preventDefault();
-              dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.remove(c));
-              dragEl.setAttribute("aria-grabbed", "false");
+              e.stopPropagation();
+              // Reset the grabbed item's visual state. Resolve by the live DOM
+              // (aria-grabbed="true" within this list) so a re-render that swapped
+              // the wrapper between grab and cancel can't strand the grabbed flag.
+              const grabbedEl =
+                el.querySelector('[aria-grabbed="true"]') || dragEl;
+              dragClass.split(/\s+/).filter(Boolean).forEach((c) => grabbedEl.classList.remove(c));
+              grabbedEl.setAttribute("aria-grabbed", "false");
               _dndState.dragging = null;
               _removePlaceholder();
             } else if ((e.key === "ArrowDown" || e.key === "ArrowRight") && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
@@ -1043,7 +1076,7 @@ export function registerDragList(NoJS) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDragMultiple(NoJS) {
-  NoJS.internals.removeCoreDirective("drag-multiple");
+  _removeCoreStub(NoJS, "drag-multiple");
 
   NoJS.directive("drag-multiple", {
     priority: 16,
@@ -1053,7 +1086,7 @@ export function registerDragMultiple(NoJS) {
       const selectClass = el.getAttribute("drag-multiple-class") || "nojs-selected";
 
       if (!group) {
-        NoJS.internals.warn("drag-multiple requires drag-group attribute");
+        (_internal(NoJS, 'warn') || console.warn)("drag-multiple requires drag-group attribute");
         return;
       }
 

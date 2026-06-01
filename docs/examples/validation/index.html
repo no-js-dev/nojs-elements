@@ -27,9 +27,9 @@
   <!-- ======== Scenario 1: Basic form validation ======== -->
   <section>
     <p class="test-label">Test 1: Basic form validation</p>
+    <div state="{ submitted: false }">
     <form validate error-class="field-error" data-test="basic-form"
           on:submit="$event.preventDefault(); submitted = true">
-      <div state="{ submitted: false }">
 
         <div class="form-row">
           <label for="name">Name</label>
@@ -69,8 +69,8 @@
         <button type="button" data-test="reset-btn" on:click="$form.reset()">Reset</button>
 
         <div class="success-msg" data-test="submit-msg" show="submitted">Form submitted!</div>
-      </div>
     </form>
+    </div>
   </section>
 
   <!-- ======== Scenario 2: Per-field state via as="" ======== -->

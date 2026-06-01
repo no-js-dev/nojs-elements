@@ -462,17 +462,18 @@ describe('Drag-List Directive', () => {
 
   test('39 - renders items from the array', () => {
     const { el } = setupDragList('items', { state: { items: ['a', 'b', 'c'] } });
-    // Each item is wrapped in a display:contents wrapper with role=option
+    // role="option" is set on each rendered, focusable item (the dragEl)
     const options = el.querySelectorAll('[role="option"]');
     expect(options.length).toBe(3);
   });
 
   test('40 - items are draggable', () => {
     const { el } = setupDragList('items', { state: { items: ['a', 'b'] } });
-    const wrappers = el.querySelectorAll('[role="option"]');
-    for (const w of wrappers) {
-      const dragEl = w.firstElementChild || w;
+    // role="option" lives on the focusable item itself, which is also draggable
+    const options = el.querySelectorAll('[role="option"]');
+    for (const dragEl of options) {
       expect(dragEl.draggable).toBe(true);
+      expect(dragEl.getAttribute('aria-grabbed')).toBe('false');
     }
   });
 

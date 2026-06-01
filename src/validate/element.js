@@ -5,6 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 import { _validityMap, _rulePriority } from "./state.js";
+import { _internal } from "../_compat.js";
 
 // ── Disposer helper (Elements pattern) ───────────────────────────────
 function addDisposer(el, fn) {
@@ -219,23 +220,28 @@ function _validateField(value, rules, allValues) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerValidate(NoJS) {
-  // Bind NoJS APIs to module-scoped references for helpers
-  _validators = NoJS.internals.validators;
+  // Bind NoJS APIs to module-scoped references for helpers (guarded for old cores)
+  _validators = _internal(NoJS, 'validators') || {};
   _evaluate = NoJS.evaluate;
   _createContext = NoJS.createContext;
   _findContext = NoJS.findContext;
   _processTree = NoJS.processTree;
-  _cloneTemplate = NoJS.internals.cloneTemplate;
-  _disposeChildren = NoJS.internals.disposeChildren;
-  _warn = NoJS.internals.warn;
+  _cloneTemplate = _internal(NoJS, 'cloneTemplate') || (() => null);
+  _disposeChildren = _internal(NoJS, 'disposeChildren') || (() => {});
+  _warn = _internal(NoJS, 'warn') || console.warn;
 
   // Remove the core stub so we can register the full implementation
-  NoJS.internals.removeCoreDirective("validate");
+  const removeCore = _internal(NoJS, 'removeCoreDirective');
+  if (typeof removeCore === 'function') {
+    removeCore("validate");
+  } else {
+    _warn('[nojs-elements] core too old (<1.13.0): cannot remove "validate" stub; update NoJS core to 1.13.0+.');
+  }
 
   NoJS.directive("validate", {
     priority: 30,
     init(el, name, rules) {
-      const ctx = _findContext(el);
+      let ctx = _findContext(el);
 
       // ═════════════════════════════════════════════════════
       //  FORM-LEVEL VALIDATION
@@ -243,6 +249,19 @@ export function registerValidate(NoJS) {
       if (el.tagName === "FORM") {
         // Prevent native browser validation popups
         el.setAttribute("novalidate", "");
+
+        // Ensure $form lives on a context descendants can inherit. When the form
+        // has no contextful ancestor, findContext() returns a throwaway orphan;
+        // $form set on it would be invisible to nested [bind="$form.*"] nodes.
+        // Attaching a context to the form itself fixes the inheritance chain.
+        let _ancestorHasCtx = false;
+        for (let a = el; a; a = a.parentElement) {
+          if (a.__ctx) { _ancestorHasCtx = true; break; }
+        }
+        if (!_ancestorHasCtx) {
+          ctx = el.__ctx || _createContext({}, null);
+          el.__ctx = ctx;
+        }
 
         const errorClassAttr = el.getAttribute("error-class");
         const touchedFields = new Set();
@@ -271,6 +290,23 @@ export function registerValidate(NoJS) {
           },
         };
         ctx.$set("$form", formCtx);
+
+        // Notify the form context plus every descendant element context inside the
+        // form. Descendant contexts (e.g. a nested `<div state>`) inherit `$form`
+        // from the form context but keep their own listener set, so a `$set("$form")`
+        // on the form context alone won't re-render `[bind="$form.*"]` nodes living in
+        // those child scopes. Re-notifying the subtree keeps them reactive.
+        function _notifyFormSubtree() {
+          if (ctx && typeof ctx.$notify === "function") ctx.$notify();
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT);
+          while (walker.nextNode()) {
+            const node = walker.currentNode;
+            const nctx = node.__ctx;
+            if (nctx && nctx !== ctx && typeof nctx.$notify === "function") {
+              nctx.$notify();
+            }
+          }
+        }
 
         // ── Collect all form fields ────────────────────────
         function getFields() {
@@ -322,7 +358,25 @@ export function registerValidate(NoJS) {
             const topError = _pickError(fieldErrors, field);
 
             const fieldValid = !topError;
-            const fieldInteracted = fieldTouched || fieldDirty;
+
+            // Gate error DISPLAY on the field's validate-on triggers. Dirty (typing)
+            // alone must not surface an error for a focusout/submit-only field — that
+            // would defeat validate-on="focusout". When the only display trigger is
+            // focusout/blur/submit, require touched; when "input" is a trigger, dirty
+            // qualifies; with no validate-on, either interaction shows the error.
+            const _triggers = _getValidationTriggers(field, el);
+            const _showsOnInput = _triggers.includes("input");
+            const _showsOnTouch =
+              _triggers.includes("blur") ||
+              _triggers.includes("focusout") ||
+              _triggers.includes("submit");
+            let fieldInteracted;
+            if (!field.hasAttribute("validate-on") && !el.hasAttribute("validate-on")) {
+              fieldInteracted = fieldTouched || fieldDirty;       // legacy / default
+            } else {
+              fieldInteracted =
+                (_showsOnInput && fieldDirty) || (_showsOnTouch && fieldTouched);
+            }
 
             // $form.valid reflects real state (keeps submit disabled)
             if (!fieldValid) valid = false;
@@ -387,6 +441,7 @@ export function registerValidate(NoJS) {
           formCtx.errorCount = errorCount;
           formCtx.pending = hasPending;
           ctx.$set("$form", { ...formCtx });
+          _notifyFormSubtree();
 
           // Auto-disable submit buttons
           _updateSubmitButtons(el, valid && !hasPending);
@@ -502,9 +557,11 @@ export function registerValidate(NoJS) {
           formCtx.touched = true;
           checkValidity();
           ctx.$set("$form", { ...formCtx });
+          _notifyFormSubtree();
           requestAnimationFrame(() => {
             formCtx.submitting = false;
             ctx.$set("$form", { ...formCtx });
+            _notifyFormSubtree();
           });
         };
         el.addEventListener("submit", submitHandler);
