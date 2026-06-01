@@ -27,3 +27,6 @@ test-results/
 .github/specs
 .github/reviews
 .github/agents
+
+# Claude Code local settings/cache
+.claude/
