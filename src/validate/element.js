@@ -21,7 +21,17 @@ let _findContext;
 let _processTree;
 let _cloneTemplate;
 let _disposeChildren;
+let _disposeTree;
 let _warn;
+
+// ── Reset the __declared marker so processTree re-processes a subtree ──
+// Mirrors core's dom._clearDeclared (not exposed on internals). On a fresh
+// clone this is a no-op; it is the safety net for the dispose-before-reprocess
+// path so re-rendered wrappers get fully re-bound.
+function _clearDeclared(el) {
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT);
+  while (walker.nextNode()) walker.currentNode.__declared = false;
+}
 
 // ── Helper: get field input type ─────────────────────────────────────
 function _getFieldType(field) {
@@ -126,10 +136,40 @@ function _pickError(errors, field) {
   };
 }
 
+// ── Find the rendered error wrapper for a field ──────────────────────
+// Prefer the closest <form> scope (so two forms with same-anchor patterns
+// can't cross-match), but fall back to the whole document: error templates
+// are often declared OUTSIDE the form (the wrapper is inserted after the
+// <template>, which may live in an enclosing section), so a form-only search
+// would never find — and never clear — them. The __errorTemplateFor identity
+// check keeps the document-wide fallback unambiguous.
+function _findErrorTemplateWrapper(anchorEl) {
+  const form = anchorEl.closest("form");
+  if (form) {
+    for (const el of form.querySelectorAll('div[style="display: contents;"]')) {
+      if (el.__errorTemplateFor === anchorEl) return el;
+    }
+  }
+  for (const el of document.querySelectorAll('div[style="display: contents;"]')) {
+    if (el.__errorTemplateFor === anchorEl) return el;
+  }
+  return null;
+}
+
 // ── Render template reference for error ──────────────────────────────
 function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
-  // Clean up previous render
-  _clearErrorTemplate(anchorEl);
+  const existing = _findErrorTemplateWrapper(anchorEl);
+  if (existing) {
+    // Compare via the error wrapper's OWN context (not a fresh child ctx that
+    // may shadow $error). If unchanged, bail out — this kills the double-render
+    // / double-animation when an unrelated field re-validates.
+    const sameError =
+      existing.__ctx?.$error === errorMsg &&
+      existing.__ctx?.$rule === ruleName;
+    if (sameError) return;
+    _disposeTree(existing);
+    existing.remove();
+  }
 
   const tpl = document.querySelector(selector);
   if (!tpl) return;
@@ -144,16 +184,15 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
 
   // Insert after the template element (in-place rendering)
   tpl.parentNode.insertBefore(wrapper, tpl.nextSibling);
+  _clearDeclared(wrapper);
   _processTree(wrapper);
 }
 
 function _clearErrorTemplate(anchorEl) {
-  // Find and remove any previously rendered error template for this field
-  const all = document.querySelectorAll('div[style="display: contents;"]');
-  for (const el of all) {
-    if (el.__errorTemplateFor === anchorEl) {
-      el.remove();
-    }
+  const existing = _findErrorTemplateWrapper(anchorEl);
+  if (existing) {
+    _disposeTree(existing);
+    existing.remove();
   }
 }
 
@@ -215,6 +254,26 @@ function _validateField(value, rules, allValues) {
   return null;
 }
 
+// ── Bind a form-level context so descendants share $form ─────────────
+// Create/cache a context ON the form element so nested [bind="$form.*"]
+// nodes inherit it. When an ancestor already owns a context (e.g. a
+// surrounding `<div state>`), REUSE it instead of shadowing: creating a
+// fresh child ctx on the form would re-root state writes from sibling
+// directives like `on:submit="submitted = true"` onto the form, so the
+// ancestor's `show="submitted"` would never see the change. Only mint a
+// new context when the form has no contextful ancestor — that fixes the
+// orphan-context case where `$form` would otherwise be invisible to nested
+// `[bind="$form.*"]` nodes.
+function _bindFormContext(formEl) {
+  if (formEl.__ctx) return formEl.__ctx;
+  for (let a = formEl.parentElement; a; a = a.parentElement) {
+    if (a.__ctx) return _findContext(formEl); // inherit ancestor ctx, don't shadow
+  }
+  const ctx = _createContext({}, null);
+  formEl.__ctx = ctx;
+  return ctx;
+}
+
 // ═══════════════════════════════════════════════════════════════════════
 //  Registration
 // ═══════════════════════════════════════════════════════════════════════
@@ -228,6 +287,9 @@ export function registerValidate(NoJS) {
   _processTree = NoJS.processTree;
   _cloneTemplate = _internal(NoJS, 'cloneTemplate') || (() => null);
   _disposeChildren = _internal(NoJS, 'disposeChildren') || (() => {});
+  // disposeTree exposed on core 1.13.0 internals; guard older cores by falling
+  // back to disposing children (still removes from DOM at the call site).
+  _disposeTree = _internal(NoJS, 'disposeTree') || _disposeChildren;
   _warn = _internal(NoJS, 'warn') || console.warn;
 
   // Remove the core stub so we can register the full implementation
@@ -241,27 +303,14 @@ export function registerValidate(NoJS) {
   NoJS.directive("validate", {
     priority: 30,
     init(el, name, rules) {
-      let ctx = _findContext(el);
-
       // ═════════════════════════════════════════════════════
       //  FORM-LEVEL VALIDATION
       // ═════════════════════════════════════════════════════
       if (el.tagName === "FORM") {
+        // Bind/cache a form-level context so descendants share $form.
+        const ctx = _bindFormContext(el);
         // Prevent native browser validation popups
         el.setAttribute("novalidate", "");
-
-        // Ensure $form lives on a context descendants can inherit. When the form
-        // has no contextful ancestor, findContext() returns a throwaway orphan;
-        // $form set on it would be invisible to nested [bind="$form.*"] nodes.
-        // Attaching a context to the form itself fixes the inheritance chain.
-        let _ancestorHasCtx = false;
-        for (let a = el; a; a = a.parentElement) {
-          if (a.__ctx) { _ancestorHasCtx = true; break; }
-        }
-        if (!_ancestorHasCtx) {
-          ctx = el.__ctx || _createContext({}, null);
-          el.__ctx = ctx;
-        }
 
         const errorClassAttr = el.getAttribute("error-class");
         const touchedFields = new Set();
@@ -283,9 +332,14 @@ export function registerValidate(NoJS) {
             formCtx.dirty = false;
             formCtx.touched = false;
             formCtx.pending = false;
+            formCtx.submitting = false;
             touchedFields.clear();
             dirtyFields.clear();
             el.reset();
+            checkValidity();
+          },
+          endSubmit: () => {
+            formCtx.submitting = false;
             checkValidity();
           },
         };
@@ -444,11 +498,12 @@ export function registerValidate(NoJS) {
           _notifyFormSubtree();
 
           // Auto-disable submit buttons
-          _updateSubmitButtons(el, valid && !hasPending);
+          _updateSubmitButtons(el);
         }
 
         // ── Auto-disable submit buttons ────────────────────
-        function _updateSubmitButtons(form, isValid) {
+        function _updateSubmitButtons(form) {
+          const isEnabled = formCtx.valid && !formCtx.pending && !formCtx.submitting;
           const buttons = form.querySelectorAll(
             'button:not([type="button"]), input[type="submit"]'
           );
@@ -459,7 +514,7 @@ export function registerValidate(NoJS) {
               // Only skip if it's a custom expression (not empty or "disabled")
               if (val !== "disabled" && val !== "true" && val !== "false") continue;
             }
-            btn.disabled = !isValid;
+            btn.disabled = !isEnabled;
             btn.__autoDisabled = true;
           }
         }
@@ -548,24 +603,36 @@ export function registerValidate(NoJS) {
         }
 
         const submitHandler = (e) => {
-          // If validate-on="submit", run validation now
-          formCtx.submitting = true;
           // Mark all fields as touched on submit
           for (const field of getFields()) {
             if (field.name) touchedFields.add(field.name);
           }
           formCtx.touched = true;
           checkValidity();
+
+          if (!formCtx.valid || formCtx.pending) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return;
+          }
+
+          // Set submitting before fetch vs native submit branch
+          formCtx.submitting = true;
+          _updateSubmitButtons(el);
           ctx.$set("$form", { ...formCtx });
           _notifyFormSubtree();
-          requestAnimationFrame(() => {
-            formCtx.submitting = false;
-            ctx.$set("$form", { ...formCtx });
-            _notifyFormSubtree();
-          });
         };
-        el.addEventListener("submit", submitHandler);
-        addDisposer(el, () => el.removeEventListener("submit", submitHandler));
+        // Capture phase: run before post=/put=/etc. handlers so validation
+        // can block invalid submits and set $form.submitting first.
+        el.addEventListener("submit", submitHandler, true);
+        addDisposer(el, () => el.removeEventListener("submit", submitHandler, true));
+        el.__nojsResetSubmitting = () => {
+          formCtx.submitting = false;
+          checkValidity();
+        };
+        addDisposer(el, () => {
+          delete el.__nojsResetSubmitting;
+        });
 
         // Initial check
         requestAnimationFrame(checkValidity);
@@ -575,6 +642,7 @@ export function registerValidate(NoJS) {
       // ═════════════════════════════════════════════════════
       //  FIELD-LEVEL VALIDATION (standalone, outside form)
       // ═════════════════════════════════════════════════════
+      const ctx = _findContext(el);
       if (
         rules &&
         (el.tagName === "INPUT" ||
