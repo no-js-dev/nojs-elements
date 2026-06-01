@@ -2,7 +2,7 @@
 
 ![version](https://img.shields.io/badge/version-1.13.1-blue)
 
-**UI element plugins for No.JS** -- declarative, accessible, zero JavaScript required.
+**UI element plugins for No.JS** — declarative, accessible, zero JavaScript required.
 
 ---
 
@@ -17,7 +17,7 @@ npm install @erickxavier/nojs-elements
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@erickxavier/nojs-elements/dist/iife/nojs-elements.js"></script>
+<script src="https://cdn.no-js.dev/elements"></script>
 ```
 
 ---
@@ -50,17 +50,20 @@ When loaded via `<script>` tag, NoJS Elements auto-installs itself — no `NoJS.
 | Element | Directives | Description |
 |---------|-----------|-------------|
 | [Drag & Drop](docs/md/drag-and-drop.md) | `drag`, `drop`, `drag-list`, `drag-multiple` | Declarative drag-and-drop with sortable lists and multi-select |
-| Tooltip | `tooltip` | Positioned tooltips with configurable delay and placement |
-| Popover | `popover`, `popover-trigger`, `popover-dismiss` | Rich content popovers with trigger and dismiss controls |
-| Modal | `modal`, `modal-open`, `modal-close` | Accessible dialog modals with focus trap and backdrop |
-| Dropdown | `dropdown`, `dropdown-toggle`, `dropdown-menu`, `dropdown-item` | Keyboard-navigable dropdown menus |
-| Toast | `toast-container`, `toast` | Notification toasts with position, type, duration, and auto-dismiss |
-| Tabs | `tabs`, `tab`, `panel`, `tab-disabled`, `tab-position` | Accessible tabbed interfaces with keyboard navigation |
-| Tree | `tree`, `branch`, `subtree` | Collapsible tree views with nested branches |
-| Stepper | `stepper`, `step` | Multi-step wizards and progress indicators |
-| Skeleton | `skeleton` | Loading placeholder skeletons |
-| Split / Pane | `split`, `pane` | Resizable split panels (horizontal or vertical) |
-| Sortable Table | `sortable`, `sort`, `fixed-header`, `fixed-col` | Column sorting with fixed headers and columns |
+| [Form Validation](docs/md/validation.md) | `validate`, `validate-on`, `validate-if`, `error-*`, `$form` | Declarative form validation with per-rule errors, async support, and `$form` context |
+| [Tooltip](docs/md/tooltip.md) | `tooltip` | Positioned tooltips with configurable delay and placement |
+| [Popover](docs/md/popover.md) | `popover`, `popover-trigger`, `popover-dismiss` | Rich content popovers with trigger and dismiss controls |
+| [Modal](docs/md/modal.md) | `modal`, `modal-open`, `modal-close` | Accessible dialog modals with focus trap and backdrop |
+| [Dropdown](docs/md/dropdown.md) | `dropdown`, `dropdown-toggle`, `dropdown-menu`, `dropdown-item` | Keyboard-navigable dropdown menus |
+| [Toast](docs/md/toast.md) | `toast-container`, `toast` | Notification toasts with position, type, duration, and auto-dismiss |
+| [Tabs](docs/md/tabs.md) | `tabs`, `tab`, `panel`, `tab-disabled`, `tab-position` | Accessible tabbed interfaces with keyboard navigation |
+| [Tree](docs/md/tree.md) | `tree`, `branch`, `subtree` | Collapsible tree views with nested branches |
+| [Stepper](docs/md/stepper.md) | `stepper`, `step` | Multi-step wizards and progress indicators |
+| [Skeleton](docs/md/skeleton.md) | `skeleton` | Loading placeholder skeletons |
+| [Split / Pane](docs/md/split.md) | `split`, `pane` | Resizable split panels (horizontal or vertical) |
+| [Sortable Table](docs/md/table.md) | `sortable`, `sort`, `fixed-header`, `fixed-col` | Column sorting with fixed headers and columns |
+
+> `drag`, `drop`, `drag-list`, `drag-multiple`, and `validate` were migrated out of No.JS core in **v1.13.0**. Core retains deprecation stubs — install this plugin for full functionality.
 
 ---
 
@@ -127,6 +130,31 @@ For the full directive reference with all attributes, events, CSS classes, and a
 
 ---
 
+## Ecosystem
+
+| Tool | Description |
+|------|-------------|
+| [No.JS](https://github.com/ErickXavier/no-js) | Core HTML-first reactive framework (peer dependency) |
+| **NoJS Elements** | This package — UI element plugins |
+| [NoJS-LSP](https://github.com/ErickXavier/nojs-lsp) | VS Code extension — autocomplete, hover docs, diagnostics |
+| [NoJS-CLI](https://github.com/ErickXavier/nojs-cli) | Command-line tool for scaffolding and managing No.JS projects |
+| [NoJS-Skill](https://github.com/ErickXavier/nojs-skill) | Claude Code skill — guided No.JS project generation |
+
+---
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request.
+
+- [Changelog](CHANGELOG.md)
+
 ## License
 
 [MIT](LICENSE)
+
+---
+
+<p align="center">
+  <strong>NoJS Elements</strong> — UI element plugins for No.JS<br>
+  <code>MIT License</code>
+</p>
