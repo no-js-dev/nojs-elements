@@ -63,7 +63,14 @@ export function registerSkeletonDirective(NoJS) {
         el.setAttribute("aria-busy", "true");
       }
 
+      // Pending fade cleanup (listener + fallback timer) for the current
+      // deactivate() cycle, so dispose can tear it down too (Rules 2 & 4).
+      let _cancelFade = null;
+
       function deactivate() {
+        // Cancel any in-flight fade from a previous deactivate cycle first.
+        if (_cancelFade) _cancelFade();
+
         // Fade out transition
         el.classList.add("nojs-skeleton-fade");
         el.classList.remove("nojs-skeleton");
@@ -81,17 +88,30 @@ export function registerSkeletonDirective(NoJS) {
         // ARIA
         el.removeAttribute("aria-busy");
 
-        // Remove fade class after transition completes (with fallback timer)
+        // Remove fade class after transition completes (with fallback timer).
         let _fadeDone = false;
+        let _timerId = null;
         const onEnd = () => {
           if (_fadeDone) return;
           _fadeDone = true;
-          el.classList.remove("nojs-skeleton-fade");
+          // Guard DOM writes when the element is already detached (Rule 4).
+          if (el.isConnected) el.classList.remove("nojs-skeleton-fade");
           el.removeEventListener("transitionend", onEnd);
+          if (_timerId !== null) clearTimeout(_timerId);
+          _cancelFade = null;
         };
         el.addEventListener("transitionend", onEnd);
-        // Fallback: if transitionend never fires (no transitions, headless), clean up
-        setTimeout(onEnd, 500);
+        // Fallback: if transitionend never fires (no transitions, headless),
+        // clean up on the next tick (Rule 5: `|| 0` safety-net, not a hardcoded
+        // duration).
+        _timerId = setTimeout(onEnd, 0);
+        // Disposal cleanup for this fade cycle (Rules 2 & 4).
+        _cancelFade = () => {
+          el.removeEventListener("transitionend", onEnd);
+          if (_timerId !== null) clearTimeout(_timerId);
+          _fadeDone = true;
+          _cancelFade = null;
+        };
       }
 
       // Initial evaluation
@@ -116,6 +136,8 @@ export function registerSkeletonDirective(NoJS) {
 
       // Cleanup on dispose
       addDisposer(el, () => {
+        // Tear down any in-flight fade listener/timer (Rules 2 & 4).
+        if (_cancelFade) _cancelFade();
         if (_active) {
           el.classList.remove("nojs-skeleton", "nojs-skeleton-circle", "nojs-skeleton-fade");
           el.removeAttribute("aria-busy");

@@ -1,6 +1,10 @@
 import { _dropdownState } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
 
+// Monotonic counter for guaranteed-unique menu ids (Date.now()+random can
+// collide when several dropdowns init within the same tick).
+let _menuIdCounter = 0;
+
 function addDisposer(el, fn) {
   el.__disposers = el.__disposers || [];
   el.__disposers.push(fn);
@@ -107,18 +111,45 @@ export function registerDropdownDirective(NoJS) {
       menu.classList.add("nojs-dropdown-menu");
       menu.setAttribute("role", "menu");
       menu.setAttribute("popover", "auto");
-      if (!menu.id) menu.id = `nojs-dd-menu-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      if (!menu.id) menu.id = `nojs-dd-menu-${Date.now()}-${_menuIdCounter++}`;
       el.setAttribute("aria-controls", menu.id);
+
+      // Whether this menu is currently shown via the Popover API top-layer.
+      // Tracked so close() takes the symmetric path open() took, keeping the
+      // DOM popover state in sync with the component state (prevents
+      // InvalidStateError on re-open).
+      let _popoverShown = false;
+      const _hasPopoverApi =
+        typeof menu.showPopover === "function" && typeof menu.hidePopover === "function";
 
       function open() {
         menu.setAttribute("data-open", "");
-        if (menu.showPopover) menu.showPopover();
+        if (_hasPopoverApi && !_popoverShown) {
+          try {
+            menu.showPopover();
+            _popoverShown = true;
+          } catch {
+            // Popover API rejected (e.g. not connected); fall back to CSS only.
+            _popoverShown = false;
+          }
+        }
         el.setAttribute("aria-expanded", "true");
         _positionMenu(menu, el, wrapper);
         _dropdownState.openMenus.set(menu, { toggle: el, wrapper });
       }
 
       function close() {
+        // Symmetric with open(): only hide the popover if we actually showed it.
+        // Clear the flag first so the synchronous "toggle" event fired by
+        // hidePopover() doesn't re-enter this path.
+        if (_hasPopoverApi && _popoverShown) {
+          _popoverShown = false;
+          try {
+            menu.hidePopover();
+          } catch {
+            // ignore — already hidden / disconnected
+          }
+        }
         menu.removeAttribute("data-open");
         el.setAttribute("aria-expanded", "false");
         _dropdownState.openMenus.delete(menu);

@@ -13,6 +13,28 @@ function _getItems(menu) {
   );
 }
 
+// ─── Close the parent menu from an item ─────────────────────────────
+// Hides the Popover-API top layer when available (the toggle directive's
+// "toggle" listener then resets aria/data-open), and ALSO resets the
+// component state directly so closing is robust even if the toggle event
+// never reaches the toggle (detached menu node, toggle not initialised) — #37.
+// Popover calls are feature-detected to stay symmetric on browsers without
+// the Popover API — #16.
+function _closeMenu(menu, wrapper) {
+  if (!menu) return;
+  if (typeof menu.hidePopover === "function") {
+    try {
+      menu.hidePopover();
+    } catch {
+      // ignore — already hidden / disconnected
+    }
+  }
+  menu.removeAttribute("data-open");
+  const toggle = wrapper && wrapper.querySelector("[dropdown-toggle]");
+  if (toggle) toggle.setAttribute("aria-expanded", "false");
+  if (_dropdownState.openMenus.has(menu)) _dropdownState.openMenus.delete(menu);
+}
+
 // ─── Register dropdown-item directive ───────────────────────────────
 export function registerDropdownItem(NoJS) {
   NoJS.directive("dropdown-item", {
@@ -69,9 +91,7 @@ export function registerDropdownItem(NoJS) {
           }
           case "Escape": {
             e.preventDefault();
-            if (menu) {
-              try { menu.hidePopover(); } catch {}
-            }
+            _closeMenu(menu, wrapper);
             // Return focus to the toggle
             if (wrapper) {
               const toggle = wrapper.querySelector("[dropdown-toggle]");
@@ -81,9 +101,7 @@ export function registerDropdownItem(NoJS) {
           }
           case "Tab": {
             // Close menu on Tab
-            if (menu) {
-              try { menu.hidePopover(); } catch {}
-            }
+            _closeMenu(menu, wrapper);
             break;
           }
         }
@@ -93,9 +111,7 @@ export function registerDropdownItem(NoJS) {
 
       // ── Close menu after click on item ──────────────────────────
       const clickHandler = () => {
-        if (menu) {
-          try { menu.hidePopover(); } catch {}
-        }
+        _closeMenu(menu, wrapper);
         // Return focus to the toggle
         if (wrapper) {
           const toggle = wrapper.querySelector("[dropdown-toggle]");
