@@ -1,6 +1,7 @@
 # NoJS Elements
 
 ![version](https://img.shields.io/badge/version-1.13.1-blue)
+[![jsDelivr hits](https://data.jsdelivr.com/v1/package/gh/erickxavier/nojs-elements/badge)](https://www.jsdelivr.com/package/gh/erickxavier/nojs-elements)
 
 **UI element plugins for No.JS** — declarative, accessible, zero JavaScript required.
 
