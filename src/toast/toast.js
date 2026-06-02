@@ -102,6 +102,8 @@ function _createToast(container, msg, type, duration, dismiss) {
   if (duration > 0) {
     const timerId = setTimeout(() => {
       _toastTimers.delete(timerId);
+      // Guard: skip detached toasts (Safety Rule 4)
+      if (!toast.isConnected) return;
       _removeToast(toast);
     }, duration);
     _toastTimers.add(timerId);
@@ -161,7 +163,9 @@ export function registerToastDirectives(NoJS) {
       if (!expr) return;
 
       const type = el.getAttribute("toast-type") || "info";
-      const duration = parseInt(el.getAttribute("toast-duration"), 10) || 3000;
+      // duration=0 means "persistent, no auto-dismiss" (Safety Rule 5: never `|| default` where 0 is valid)
+      const parsedDuration = parseInt(el.getAttribute("toast-duration"), 10);
+      const duration = Number.isNaN(parsedDuration) ? 3000 : parsedDuration;
       const dismiss = el.getAttribute("toast-dismiss") !== "false";
       const isInteractive = el.tagName === "BUTTON" || el.tagName === "A" || el.hasAttribute("on:click");
 
@@ -186,8 +190,12 @@ export function registerToastDirectives(NoJS) {
           const msg = typeof value === "string" ? value : String(value);
           const container = _resolveContainer();
           _createToast(container, msg, type, duration, dismiss);
+          // Reset so an identical message re-assigned later re-toasts
+          // (the next falsy→truthy transition counts as a change again)
+          prevValue = undefined;
+        } else {
+          prevValue = value;
         }
-        prevValue = value;
       }
 
       const unwatch = ctx.$watch(check);
@@ -204,7 +212,12 @@ export function registerToastDirectives(NoJS) {
   };
 
   toastFn.dismiss = (id) => {
-    const toast = document.querySelector(`[data-toast-id="${id}"]`);
+    // Escape arbitrary ids so quotes/brackets can't throw a DOMException
+    const escaped =
+      typeof CSS !== "undefined" && CSS.escape
+        ? CSS.escape(String(id))
+        : String(id).replace(/["\\\]]/g, "\\$&");
+    const toast = document.querySelector(`[data-toast-id="${escaped}"]`);
     if (toast) _removeToast(toast);
   };
 

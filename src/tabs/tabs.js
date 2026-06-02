@@ -13,7 +13,9 @@ function _uid(prefix) {
 }
 
 // ─── Activate a tab by index ─────────────────────────────────────────
-function _activateTab(container, index) {
+// `force` bypasses the disabled guard — used only to reveal an initial panel
+// when every tab is disabled, so the container is never left fully hidden.
+function _activateTab(container, index, force = false) {
   const state = _tabsState.containers.get(container);
   if (!state) return;
 
@@ -21,7 +23,7 @@ function _activateTab(container, index) {
   if (index < 0 || index >= tabs.length) return;
 
   // Check if tab is disabled
-  if (tabs[index].getAttribute("aria-disabled") === "true") return;
+  if (!force && tabs[index].getAttribute("aria-disabled") === "true") return;
 
   // Deactivate all
   for (let i = 0; i < tabs.length; i++) {
@@ -41,6 +43,7 @@ function _activateTab(container, index) {
 }
 
 // ─── Find next enabled tab in a direction ────────────────────────────
+// Returns -1 when no enabled tab exists in any direction.
 function _findNextTab(tabs, current, direction) {
   const len = tabs.length;
   let idx = current;
@@ -48,7 +51,11 @@ function _findNextTab(tabs, current, direction) {
     idx = (idx + direction + len) % len;
     if (tabs[idx].getAttribute("aria-disabled") !== "true") return idx;
   }
-  return current;
+  // Current tab itself may still be enabled (no movement was possible).
+  if (tabs[current] && tabs[current].getAttribute("aria-disabled") !== "true") {
+    return current;
+  }
+  return -1;
 }
 
 // ─── Register tabs container directive ───────────────────────────────
@@ -115,6 +122,17 @@ export function registerTabsDirective(NoJS) {
         tablist.appendChild(tab);
       }
 
+      // Hide any unpaired panels (more panels than tabs). Without a
+      // controlling tab they would otherwise stay permanently visible with no
+      // ARIA wiring.
+      for (let i = pairedCount; i < childPanels.length; i++) {
+        const panel = childPanels[i];
+        panel.setAttribute("role", "tabpanel");
+        panel.setAttribute("aria-hidden", "true");
+        panel.inert = true;
+        panel.classList.add("nojs-panel");
+      }
+
       // Insert tablist before first panel (or at top of container)
       const firstPanel = childPanels[0];
       if (firstPanel) {
@@ -130,15 +148,29 @@ export function registerTabsDirective(NoJS) {
         activeIndex: -1,
       });
 
-      // Evaluate disabled state for each tab
+      // Evaluate disabled state for each tab, and keep it reactive via $watch
+      // so toggling the bound state updates aria-disabled (and can re-enable a
+      // previously disabled tab).
       const ctx = NoJS.findContext(el);
+      const disabledUnwatchers = [];
+      const applyDisabled = (tab, disabledExpr) => {
+        let isDisabled = false;
+        try {
+          isDisabled = !!NoJS.evaluate(disabledExpr, ctx);
+        } catch (_err) {
+          isDisabled = false;
+        }
+        if (isDisabled) tab.setAttribute("aria-disabled", "true");
+        else tab.removeAttribute("aria-disabled");
+      };
       for (let i = 0; i < pairedCount; i++) {
-        const disabledExpr = childTabs[i].getAttribute("tab-disabled");
-        if (disabledExpr) {
-          const isDisabled = NoJS.evaluate(disabledExpr, ctx);
-          if (isDisabled) {
-            childTabs[i].setAttribute("aria-disabled", "true");
-          }
+        const tab = childTabs[i];
+        const disabledExpr = tab.getAttribute("tab-disabled");
+        if (!disabledExpr) continue;
+        applyDisabled(tab, disabledExpr);
+        if (ctx && typeof ctx.$watch === "function") {
+          const unwatch = ctx.$watch(() => applyDisabled(tab, disabledExpr));
+          disabledUnwatchers.push(unwatch);
         }
       }
 
@@ -152,11 +184,20 @@ export function registerTabsDirective(NoJS) {
       }
 
       // If initial tab is disabled, find next enabled
+      const pairedTabs = childTabs.slice(0, pairedCount);
       if (childTabs[initialIndex]?.getAttribute("aria-disabled") === "true") {
-        initialIndex = _findNextTab(childTabs.slice(0, pairedCount), initialIndex, 1);
+        const next = _findNextTab(pairedTabs, initialIndex, 1);
+        if (next !== -1) {
+          initialIndex = next;
+          _activateTab(el, initialIndex);
+        } else {
+          // Every tab is disabled — still reveal the first panel so the
+          // container is not left with all panels hidden (activeIndex=-1).
+          _activateTab(el, initialIndex, true);
+        }
+      } else {
+        _activateTab(el, initialIndex);
       }
-
-      _activateTab(el, initialIndex);
 
       // ─── Keyboard navigation on tablist ────────────────────────
       const keydownHandler = (e) => {
@@ -214,6 +255,10 @@ export function registerTabsDirective(NoJS) {
         const idx = state.tabs.indexOf(tab);
         if (idx === -1) return;
 
+        // Do not move focus onto a disabled tab — _activateTab no-ops for it,
+        // so focusing it would strand the user on an inert control.
+        if (tab.getAttribute("aria-disabled") === "true") return;
+
         _activateTab(el, idx);
         tab.focus();
       };
@@ -224,6 +269,10 @@ export function registerTabsDirective(NoJS) {
       addDisposer(el, () => {
         tablist.removeEventListener("keydown", keydownHandler);
         tablist.removeEventListener("click", clickHandler);
+        for (const unwatch of disabledUnwatchers) {
+          if (unwatch) unwatch();
+        }
+        disabledUnwatchers.length = 0;
         _tabsState.containers.delete(el);
       });
     },

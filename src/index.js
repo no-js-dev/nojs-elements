@@ -44,6 +44,24 @@ function _rebindSwappedNodes(NoJS) {
   }
 }
 
+// Attribute names of every directive registered by this plugin. Used by the
+// `init` hook to re-process DOM that core already walked before Elements was
+// installed (core marks every walked element `__declared`, even when no
+// directive matched, so a plain re-walk would skip them).
+const ELEMENT_DIRECTIVE_ATTRS = [
+  "tooltip",
+  "popover", "popover-trigger", "popover-dismiss",
+  "modal", "modal-open", "modal-close",
+  "dropdown", "dropdown-toggle", "dropdown-menu", "dropdown-item",
+  "toast", "toast-container",
+  "tabs", "tab", "tab-disabled", "tab-position",
+  "tree", "branch", "subtree",
+  "stepper", "step",
+  "skeleton",
+  "split", "pane", "panel",
+  "sortable", "sort", "fixed-header", "fixed-col",
+];
+
 const NoJSElements = {
   name: "nojs-elements",
 
@@ -69,10 +87,41 @@ const NoJSElements = {
     _rebindSwappedNodes(NoJS);
   },
 
-  // Load order 2: runs after core init() has built the root context + processed the
-  // tree, so any node bound against a not-yet-ready context is re-bound correctly.
+  // Runs after core init() has built the root context + processed the tree.
+  //
+  // Two responsibilities, both required:
+  //  1. Load order 2 (validate/drag/drop/...): re-bind any swapped node that was
+  //     bound against a not-yet-ready context so it picks up the live root context.
+  //  2. Late install: when Elements loads after core already walked the DOM, the
+  //     directives registered in install() would never apply to the existing,
+  //     already-walked tree. Re-clear the premature `__declared` flag on elements
+  //     bearing Elements directives and re-process them. (Safety Rule #11:
+  //     registers cleanly, only re-runs over its own directive attributes —
+  //     never overrides core.)
   init(NoJS) {
     _rebindSwappedNodes(NoJS);
+
+    if (typeof document === "undefined" || !document.body) return;
+    const selector = ELEMENT_DIRECTIVE_ATTRS.map((a) => `[${a}]`).join(",");
+    let nodes;
+    try {
+      nodes = document.body.querySelectorAll(selector);
+    } catch {
+      return;
+    }
+    for (const node of nodes) {
+      // Only reset elements core marked declared but on which nothing ran
+      // (no disposers / no context) — i.e. directives that were skipped because
+      // Elements was not yet registered when core walked the tree.
+      if (node.__declared && !node.__disposers && !node.__ctx) {
+        node.__declared = false;
+      }
+    }
+    try {
+      NoJS.processTree(document.body);
+    } catch (e) {
+      NoJS.internals?.warn?.("nojs-elements init re-process error:", e.message);
+    }
   },
 
   dispose(NoJS) {

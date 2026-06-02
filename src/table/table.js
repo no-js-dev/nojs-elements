@@ -65,7 +65,23 @@ function _setPath(obj, path, value) {
 }
 
 /**
+ * Compare two numeric values, sinking NaN (invalid/non-numeric) to the end so
+ * the comparator stays a total order (never returns NaN — Safety Rule 5/6).
+ */
+function _compareNumeric(a, b) {
+  const aNaN = Number.isNaN(a);
+  const bNaN = Number.isNaN(b);
+  if (aNaN && bNaN) return 0;
+  if (aNaN) return 1; // invalid sinks after valid
+  if (bNaN) return -1;
+  // Avoid (a - b) producing NaN for ±Infinity edge cases.
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+/**
  * Compare two values based on sort-type.
+ * Always returns a finite number so the sort comparator defines a total order;
+ * nullish and invalid (NaN/Invalid Date) values sink consistently to one end.
  */
 function _compare(a, b, sortType) {
   if (a == null && b == null) return 0;
@@ -74,9 +90,9 @@ function _compare(a, b, sortType) {
 
   switch (sortType) {
     case "number":
-      return Number(a) - Number(b);
+      return _compareNumeric(Number(a), Number(b));
     case "date":
-      return new Date(a).getTime() - new Date(b).getTime();
+      return _compareNumeric(new Date(a).getTime(), new Date(b).getTime());
     case "string":
     default:
       return String(a).localeCompare(String(b));
@@ -133,9 +149,14 @@ export function registerSort(NoJS) {
         _tableState.sorts.set(table, { column: null, direction: null });
       }
 
-      // Apply sort-default on init
+      // Apply sort-default on init. If several columns declare sort-default,
+      // only the first one wins — applying a later one would silently override
+      // and discard the earlier column's default. #52
       if (sortDefault === "asc" || sortDefault === "desc") {
-        _applySortFromTh(el, table, sortKey, sortType, sortDefault, NoJS);
+        const state = _tableState.sorts.get(table);
+        if (!state.column) {
+          _applySortFromTh(el, table, sortKey, sortType, sortDefault, NoJS);
+        }
       }
 
       // Click handler — cycle: asc -> desc -> none
@@ -160,8 +181,14 @@ export function registerSort(NoJS) {
       el.addEventListener("click", clickHandler);
       addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
-        if (table && table._nojsOriginalOrder) {
+        // Prune the per-table sort state (and captured original-order snapshots)
+        // once the table is detached, otherwise _tableState.sorts keeps every
+        // disposed <table> — and its full-dataset arrays — alive for the page
+        // lifetime (e.g. across SPA route swaps). #23
+        if (table && !table.isConnected) {
+          _tableState.sorts.delete(table);
           delete table._nojsOriginalOrder;
+          delete table._nojsOriginalRows;
         }
       });
     },
@@ -257,12 +284,20 @@ function _sortStaticRows(table, th, sortKey, sortType, direction) {
     return;
   }
 
+  // Parse a static cell for numeric sorting, preserving 0/negatives/decimals
+  // and letting genuinely non-numeric cells stay NaN so _compare sinks them
+  // (instead of collapsing everything invalid — or valid 0 — to 0). #7
+  const parseNumericCell = (text) => {
+    const cleaned = text.replace(/[^0-9.\-]/g, "");
+    return cleaned === "" || cleaned === "-" ? NaN : parseFloat(cleaned);
+  };
+
   rows.sort((a, b) => {
     const cellA = a.children[colIndex]?.textContent?.trim() || "";
     const cellB = b.children[colIndex]?.textContent?.trim() || "";
     const cmp = _compare(
-      sortType === "number" ? parseFloat(cellA.replace(/[^0-9.\-]/g, "")) || 0 : cellA,
-      sortType === "number" ? parseFloat(cellB.replace(/[^0-9.\-]/g, "")) || 0 : cellB,
+      sortType === "number" ? parseNumericCell(cellA) : cellA,
+      sortType === "number" ? parseNumericCell(cellB) : cellB,
       sortType
     );
     return direction === "desc" ? -cmp : cmp;
