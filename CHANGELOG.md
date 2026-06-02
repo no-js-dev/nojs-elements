@@ -5,6 +5,13 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.2](https://github.com/ErickXavier/nojs-elements/compare/v1.13.1...v1.13.2) — 2026-06-02
+
+### Fixed
+
+- Element hardening pass — disposal and reopen invariants tightened across the component suite following the 2026-05-29 deep code review. Popover disposal and the dropdown reopen behavior were the primary fixes, with related hardening across `popover`, `dropdown`, `modal`, `stepper`, `table`, `toast`, `tree`, `tabs`, `tooltip`, `split`, and `skeleton`.
+- Added `__tests__/dropdown-reopen-regression.test.js` covering the dropdown reopen regression.
+
 ## [1.13.1](https://github.com/ErickXavier/nojs-elements/compare/v1.13.0...v1.13.1) — 2026-06-01
 
 Ecosystem version-sync release. No functional changes to NoJS Elements — version bumped to stay lockstep with the rest of the NoJS ecosystem (NoJS-LSP plugin-metadata polish).
