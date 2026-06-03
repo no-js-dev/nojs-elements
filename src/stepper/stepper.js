@@ -75,7 +75,11 @@ export function registerStepper(NoJS) {
 
           if (mode === "free") {
             item.setAttribute("data-clickable", "");
-            item.addEventListener("click", () => goTo(i));
+            const onItemClick = () => goTo(i);
+            item.addEventListener("click", onItemClick);
+            addDisposer(el, () =>
+              item.removeEventListener("click", onItemClick)
+            );
           } else {
             item.setAttribute("tabindex", "-1");
           }
@@ -85,7 +89,7 @@ export function registerStepper(NoJS) {
         });
 
         // Keyboard navigation on indicator
-        indicatorEl.addEventListener("keydown", (e) => {
+        const onIndicatorKeydown = (e) => {
           if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
           e.preventDefault();
 
@@ -96,10 +100,20 @@ export function registerStepper(NoJS) {
           else if (e.key === "End") target = steps.length - 1;
 
           if (mode === "free") {
+            // In free mode, navigate to the target and follow focus to it.
             goTo(target);
+            indicatorItems[target]?.focus();
+          } else {
+            // In linear mode the indicator is not directly navigable, so keep
+            // focus on the current item (which holds roving tabindex 0)
+            // instead of moving it to an item with tabindex -1.
+            indicatorItems[current]?.focus();
           }
-          indicatorItems[target]?.focus();
-        });
+        };
+        indicatorEl.addEventListener("keydown", onIndicatorKeydown);
+        addDisposer(el, () =>
+          indicatorEl.removeEventListener("keydown", onIndicatorKeydown)
+        );
 
         el.insertBefore(indicatorEl, el.firstChild);
       }
@@ -117,13 +131,21 @@ export function registerStepper(NoJS) {
         prevBtn.type = "button";
         prevBtn.className = "nojs-stepper-prev";
         prevBtn.textContent = "Previous";
-        prevBtn.addEventListener("click", () => prev());
+        const onPrevClick = () => prev();
+        prevBtn.addEventListener("click", onPrevClick);
+        addDisposer(el, () =>
+          prevBtn.removeEventListener("click", onPrevClick)
+        );
 
         nextBtn = document.createElement("button");
         nextBtn.type = "button";
         nextBtn.className = "nojs-stepper-next";
         nextBtn.textContent = "Next";
-        nextBtn.addEventListener("click", () => next());
+        const onNextClick = () => next();
+        nextBtn.addEventListener("click", onNextClick);
+        addDisposer(el, () =>
+          nextBtn.removeEventListener("click", onNextClick)
+        );
 
         navEl.appendChild(prevBtn);
         navEl.appendChild(nextBtn);
@@ -181,7 +203,7 @@ export function registerStepper(NoJS) {
       }
 
       // ── Step visibility ──
-      function _updateView() {
+      function _updateView(isInitial) {
         steps.forEach((stepEl, i) => {
           const isActive = i === current;
           stepEl.setAttribute("aria-hidden", isActive ? "false" : "true");
@@ -218,10 +240,13 @@ export function registerStepper(NoJS) {
           nextBtn.textContent = current === steps.length - 1 ? "Finish" : "Next";
         }
 
-        // Dispatch step-change event
+        // Dispatch step-change event. The initial render fires a
+        // non-bubbling event so direct listeners still observe the starting
+        // step, but ancestors do not receive a spurious change event before
+        // any user interaction.
         el.dispatchEvent(
           new CustomEvent("step-change", {
-            bubbles: true,
+            bubbles: !isInitial,
             detail: { current, total: steps.length },
           })
         );
@@ -229,7 +254,19 @@ export function registerStepper(NoJS) {
 
       // ── Navigation API ──
       function next() {
-        if (current >= steps.length - 1) return false;
+        // On the last step, "Next" relabels to "Finish": validate the final
+        // step (in linear mode) and emit a completion event instead of
+        // silently no-op'ing.
+        if (current >= steps.length - 1) {
+          if (mode === "linear" && !_validateStep(current)) return false;
+          el.dispatchEvent(
+            new CustomEvent("step-complete", {
+              bubbles: true,
+              detail: { current, total: steps.length },
+            })
+          );
+          return false;
+        }
         if (mode === "linear" && !_validateStep(current)) return false;
         current++;
         _updateView();
@@ -249,11 +286,19 @@ export function registerStepper(NoJS) {
         if (index < 0 || index >= steps.length) return false;
         if (index === current) return false;
 
-        // In linear mode, can only go back or validate forward
+        // In linear mode, can only go back or validate forward. Validate one
+        // step at a time, revealing each step before validating so
+        // reportValidity() can surface UI on the (otherwise hidden/inert)
+        // intermediate step. If a step fails, navigation stops on that step
+        // rather than silently aborting.
         if (mode === "linear" && index > current) {
-          // Must validate all steps between current and target
           for (let i = current; i < index; i++) {
-            if (!_validateStep(i)) return false;
+            current = i;
+            _updateView();
+            if (!_validateStep(i)) {
+              _syncContext();
+              return false;
+            }
           }
         }
 
@@ -280,8 +325,12 @@ export function registerStepper(NoJS) {
       _syncContext();
 
       // ── Register in state ──
+      // `current` is exposed as a getter so the registry always reflects the
+      // live step index rather than a one-time snapshot taken at init.
       _stepperRegistry.set(el, {
-        current,
+        get current() {
+          return current;
+        },
         steps,
         mode,
         indicatorEl,
@@ -289,7 +338,7 @@ export function registerStepper(NoJS) {
       });
 
       // ── Initial render ──
-      _updateView();
+      _updateView(true);
 
       // ── Cleanup ──
       addDisposer(el, () => {

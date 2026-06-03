@@ -6,6 +6,17 @@ function addDisposer(el, fn) {
   el.__disposers.push(fn);
 }
 
+// Look up a modal element by its data-modal-id without interpolating the
+// (potentially attacker-influenced) id into a CSS selector string, which
+// would allow selector injection / syntax errors.
+function _findModalById(id) {
+  const candidates = document.querySelectorAll("[data-modal-id]");
+  for (const candidate of candidates) {
+    if (candidate.getAttribute("data-modal-id") === id) return candidate;
+  }
+  return null;
+}
+
 // ─── Register the `modal-open` directive ────────────────────────────
 export function registerModalOpen(NoJS) {
   NoJS.directive("modal-open", {
@@ -33,33 +44,42 @@ export function registerModalOpen(NoJS) {
       el.setAttribute("aria-expanded", "false");
 
       const clickHandler = () => {
-        const modalEl = _modalRegistry.get(targetId) || document.querySelector(`[data-modal-id="${targetId}"]`);
+        const modalEl = _modalRegistry.get(targetId) || _findModalById(targetId);
         if (!modalEl) {
           console.warn(`[modal-open] modal "${targetId}" not found`);
           return;
         }
 
-        // Push to stack with trigger reference
-        _modalStack.push({
-          id: targetId,
-          el: modalEl,
-          triggerEl: el,
-        });
-
-        // Update ARIA on trigger
-        el.setAttribute("aria-expanded", "true");
+        // Guard: do not push a duplicate entry if this modal is already
+        // on the stack (re-clicking the trigger or opening via another path).
+        const alreadyStacked = _modalStack.some((m) => m.id === targetId);
 
         // Connect trigger to modal via aria-controls
         if (modalEl.id) {
           el.setAttribute("aria-controls", modalEl.id);
         }
 
-        // Show the modal
+        // Show the modal first; only mutate the stack/ARIA on success so a
+        // throwing showPopover() never leaves a phantom stack entry.
         try {
           modalEl.showPopover();
         } catch {
           console.warn(`[modal-open] failed to open modal "${targetId}"`);
+          return;
         }
+
+        // Push to stack with trigger reference (only after a successful show
+        // and only if not already tracked).
+        if (!alreadyStacked) {
+          _modalStack.push({
+            id: targetId,
+            el: modalEl,
+            triggerEl: el,
+          });
+        }
+
+        // Update ARIA on trigger
+        el.setAttribute("aria-expanded", "true");
       };
 
       // Listen for toggle close to reset aria-expanded

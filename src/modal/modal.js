@@ -116,8 +116,11 @@ export function registerModalDirective(NoJS) {
             extraClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
           }
 
-          // Focus first focusable element
+          // Focus first focusable element. Guard against the modal having
+          // been closed/disposed before the rAF fires, which would otherwise
+          // steal focus into a hidden/detached modal.
           requestAnimationFrame(() => {
+            if (!el.isConnected || !_modalStack.some((m) => m.el === el)) return;
             const first = el.querySelector(FOCUSABLE);
             if (first) first.focus();
             else el.focus();
@@ -151,8 +154,11 @@ export function registerModalDirective(NoJS) {
             _escHandlers.delete(el);
           }
 
-          // Pop from stack and restore focus to trigger
-          const idx = _modalStack.findIndex((m) => m.id === id);
+          // Pop from stack and restore focus to trigger. Match by element
+          // identity so duplicate/shared ids restore focus to the correct
+          // trigger; fall back to id for entries pushed without an element.
+          let idx = _modalStack.findIndex((m) => m.el === el);
+          if (idx === -1) idx = _modalStack.findIndex((m) => m.id === id);
           if (idx !== -1) {
             const entry = _modalStack[idx];
             _modalStack.splice(idx, 1);
@@ -180,7 +186,8 @@ export function registerModalDirective(NoJS) {
           _escHandlers.delete(el);
         }
         _modalRegistry.delete(id);
-        const idx = _modalStack.findIndex((m) => m.id === id);
+        let idx = _modalStack.findIndex((m) => m.el === el);
+        if (idx === -1) idx = _modalStack.findIndex((m) => m.id === id);
         if (idx !== -1) _modalStack.splice(idx, 1);
       });
     },
@@ -192,8 +199,13 @@ export function registerModalDirective(NoJS) {
   modalApi.open = (id) => {
     const modalEl = _modalRegistry.get(id);
     if (!modalEl) return false;
-    _modalStack.push({ id, el: modalEl, triggerEl: null });
+    // Show first; only record the stack entry on success so a throwing
+    // showPopover() never leaves a phantom entry. Also guard against pushing
+    // a duplicate when the modal is already open/stacked.
     try { modalEl.showPopover(); } catch { return false; }
+    if (!_modalStack.some((m) => m.id === id)) {
+      _modalStack.push({ id, el: modalEl, triggerEl: null });
+    }
     return true;
   };
 

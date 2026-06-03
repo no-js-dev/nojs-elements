@@ -17,7 +17,30 @@ function _getClientAxis(direction) {
 }
 
 function _getOffsetSize(el, direction) {
+  // Prefer fractional rect size to avoid integer rounding drift across repeated
+  // drags (offsetWidth/Height are rounded to whole pixels). Fall back to the
+  // integer offset path when getBoundingClientRect is unavailable (e.g. jsdom
+  // returns a zero rect for unlaid-out nodes).
+  const rect = el.getBoundingClientRect ? el.getBoundingClientRect() : null;
+  const fractional = rect && (direction === "horizontal" ? rect.width : rect.height);
+  if (fractional) return fractional;
   return direction === "horizontal" ? el.offsetWidth : el.offsetHeight;
+}
+
+// Resolve the horizontal sign for a split element: dir=rtl inverts the meaning
+// of a positive pointer/keyboard delta so the prev pane grows toward the start.
+function _getDirectionSign(splitEl, direction) {
+  if (direction !== "horizontal") return 1;
+  try {
+    const dir =
+      (splitEl.closest && splitEl.closest("[dir]")?.getAttribute("dir")) ||
+      (typeof getComputedStyle === "function"
+        ? getComputedStyle(splitEl).direction
+        : "");
+    return dir === "rtl" ? -1 : 1;
+  } catch (_) {
+    return 1;
+  }
 }
 
 function _getContainerSize(splitEl, direction) {
@@ -27,6 +50,18 @@ function _getContainerSize(splitEl, direction) {
     0
   );
   return _getOffsetSize(splitEl, direction) - totalGutter;
+}
+
+// Resolve a CSS size string (e.g. "120px", "50%", "") to a pixel number
+// relative to the given container size. Returns null when it can't be parsed.
+function _resolveSizePx(sizeStr, containerSize) {
+  if (!sizeStr) return null;
+  const value = parseFloat(sizeStr);
+  if (Number.isNaN(value)) return null;
+  if (typeof sizeStr === "string" && sizeStr.trim().endsWith("%")) {
+    return (value / 100) * containerSize;
+  }
+  return value; // assume px (parseFloat drops the unit suffix)
 }
 
 function _clampSize(px, paneEl) {
@@ -119,6 +154,7 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
     _resizeState.startPrevSize = _getOffsetSize(prevPane, direction);
     _resizeState.startNextSize = _getOffsetSize(nextPane, direction);
     _resizeState.containerSize = containerSize;
+    _resizeState.sign = _getDirectionSign(splitEl, direction);
 
     document.body.style.cursor =
       direction === "horizontal" ? "col-resize" : "row-resize";
@@ -131,7 +167,8 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
     if (!_resizeState.active || _resizeState.gutterEl !== gutter) return;
 
     const delta =
-      e[_getClientAxis(_resizeState.direction)] - _resizeState.startPos;
+      (e[_getClientAxis(_resizeState.direction)] - _resizeState.startPos) *
+      (_resizeState.sign || 1);
 
     let newPrev = _clampSize(
       _resizeState.startPrevSize + delta,
@@ -191,12 +228,13 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
 
   const onKeyDown = (e) => {
     const isHoriz = direction === "horizontal";
+    const sign = _getDirectionSign(splitEl, direction);
     let delta = 0;
 
     if ((isHoriz && e.key === "ArrowRight") || (!isHoriz && e.key === "ArrowDown")) {
-      delta = STEP;
+      delta = STEP * sign;
     } else if ((isHoriz && e.key === "ArrowLeft") || (!isHoriz && e.key === "ArrowUp")) {
-      delta = -STEP;
+      delta = -STEP * sign;
     } else if (e.key === "Home") {
       const prevInfo = _paneRegistry.get(prevPane);
       delta = (prevInfo?.min || 0) - _getOffsetSize(prevPane, direction);
@@ -217,7 +255,11 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
 
     let newPrev = _clampSize(curPrev + delta, prevPane);
     let newNext = _clampSize(total - newPrev, nextPane);
-    newPrev = total - newNext; // re-balance after clamp
+    newPrev = total - newNext; // re-balance after clamping next
+    // Re-clamp prev after rebalancing: clamping next may have pushed prev past
+    // its own min/max. Re-derive next so the pair still sums to the total.
+    newPrev = _clampSize(newPrev, prevPane);
+    newNext = total - newPrev;
 
     prevPane.style.flexBasis = `${newPrev}px`;
     prevPane.style.flexGrow = "0";
@@ -254,9 +296,13 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
       info.collapsed = false;
       target.removeAttribute("data-collapsed");
       const restoreSize = info.preCollapseSize || `${Math.round(total / 2)}px`;
-      target.style.flexBasis = restoreSize;
+      // Resolve to pixels (handles "%" units) and clamp so the sibling never
+      // receives a negative basis when the stored size exceeds the new total.
+      const restorePx = _resolveSizePx(restoreSize, total) ?? total / 2;
+      const targetPx = Math.min(restorePx, total);
+      target.style.flexBasis = `${targetPx}px`;
       target.style.flexGrow = "0";
-      other.style.flexBasis = `${total - parseFloat(restoreSize)}px`;
+      other.style.flexBasis = `${total - targetPx}px`;
       other.style.flexGrow = "0";
     } else {
       // Collapse
