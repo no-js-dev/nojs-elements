@@ -138,7 +138,6 @@ For the full directive reference with all attributes, events, CSS classes, and a
 | [No.JS](https://github.com/ErickXavier/no-js) | Core HTML-first reactive framework (peer dependency) |
 | **NoJS Elements** | This package — UI element plugins |
 | [NoJS-LSP](https://github.com/ErickXavier/nojs-lsp) | VS Code extension — autocomplete, hover docs, diagnostics |
-| [NoJS-CLI](https://github.com/ErickXavier/nojs-cli) | Command-line tool for scaffolding and managing No.JS projects |
 | [NoJS-Skill](https://github.com/ErickXavier/nojs-skill) | Claude Code skill — guided No.JS project generation |
 
 ---
