@@ -5,6 +5,19 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.13.3](https://github.com/ErickXavier/nojs-elements/compare/v1.13.2...v1.13.3) — 2026-06-05
+
+### Fixed
+
+- Toast: non-interactive `[toast]` element outside reactive context no longer crashes with TypeError.
+- DnD: replaced `innerHTML` with `cloneNode(true)` in ghost element creation — prevents XSS via inline event handlers on cloned content.
+- Modal: `_observeClose` race condition resolved — `aria-expanded` no longer stuck at `"true"` when modal opens and closes before `requestAnimationFrame` fires.
+
+### Changed
+
+- Tree: extracted keyboard/selection helpers to module scope, added leaf node click selection and keyboard navigation.
+- Build: updated banner homepage URL to `elements.no-js.dev`, added `@repository` field.
+
 ## [1.13.2](https://github.com/ErickXavier/nojs-elements/compare/v1.13.1...v1.13.2) — 2026-06-02
 
 ### Fixed
