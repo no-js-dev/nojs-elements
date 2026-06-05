@@ -11,6 +11,7 @@ import { registerStepperModule, cleanupStepper } from "./stepper/index.js";
 import { registerSkeleton, cleanupSkeleton } from "./skeleton/index.js";
 import { registerSplit, cleanupSplit } from "./split/index.js";
 import { registerTable, cleanupTable } from "./table/index.js";
+import { registerScrollSpy, cleanupScrollSpy } from "./scroll-spy/index.js";
 import { _internal } from "./_compat.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
@@ -60,6 +61,7 @@ const ELEMENT_DIRECTIVE_ATTRS = [
   "skeleton",
   "split", "pane", "panel",
   "sortable", "sort", "fixed-header", "fixed-col",
+  "spy", "spy-offset", "spy-threshold",
 ];
 
 const NoJSElements = {
@@ -82,6 +84,7 @@ const NoJSElements = {
     registerSkeleton(NoJS, options);
     registerSplit(NoJS, options);
     registerTable(NoJS, options);
+    registerScrollSpy(NoJS, options);
 
     // Load order 1: core auto-init already processed these nodes with stubs.
     _rebindSwappedNodes(NoJS);
@@ -138,6 +141,7 @@ const NoJSElements = {
     cleanupSkeleton();
     cleanupSplit();
     cleanupTable();
+    cleanupScrollSpy();
   },
 };
 
