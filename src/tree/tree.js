@@ -107,6 +107,7 @@ function _handleKeydown(e, el) {
 
   const visibleItems = _getVisibleItems(treeRoot);
   const currentIndex = visibleItems.indexOf(el);
+  if (currentIndex < 0) return;
   const state = _treeState.branches.get(el);
   const hasSubtree = state && state.subtreeEl;
 
@@ -349,6 +350,13 @@ export function registerSubtree(NoJS) {
           };
           li.addEventListener("keydown", leafKeydownHandler);
           addDisposer(li, () => li.removeEventListener("keydown", leafKeydownHandler));
+
+          // Cleanup selectedItem reference when leaf is removed
+          addDisposer(li, () => {
+            if (_treeState.selectedItem === li) {
+              _treeState.selectedItem = null;
+            }
+          });
         }
       }
 

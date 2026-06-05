@@ -108,7 +108,8 @@ export function registerModalOpen(NoJS) {
 
       // Try synchronous first; defer only if modal hasn't registered yet
       if (!_observeClose()) {
-        requestAnimationFrame(_observeClose);
+        const rafId = requestAnimationFrame(_observeClose);
+        addDisposer(el, () => cancelAnimationFrame(rafId));
       }
 
       el.addEventListener("click", clickHandler);
