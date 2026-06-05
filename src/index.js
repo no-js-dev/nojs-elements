@@ -12,6 +12,7 @@ import { registerSkeleton, cleanupSkeleton } from "./skeleton/index.js";
 import { registerSplit, cleanupSplit } from "./split/index.js";
 import { registerTable, cleanupTable } from "./table/index.js";
 import { registerBreadcrumb, cleanupBreadcrumb } from "./breadcrumb/index.js";
+import { registerAccordion, cleanupAccordion } from "./accordion/index.js";
 import { _internal } from "./_compat.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
@@ -62,6 +63,7 @@ const ELEMENT_DIRECTIVE_ATTRS = [
   "split", "pane", "panel",
   "sortable", "sort", "fixed-header", "fixed-col",
   "breadcrumb",
+  "accordion",
 ];
 
 const NoJSElements = {
@@ -85,6 +87,7 @@ const NoJSElements = {
     registerSplit(NoJS, options);
     registerTable(NoJS, options);
     registerBreadcrumb(NoJS, options);
+    registerAccordion(NoJS, options);
 
     // Load order 1: core auto-init already processed these nodes with stubs.
     _rebindSwappedNodes(NoJS);
@@ -142,6 +145,7 @@ const NoJSElements = {
     cleanupSplit();
     cleanupTable();
     cleanupBreadcrumb();
+    cleanupAccordion();
   },
 };
 
