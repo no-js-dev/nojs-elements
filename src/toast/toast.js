@@ -182,6 +182,10 @@ export function registerToastDirectives(NoJS) {
 
       // Non-interactive elements: watch expression reactively
       const ctx = NoJS.findContext(el);
+      if (!ctx || typeof ctx.$watch !== "function") {
+        console.warn("[toast] reactive toast requires a parent [state] or [use] context — element will be inert");
+        return;
+      }
       let prevValue = undefined;
 
       function check() {
@@ -190,9 +194,7 @@ export function registerToastDirectives(NoJS) {
           const msg = typeof value === "string" ? value : String(value);
           const container = _resolveContainer();
           _createToast(container, msg, type, duration, dismiss);
-          // Reset so an identical message re-assigned later re-toasts
-          // (the next falsy→truthy transition counts as a change again)
-          prevValue = undefined;
+          prevValue = value;
         } else {
           prevValue = value;
         }

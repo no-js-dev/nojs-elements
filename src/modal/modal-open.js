@@ -94,7 +94,7 @@ export function registerModalOpen(NoJS) {
       // Observe modal close to reset aria-expanded
       const _observeClose = () => {
         const modalEl = _modalRegistry.get(targetId);
-        if (!modalEl) return;
+        if (!modalEl) return false;
 
         _observedModal = modalEl;
         _toggleHandler = (e) => {
@@ -103,10 +103,14 @@ export function registerModalOpen(NoJS) {
           }
         };
         modalEl.addEventListener("toggle", _toggleHandler);
+        return true;
       };
 
-      // Defer observation to allow modal to register first
-      requestAnimationFrame(_observeClose);
+      // Try synchronous first; defer only if modal hasn't registered yet
+      if (!_observeClose()) {
+        const rafId = requestAnimationFrame(_observeClose);
+        addDisposer(el, () => cancelAnimationFrame(rafId));
+      }
 
       el.addEventListener("click", clickHandler);
 

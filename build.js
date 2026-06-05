@@ -7,8 +7,9 @@ const banner = `/**
  * NoJS Elements v${pkg.version} — Element plugins for No.JS
  * Drag-and-drop, and more.
  * @author ${pkg.author}
- * @homepage https://github.com/ErickXavier/nojs-elements
+ * @homepage https://elements.no-js.dev/
  * @license MIT
+ * @repository https://github.com/ErickXavier/nojs-elements
  */`;
 
 const shared = {

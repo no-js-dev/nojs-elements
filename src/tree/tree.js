@@ -63,6 +63,148 @@ function _getItemLabel(el) {
   return (clone.textContent || "").trim().toLowerCase();
 }
 
+// ─── Selection and visibility helpers ────────────────────────────────
+
+function selectBranch(el) {
+  const prev = _treeState.selectedItem;
+  if (prev && prev !== el) {
+    prev.classList.remove("nojs-branch-selected");
+    prev.setAttribute("aria-selected", "false");
+  }
+  el.classList.add("nojs-branch-selected");
+  el.setAttribute("aria-selected", "true");
+  _treeState.selectedItem = el;
+}
+
+function toggleBranch(el) {
+  const state = _treeState.branches.get(el);
+  if (!state || !state.subtreeEl) return;
+
+  state.expanded = !state.expanded;
+  el.setAttribute("aria-expanded", String(state.expanded));
+  state.subtreeEl.setAttribute("aria-hidden", String(!state.expanded));
+}
+
+function expandBranch(el) {
+  const state = _treeState.branches.get(el);
+  if (!state || !state.subtreeEl || state.expanded) return;
+  state.expanded = true;
+  el.setAttribute("aria-expanded", "true");
+  state.subtreeEl.setAttribute("aria-hidden", "false");
+}
+
+function collapseBranch(el) {
+  const state = _treeState.branches.get(el);
+  if (!state || !state.subtreeEl || !state.expanded) return;
+  state.expanded = false;
+  el.setAttribute("aria-expanded", "false");
+  state.subtreeEl.setAttribute("aria-hidden", "true");
+}
+
+function _handleKeydown(e, el) {
+  const treeRoot = _findTreeRoot(el);
+  if (!treeRoot) return;
+
+  const visibleItems = _getVisibleItems(treeRoot);
+  const currentIndex = visibleItems.indexOf(el);
+  if (currentIndex < 0) return;
+  const state = _treeState.branches.get(el);
+  const hasSubtree = state && state.subtreeEl;
+
+  switch (e.key) {
+    case "ArrowRight":
+      e.preventDefault();
+      if (hasSubtree && !state.expanded) {
+        // Expand collapsed branch
+        expandBranch(el);
+      } else if (hasSubtree && state.expanded) {
+        // Focus first child
+        const firstChild = state.subtreeEl.querySelector('[role="treeitem"]');
+        if (firstChild) {
+          _focusItem(firstChild, visibleItems);
+        }
+      }
+      break;
+
+    case "ArrowLeft":
+      e.preventDefault();
+      if (hasSubtree && state.expanded) {
+        // Collapse expanded branch
+        collapseBranch(el);
+      } else {
+        // Focus parent branch (handles child-nested and sibling layouts)
+        const parentBranch = _findParentBranch(el);
+        if (parentBranch) {
+          _focusItem(parentBranch, _getVisibleItems(treeRoot));
+        }
+      }
+      break;
+
+    case "ArrowDown":
+      e.preventDefault();
+      if (currentIndex < visibleItems.length - 1) {
+        _focusItem(visibleItems[currentIndex + 1], visibleItems);
+      }
+      break;
+
+    case "ArrowUp":
+      e.preventDefault();
+      if (currentIndex > 0) {
+        _focusItem(visibleItems[currentIndex - 1], visibleItems);
+      }
+      break;
+
+    case "Enter":
+    case " ":
+      e.preventDefault();
+      selectBranch(el);
+      if (hasSubtree) {
+        toggleBranch(el);
+      }
+      break;
+
+    case "Home":
+      e.preventDefault();
+      if (visibleItems.length > 0) {
+        _focusItem(visibleItems[0], visibleItems);
+      }
+      break;
+
+    case "End":
+      e.preventDefault();
+      if (visibleItems.length > 0) {
+        _focusItem(visibleItems[visibleItems.length - 1], visibleItems);
+      }
+      break;
+
+    default:
+      // Typeahead: single printable character
+      if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        e.preventDefault();
+        _treeState.typeahead += e.key.toLowerCase();
+
+        if (_treeState.typeaheadTimer) clearTimeout(_treeState.typeaheadTimer);
+        _treeState.typeaheadTimer = setTimeout(() => {
+          // Guard: bail if the originating branch was detached (Safety Rule 4)
+          _treeState.typeahead = "";
+          _treeState.typeaheadTimer = null;
+        }, 500);
+
+        // Find next item starting with typeahead string
+        const startIdx = currentIndex + 1;
+        for (let i = 0; i < visibleItems.length; i++) {
+          const idx = (startIdx + i) % visibleItems.length;
+          const label = _getItemLabel(visibleItems[idx]);
+          if (label.startsWith(_treeState.typeahead)) {
+            _focusItem(visibleItems[idx], visibleItems);
+            break;
+          }
+        }
+      }
+      break;
+  }
+}
+
 // ─── tree directive ──────────────────────────────────────────────────
 
 export function registerTreeDirective(NoJS) {
@@ -129,44 +271,6 @@ export function registerBranch(NoJS) {
         }
       });
 
-      // Selection function
-      function selectBranch(el) {
-        const prev = _treeState.selectedItem;
-        if (prev && prev !== el) {
-          prev.classList.remove("nojs-branch-selected");
-          prev.setAttribute("aria-selected", "false");
-        }
-        el.classList.add("nojs-branch-selected");
-        el.setAttribute("aria-selected", "true");
-        _treeState.selectedItem = el;
-      }
-
-      // Toggle function
-      function toggleBranch(el) {
-        const state = _treeState.branches.get(el);
-        if (!state || !state.subtreeEl) return;
-
-        state.expanded = !state.expanded;
-        el.setAttribute("aria-expanded", String(state.expanded));
-        state.subtreeEl.setAttribute("aria-hidden", String(!state.expanded));
-      }
-
-      function expandBranch(el) {
-        const state = _treeState.branches.get(el);
-        if (!state || !state.subtreeEl || state.expanded) return;
-        state.expanded = true;
-        el.setAttribute("aria-expanded", "true");
-        state.subtreeEl.setAttribute("aria-hidden", "false");
-      }
-
-      function collapseBranch(el) {
-        const state = _treeState.branches.get(el);
-        if (!state || !state.subtreeEl || !state.expanded) return;
-        state.expanded = false;
-        el.setAttribute("aria-expanded", "false");
-        state.subtreeEl.setAttribute("aria-hidden", "true");
-      }
-
       // Click handler — select and toggle on click of the branch element
       const clickHandler = (e) => {
         // Only handle clicks on this branch's own label, not on a nested
@@ -183,104 +287,7 @@ export function registerBranch(NoJS) {
 
       // Keyboard handler
       const keydownHandler = (e) => {
-        const treeRoot = _findTreeRoot(el);
-        if (!treeRoot) return;
-
-        const visibleItems = _getVisibleItems(treeRoot);
-        const currentIndex = visibleItems.indexOf(el);
-        const state = _treeState.branches.get(el);
-        const hasSubtree = state && state.subtreeEl;
-
-        switch (e.key) {
-          case "ArrowRight":
-            e.preventDefault();
-            if (hasSubtree && !state.expanded) {
-              // Expand collapsed branch
-              expandBranch(el);
-            } else if (hasSubtree && state.expanded) {
-              // Focus first child
-              const firstChild = state.subtreeEl.querySelector('[role="treeitem"]');
-              if (firstChild) {
-                _focusItem(firstChild, visibleItems);
-              }
-            }
-            break;
-
-          case "ArrowLeft":
-            e.preventDefault();
-            if (hasSubtree && state.expanded) {
-              // Collapse expanded branch
-              collapseBranch(el);
-            } else {
-              // Focus parent branch (handles child-nested and sibling layouts)
-              const parentBranch = _findParentBranch(el);
-              if (parentBranch) {
-                _focusItem(parentBranch, _getVisibleItems(treeRoot));
-              }
-            }
-            break;
-
-          case "ArrowDown":
-            e.preventDefault();
-            if (currentIndex < visibleItems.length - 1) {
-              _focusItem(visibleItems[currentIndex + 1], visibleItems);
-            }
-            break;
-
-          case "ArrowUp":
-            e.preventDefault();
-            if (currentIndex > 0) {
-              _focusItem(visibleItems[currentIndex - 1], visibleItems);
-            }
-            break;
-
-          case "Enter":
-          case " ":
-            e.preventDefault();
-            selectBranch(el);
-            toggleBranch(el);
-            break;
-
-          case "Home":
-            e.preventDefault();
-            if (visibleItems.length > 0) {
-              _focusItem(visibleItems[0], visibleItems);
-            }
-            break;
-
-          case "End":
-            e.preventDefault();
-            if (visibleItems.length > 0) {
-              _focusItem(visibleItems[visibleItems.length - 1], visibleItems);
-            }
-            break;
-
-          default:
-            // Typeahead: single printable character
-            if (e.key.length === 1 && !e.ctrlKey && !e.altKey && !e.metaKey) {
-              e.preventDefault();
-              _treeState.typeahead += e.key.toLowerCase();
-
-              if (_treeState.typeaheadTimer) clearTimeout(_treeState.typeaheadTimer);
-              _treeState.typeaheadTimer = setTimeout(() => {
-                // Guard: bail if the originating branch was detached (Safety Rule 4)
-                _treeState.typeahead = "";
-                _treeState.typeaheadTimer = null;
-              }, 500);
-
-              // Find next item starting with typeahead string
-              const startIdx = currentIndex + 1;
-              for (let i = 0; i < visibleItems.length; i++) {
-                const idx = (startIdx + i) % visibleItems.length;
-                const label = _getItemLabel(visibleItems[idx]);
-                if (label.startsWith(_treeState.typeahead)) {
-                  _focusItem(visibleItems[idx], visibleItems);
-                  break;
-                }
-              }
-            }
-            break;
-        }
+        _handleKeydown(e, el);
       };
       el.addEventListener("keydown", keydownHandler);
       addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
@@ -330,6 +337,26 @@ export function registerSubtree(NoJS) {
           li.setAttribute("role", "treeitem");
           li.setAttribute("tabindex", "-1");
           li.classList.add("nojs-tree-leaf");
+
+          const leafClickHandler = (e) => {
+            e.stopPropagation();
+            selectBranch(li);
+          };
+          li.addEventListener("click", leafClickHandler);
+          addDisposer(li, () => li.removeEventListener("click", leafClickHandler));
+
+          const leafKeydownHandler = (e) => {
+            _handleKeydown(e, li);
+          };
+          li.addEventListener("keydown", leafKeydownHandler);
+          addDisposer(li, () => li.removeEventListener("keydown", leafKeydownHandler));
+
+          // Cleanup selectedItem reference when leaf is removed
+          addDisposer(li, () => {
+            if (_treeState.selectedItem === li) {
+              _treeState.selectedItem = null;
+            }
+          });
         }
       }
 

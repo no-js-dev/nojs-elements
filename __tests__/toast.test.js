@@ -314,6 +314,26 @@ describe('Toast ARIA', () => {
 });
 
 // =======================================================================
+//  REACTIVE TOAST OUTSIDE CONTEXT
+// =======================================================================
+
+describe('Toast — reactive outside reactive context', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-toast]').forEach(s => s.remove());
+    resetToastState();
+  });
+
+  test('25b — non-interactive toast outside reactive scope does not crash', () => {
+    setupContainer();
+    const div = document.createElement('div');
+    div.setAttribute('toast', 'someExpr');
+    document.body.appendChild(div);
+    expect(() => NoJS.processTree(div)).not.toThrow();
+  });
+});
+
+// =======================================================================
 //  STYLE INJECTION TESTS
 // =======================================================================
 

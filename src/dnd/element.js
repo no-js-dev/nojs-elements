@@ -148,8 +148,14 @@ function _buildStackGhost(sourceEl, count) {
       "overflow:hidden;box-sizing:border-box;";
 
     if (i === 0) {
-      // Top card: clone content
-      layer.innerHTML = measured.innerHTML;
+      // Top card: clone content (cloneNode avoids re-parsing HTML which
+      // would execute inline event handlers like onerror on <img> tags).
+      // Use while-loop to drain the clone — childNodes is a live NodeList
+      // so for-of would skip every other child as appendChild mutates it.
+      const clone = measured.cloneNode(true);
+      while (clone.firstChild) {
+        layer.appendChild(clone.firstChild);
+      }
       layer.style.background = cs.backgroundColor || "#fff";
       layer.style.border = cs.border;
       layer.style.padding = cs.padding;

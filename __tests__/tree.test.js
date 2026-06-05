@@ -25,12 +25,10 @@ function setupTree(opts = {}) {
   subtreeA.setAttribute('subtree', '');
 
   const leafA1 = document.createElement('li');
-  leafA1.setAttribute('branch', '');
   leafA1.textContent = 'Alpha-1';
   subtreeA.appendChild(leafA1);
 
   const leafA2 = document.createElement('li');
-  leafA2.setAttribute('branch', '');
   leafA2.textContent = 'Alpha-2';
   subtreeA.appendChild(leafA2);
 
@@ -46,7 +44,6 @@ function setupTree(opts = {}) {
   subtreeB.setAttribute('subtree', '');
 
   const leafB1 = document.createElement('li');
-  leafB1.setAttribute('branch', '');
   leafB1.textContent = 'Beta-1';
   subtreeB.appendChild(leafB1);
 
@@ -399,6 +396,50 @@ describe('Tree Style Injection', () => {
     await flushMicrotasks();
 
     expect(document.querySelectorAll('style[data-nojs-tree]').length).toBe(1);
+  });
+});
+
+
+// =======================================================================
+//  LEAF NODE INTERACTION TESTS
+// =======================================================================
+
+describe('Tree Leaf Nodes Interaction', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-tree]').forEach(s => s.remove());
+  });
+
+  test('27 — clicking leaf node selects it', async () => {
+    const { leafA1 } = setupTree({ branchAExpr: 'expanded' });
+    await flushMicrotasks();
+
+    expect(leafA1.classList.contains('nojs-branch-selected')).toBe(false);
+    expect(leafA1.getAttribute('aria-selected')).not.toBe('true');
+
+    leafA1.click();
+    expect(leafA1.classList.contains('nojs-branch-selected')).toBe(true);
+    expect(leafA1.getAttribute('aria-selected')).toBe('true');
+  });
+
+  test('28 — ArrowDown on leaf node moves focus to next visible item', async () => {
+    const { leafA1, leafA2 } = setupTree({ branchAExpr: 'expanded' });
+    await flushMicrotasks();
+
+    const focusSpy = jest.spyOn(leafA2, 'focus');
+    leafA1.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+    expect(focusSpy).toHaveBeenCalled();
+    focusSpy.mockRestore();
+  });
+
+  test('29 — ArrowUp on leaf node moves focus to previous visible item', async () => {
+    const { branchA, leafA1 } = setupTree({ branchAExpr: 'expanded' });
+    await flushMicrotasks();
+
+    const focusSpy = jest.spyOn(branchA, 'focus');
+    leafA1.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+    expect(focusSpy).toHaveBeenCalled();
+    focusSpy.mockRestore();
   });
 });
 
