@@ -9,26 +9,28 @@ function addDisposer(el, fn) {
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /**
- * Find the `each` binding in the table's tbody to identify the array path.
- * Looks for `each="item in arrayName"` and returns { arrayPath, iteratorVar }.
+ * Find the `each`/`foreach`/`for` binding on a child element inside the
+ * table's tbody. With the self-repeating loop pattern the loop attribute lives
+ * on the template element (e.g. `<tr each="row in rows">`) — never on the
+ * container (`<tbody>`) itself.
+ * Returns { arrayPath, iteratorVar } or null.
  */
 function _findEachBinding(table, NoJS) {
   const tbody = table.querySelector("tbody");
   if (!tbody) return null;
 
-  // Check tbody itself and its children for [each] or [foreach]
-  let eachEl = null;
-  if (tbody.hasAttribute("each") || tbody.hasAttribute("foreach")) {
-    eachEl = tbody;
-  } else {
-    eachEl =
-      tbody.querySelector("[each]") ||
-      tbody.querySelector("[foreach]");
-  }
+  // Search direct children of tbody for the loop attribute
+  const eachEl =
+    tbody.querySelector(":scope > [each]") ||
+    tbody.querySelector(":scope > [foreach]") ||
+    tbody.querySelector(":scope > [for]");
 
   if (!eachEl) return null;
 
-  const expr = eachEl.getAttribute("each") || eachEl.getAttribute("foreach");
+  const expr =
+    eachEl.getAttribute("each") ||
+    eachEl.getAttribute("foreach") ||
+    eachEl.getAttribute("for");
   if (!expr) return null;
 
   // Parse "item in arrayName" or "item of arrayName"

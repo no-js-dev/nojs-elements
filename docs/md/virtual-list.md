@@ -184,20 +184,14 @@ The virtual list polls the reactive context for array changes. When items are ad
 </div>
 ```
 
-### Each Binding on the Container
+### Each Binding
 
-The `each` binding can be placed directly on the container element or on a direct child. Both patterns are supported:
+The `each` binding is placed on the child element that serves as the repeating template. This follows the self-repeating loop pattern where the element with `each` IS the template that gets cloned for each item.
 
 ```html
-<!-- each on a child element (typical) -->
 <ul virtual-height="40" style="height: 400px;">
   <li each="item in items" bind="item.name"></li>
 </ul>
-
-<!-- each on the container itself -->
-<div virtual-height="40" each="item in items" style="height: 400px;">
-  <div bind="item.name"></div>
-</div>
 ```
 
 ---

@@ -9,18 +9,12 @@ function addDisposer(el, fn) {
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /**
- * Find the `each`/`foreach`/`for` binding expression on an element or its
- * direct children. Returns { eachEl, iteratorVar, arrayPath } or null.
+ * Find the `each`/`foreach`/`for` binding expression on a direct child of the
+ * container. With the self-repeating loop pattern the loop attribute lives on
+ * the template element — never on the container itself.
+ * Returns { eachEl, iteratorVar, arrayPath } or null.
  */
 function _findEachBinding(container) {
-  // Check container itself
-  for (const attr of ["each", "foreach", "for"]) {
-    if (container.hasAttribute(attr)) {
-      const parsed = _parseEachExpr(container.getAttribute(attr));
-      if (parsed) return { eachEl: container, ...parsed };
-    }
-  }
-  // Check direct children
   for (const child of container.children) {
     for (const attr of ["each", "foreach", "for"]) {
       if (child.hasAttribute(attr)) {
@@ -470,24 +464,14 @@ export function registerVirtualListDirective(NoJS) {
       const binding = _findEachBinding(el);
 
       // ── Capture the template ────────────────────────────────────
-      // The template is the first non-spacer child element that has or
-      // is inside the each binding. We need to capture it before the
-      // each directive runs and clones it.
+      // The template is the child element that carries the each binding
+      // (self-repeating pattern). We need to capture it before the each
+      // directive runs and clones it.
       let templateEl = null;
       if (binding) {
-        // If the each is on the container itself, take the first child
-        if (binding.eachEl === el) {
-          for (const child of el.children) {
-            if (!child.classList.contains("nojs-virtual-spacer")) {
-              templateEl = child;
-              break;
-            }
-          }
-        } else {
-          templateEl = binding.eachEl;
-        }
+        templateEl = binding.eachEl;
       } else {
-        // No each binding — take first child as template
+        // No each binding — take first non-spacer child as template
         for (const child of el.children) {
           if (!child.classList.contains("nojs-virtual-spacer")) {
             templateEl = child;

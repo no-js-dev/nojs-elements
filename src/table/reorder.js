@@ -8,25 +8,27 @@ function addDisposer(el, fn) {
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /**
- * Find the `each` binding in the table's tbody to identify the array path.
- * Mirrors the helper in table.js for consistency.
+ * Find the `each`/`foreach`/`for` binding on a child element inside the
+ * table's tbody. With the self-repeating loop pattern the loop attribute lives
+ * on the template element (e.g. `<tr each="row in rows">`) — never on the
+ * container (`<tbody>`) itself. Mirrors the helper in table.js for consistency.
  */
 function _findEachBinding(table) {
   const tbody = table.querySelector("tbody");
   if (!tbody) return null;
 
-  let eachEl = null;
-  if (tbody.hasAttribute("each") || tbody.hasAttribute("foreach")) {
-    eachEl = tbody;
-  } else {
-    eachEl =
-      tbody.querySelector("[each]") ||
-      tbody.querySelector("[foreach]");
-  }
+  // Search direct children of tbody for the loop attribute
+  const eachEl =
+    tbody.querySelector(":scope > [each]") ||
+    tbody.querySelector(":scope > [foreach]") ||
+    tbody.querySelector(":scope > [for]");
 
   if (!eachEl) return null;
 
-  const expr = eachEl.getAttribute("each") || eachEl.getAttribute("foreach");
+  const expr =
+    eachEl.getAttribute("each") ||
+    eachEl.getAttribute("foreach") ||
+    eachEl.getAttribute("for");
   if (!expr) return null;
 
   const match = expr.match(/^\s*(\w+)\s+(?:in|of)\s+(.+)\s*$/);
