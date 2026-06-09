@@ -182,21 +182,14 @@ export function registerScrollSpyDirective(NoJS) {
       // Rebuild the observer so it picks up the new target
       _rebuildObserver(groupRoot);
 
-      // MutationObserver: watch for dynamically added sections.
-      // When a target element appears in the DOM after the spy was
-      // registered, re-observe it.
-      let mutObserver = null;
-      if (typeof MutationObserver !== "undefined") {
-        mutObserver = new MutationObserver(() => {
-          // Check if the target now exists and the observer isn't
-          // tracking it yet.
-          const target = document.getElementById(targetId);
-          if (target && group.observer) {
-            // Rebuild to pick up newly added targets
-            _rebuildObserver(groupRoot);
-          }
+      // Shared MutationObserver: one per group, created when the first
+      // spy element joins. Watches for dynamically added sections so
+      // the IntersectionObserver can pick up new targets.
+      if (!group.mutObserver && typeof MutationObserver !== "undefined") {
+        group.mutObserver = new MutationObserver(() => {
+          _rebuildObserver(groupRoot);
         });
-        mutObserver.observe(document.body, { childList: true, subtree: true });
+        group.mutObserver.observe(document.body, { childList: true, subtree: true });
       }
 
       // ─── Cleanup ───────────────────────────────────────────────
@@ -209,17 +202,15 @@ export function registerScrollSpyDirective(NoJS) {
         // Deactivate if this was the active element
         _deactivate(el);
 
-        // Disconnect mutation observer
-        if (mutObserver) {
-          mutObserver.disconnect();
-          mutObserver = null;
-        }
-
-        // If group is now empty, tear down the observer and remove group
+        // If group is now empty, tear down observers and remove group
         if (group.spyEntries.length === 0) {
           if (group.observer) {
             group.observer.disconnect();
             group.observer = null;
+          }
+          if (group.mutObserver) {
+            group.mutObserver.disconnect();
+            group.mutObserver = null;
           }
           _spyGroups.delete(groupRoot);
         } else {

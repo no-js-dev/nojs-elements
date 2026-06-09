@@ -118,10 +118,47 @@ function _totalHeightFixed(totalItems, itemHeight) {
 }
 
 /**
+ * Build prefix sums array for O(1) total height and O(log N) index lookups.
+ * prefixSums[0] = 0, prefixSums[i] = prefixSums[i-1] + height(i-1).
+ */
+function _buildPrefixSums(state) {
+  const n = state.totalItems;
+  const sums = new Array(n + 1);
+  const defaultH = state.estimatedHeight || 50;
+  sums[0] = 0;
+  for (let i = 1; i <= n; i++) {
+    sums[i] = sums[i - 1] + (state.heights[i - 1] || defaultH);
+  }
+  state.prefixSums = sums;
+}
+
+/**
+ * Binary search on prefixSums: find the largest index where
+ * prefixSums[index] <= target.
+ */
+function _binarySearch(prefixSums, target) {
+  let lo = 0;
+  let hi = prefixSums.length - 2; // max valid item index
+  while (lo <= hi) {
+    const mid = (lo + hi) >>> 1;
+    if (prefixSums[mid] <= target) {
+      lo = mid + 1;
+    } else {
+      hi = mid - 1;
+    }
+  }
+  return Math.max(0, hi);
+}
+
+/**
  * Calculate the total height of all items for auto-height mode.
- * Falls back to an estimated height for unmeasured items.
+ * Uses prefixSums for O(1) lookup when available.
  */
 function _totalHeightAuto(state) {
+  if (state.prefixSums && state.prefixSums.length === state.totalItems + 1) {
+    return state.prefixSums[state.totalItems];
+  }
+  // Fallback: linear scan (prefixSums not built yet)
   let total = 0;
   const defaultH = state.estimatedHeight || 50;
   for (let i = 0; i < state.totalItems; i++) {
@@ -137,6 +174,10 @@ function _offsetAtIndex(state, index) {
   if (state.itemHeight !== "auto") {
     return index * state.itemHeight;
   }
+  if (state.prefixSums && index < state.prefixSums.length) {
+    return state.prefixSums[index];
+  }
+  // Fallback: linear scan
   let offset = 0;
   const defaultH = state.estimatedHeight || 50;
   for (let i = 0; i < index; i++) {
@@ -147,8 +188,13 @@ function _offsetAtIndex(state, index) {
 
 /**
  * Find the first visible index for a given scrollTop in auto-height mode.
+ * Uses binary search on prefixSums for O(log N) lookup.
  */
 function _findStartIndexAuto(state, scrollTop) {
+  if (state.prefixSums && state.prefixSums.length === state.totalItems + 1) {
+    return _binarySearch(state.prefixSums, scrollTop);
+  }
+  // Fallback: linear scan
   let offset = 0;
   const defaultH = state.estimatedHeight || 50;
   for (let i = 0; i < state.totalItems; i++) {
@@ -161,8 +207,13 @@ function _findStartIndexAuto(state, scrollTop) {
 
 /**
  * Find the last visible index for a given scrollTop + viewport height.
+ * Uses binary search on prefixSums for O(log N) lookup.
  */
 function _findEndIndexAuto(state, scrollTop, viewportHeight) {
+  if (state.prefixSums && state.prefixSums.length === state.totalItems + 1) {
+    return _binarySearch(state.prefixSums, scrollTop + viewportHeight);
+  }
+  // Fallback: linear scan
   const bottomEdge = scrollTop + viewportHeight;
   let offset = 0;
   const defaultH = state.estimatedHeight || 50;
@@ -328,8 +379,9 @@ function _render(state, NoJS) {
         changed = true;
       }
     }
-    // If measurements changed, update spacers (but don't recurse)
+    // If measurements changed, rebuild prefix sums and update spacers
     if (changed) {
+      _buildPrefixSums(state);
       const newTotalH = _totalHeightAuto(state);
       const newTopH = _offsetAtIndex(state, start);
       const newBottomOffset = end >= 0 ? _offsetAtIndex(state, end + 1) : 0;
@@ -365,6 +417,11 @@ function _refresh(state, newArray, NoJS) {
   // Trim heights array for auto mode if data shrunk
   if (state.itemHeight === "auto" && state.heights.length > state.totalItems) {
     state.heights.length = state.totalItems;
+  }
+
+  // Rebuild prefix sums for auto-height mode
+  if (state.itemHeight === "auto") {
+    _buildPrefixSums(state);
   }
 
   // Remove all rendered nodes and re-render
@@ -483,6 +540,7 @@ export function registerVirtualListDirective(NoJS) {
         buffer,
         totalItems: 0,
         heights: [],
+        prefixSums: [0],
         estimatedHeight: itemHeight === "auto" ? 50 : itemHeight,
         startIndex: -1,
         endIndex: -1,
@@ -549,11 +607,11 @@ export function registerVirtualListDirective(NoJS) {
           }
         }
 
-        pollId = requestAnimationFrame(pollData);
+        pollId = setTimeout(pollData, 100);
       };
 
-      // Start polling on next frame to allow context to initialize
-      pollId = requestAnimationFrame(pollData);
+      // Start polling after a short delay to allow context to initialize
+      pollId = setTimeout(pollData, 100);
 
       // ── Cleanup ─────────────────────────────────────────────────
       addDisposer(el, () => {
@@ -565,7 +623,7 @@ export function registerVirtualListDirective(NoJS) {
         }
 
         if (pollId) {
-          cancelAnimationFrame(pollId);
+          clearTimeout(pollId);
           pollId = null;
         }
 
