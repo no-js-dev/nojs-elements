@@ -5,6 +5,24 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.0](https://github.com/ErickXavier/nojs-elements/compare/v1.13.3...v1.14.0) — 2026-06-09
+
+### Added
+
+- **Virtual List** element — efficient rendering of large datasets with dynamic row heights, O(log N) binary search for scroll position, and configurable overscan ([fafe96c](https://github.com/ErickXavier/nojs-elements/commit/fafe96c))
+- **Accordion** element — collapsible content panels with exclusive/multi mode, keyboard navigation, and CSS-driven animations ([27975bf](https://github.com/ErickXavier/nojs-elements/commit/27975bf))
+- **Scroll Spy** element — auto-highlights navigation links based on scroll position with configurable offset, group-level shared MutationObserver ([60d2b24](https://github.com/ErickXavier/nojs-elements/commit/60d2b24))
+- **Breadcrumb** element — auto-generates breadcrumb navigation from route hierarchy with customizable separator ([47275a2](https://github.com/ErickXavier/nojs-elements/commit/47275a2))
+- Documentation for all 4 new elements (`docs/md/`)
+- Unit tests: 104 tests across virtual-list, accordion, scroll-spy, breadcrumb
+- GitHub community files: issue template, PR template, contributing, CoC, security, npmignore
+
+### Fixed
+
+- Scroll Spy: consolidated per-element MutationObserver to group-level shared observer — reduces DOM observer count ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
+- Virtual List: replaced rAF polling with 100ms setTimeout for container height detection ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
+- Virtual List: prefix-sum array with binary search for O(log N) height lookup replacing O(N) scan ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
+
 ## [1.13.3](https://github.com/ErickXavier/nojs-elements/compare/v1.13.2...v1.13.3) — 2026-06-05
 
 ### Fixed
