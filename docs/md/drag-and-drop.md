@@ -157,16 +157,13 @@ High-level shorthand for sortable lists bound to arrays. Combines `each` + `drag
 Enables click-to-select before dragging multiple items as a group.
 
 ```html
-<div each="card in cards" template="cardTpl" style="display:contents"></div>
-
-<template id="cardTpl">
-  <div drag="card"
-       drag-type="card"
-       drag-group="kanban"
-       drag-multiple>
-    <span bind="card.title"></span>
-  </div>
-</template>
+<div each="card in cards"
+     drag="card"
+     drag-type="card"
+     drag-group="kanban"
+     drag-multiple>
+  <span bind="card.title"></span>
+</div>
 ```
 
 | Attribute | Type | Default | Description |

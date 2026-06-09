@@ -244,16 +244,13 @@ High-level shorthand for sortable lists bound to arrays. Combines `each` + `drag
 Enables click-to-select before dragging multiple items as a group.
 
 ```html
-<div each="card in cards" template="cardTpl" style="display:contents"></div>
-
-<template id="cardTpl">
-  <div drag="card"
-       drag-type="card"
-       drag-group="kanban"
-       drag-multiple>
-    <span bind="card.title"></span>
-  </div>
-</template>
+<div each="card in cards"
+     drag="card"
+     drag-type="card"
+     drag-group="kanban"
+     drag-multiple>
+  <span bind="card.title"></span>
+</div>
 ```
 
 | Attribute | Type | Default | Description |
@@ -1095,16 +1092,14 @@ Trees work with No.JS data-binding directives like `each` for dynamic content.
   ]}
 ]}">
   <ul tree>
-    <template each="folder in folders">
-      <li branch>
-        <span bind="folder.name"></span>
-        <ul subtree if="folder.children.length">
-          <template each="file in folder.children">
-            <li bind="file.name"></li>
-          </template>
-        </ul>
-      </li>
-    </template>
+    <li each="folder in folders" branch>
+      <span bind="folder.name"></span>
+      <ul subtree if="folder.children.length">
+        <li each="file in folder.children" bind="file.name"></li>
+        <li else>No files</li>
+      </ul>
+    </li>
+    <li else>No folders found</li>
   </ul>
 </div>
 ```
@@ -1541,10 +1536,15 @@ Add to a `<table>` to enable column sorting. Works with the `each` directive in 
         <td bind="user.email"></td>
         <td><button on:click="alert(user.name)">View</button></td>
       </tr>
+      <tr else>
+        <td colspan="4">No users found</td>
+      </tr>
     </tbody>
   </table>
 </div>
 ```
+
+The `each` directive is placed on the `<tr>` element itself — the row is the repeating template. The sibling `<tr else>` displays when the array is empty.
 
 | Attribute | Type | Default | Description |
 |-----------|------|---------|-------------|

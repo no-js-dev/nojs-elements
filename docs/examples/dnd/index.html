@@ -202,7 +202,9 @@
         <div class="column">
           <p>Fruits</p>
           <div class="list" data-test="fruit-src">
-            <div each="item in fruits" template="basic-drag-tpl" style="display:contents"></div>
+            <div each="item in fruits" class="item" data-test="basic-item" drag="item" drag-type="fruit">
+              <span bind="item"></span>
+            </div>
           </div>
         </div>
         <div class="column">
@@ -221,12 +223,16 @@
     <p class="test-label">Test 9: Multi-select</p>
     <div state="{ selItems: [{id:90,name:'Sel-1'},{id:91,name:'Sel-2'},{id:92,name:'Sel-3'}], selTarget: [] }">
       <div class="list" data-test="sel-src">
-        <div each="item in selItems" template="select-tpl" style="display:contents"></div>
+        <div each="item in selItems" class="item" data-test="sel-item" drag="item" drag-type="sel" drag-group="sel-group" drag-multiple>
+          <span bind="item.name"></span>
+        </div>
       </div>
       <div class="list" data-test="sel-target"
            drop="selTarget = [...selTarget, ...(Array.isArray($drag) ? $drag : [$drag])]"
            drop-accept="sel">
-        <div each="item in selTarget" template="item-tpl" style="display:contents"></div>
+        <div each="item in selTarget" class="item" data-test="item">
+          <span bind="item.name"></span>
+        </div>
       </div>
     </div>
   </section>
@@ -290,17 +296,6 @@
     </div>
   </template>
 
-  <template id="basic-drag-tpl">
-    <div class="item" data-test="basic-item" drag="item" drag-type="fruit">
-      <span bind="item"></span>
-    </div>
-  </template>
-
-  <template id="select-tpl">
-    <div class="item" data-test="sel-item" drag="item" drag-type="sel" drag-group="sel-group" drag-multiple>
-      <span bind="item.name"></span>
-    </div>
-  </template>
 
   <script src="../../../NoJS/dist/iife/no.js"></script>
   <script src="../../../dist/iife/nojs-elements.js"></script>

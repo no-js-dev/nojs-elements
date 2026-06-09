@@ -32,19 +32,19 @@
             <th>Email</th>
           </tr>
         </thead>
-        <tbody each="user in users" template="user-row-tpl">
+        <tbody>
+          <tr each="user in users">
+            <td bind="user.name"></td>
+            <td bind="user.age"></td>
+            <td bind="user.email"></td>
+          </tr>
+          <tr else>
+            <td colspan="3">No users found</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </section>
-
-  <template id="user-row-tpl">
-    <tr>
-      <td bind="user.name"></td>
-      <td bind="user.age"></td>
-      <td bind="user.email"></td>
-    </tr>
-  </template>
 
   <!-- Default Sort Table -->
   <section>
@@ -61,18 +61,18 @@
             <th sort="age" sort-type="number">Age</th>
           </tr>
         </thead>
-        <tbody each="person in people" template="person-row-tpl">
+        <tbody>
+          <tr each="person in people">
+            <td bind="person.name"></td>
+            <td bind="person.age"></td>
+          </tr>
+          <tr else>
+            <td colspan="2">No data</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </section>
-
-  <template id="person-row-tpl">
-    <tr>
-      <td bind="person.name"></td>
-      <td bind="person.age"></td>
-    </tr>
-  </template>
 
   <script src="../../../NoJS/dist/iife/no.js"></script>
   <script src="../../../dist/iife/nojs-elements.js"></script>

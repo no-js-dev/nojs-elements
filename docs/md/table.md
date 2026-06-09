@@ -26,10 +26,15 @@ Add to a `<table>` to enable column sorting. Works with the `each` directive in 
         <td bind="user.email"></td>
         <td><button on:click="alert(user.name)">View</button></td>
       </tr>
+      <tr else>
+        <td colspan="4">No users found</td>
+      </tr>
     </tbody>
   </table>
 </div>
 ```
+
+The `each` directive is placed on the `<tr>` element itself -- the row is the repeating template. The sibling `<tr else>` displays when the array is empty.
 
 ### Sortable Attributes
 
