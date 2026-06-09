@@ -173,16 +173,14 @@ Trees work with No.JS data-binding directives like `each` for dynamic content.
   ]}
 ]}">
   <ul tree>
-    <template each="folder in folders">
-      <li branch>
-        <span bind="folder.name"></span>
-        <ul subtree if="folder.children.length">
-          <template each="file in folder.children">
-            <li bind="file.name"></li>
-          </template>
-        </ul>
-      </li>
-    </template>
+    <li each="folder in folders" branch>
+      <span bind="folder.name"></span>
+      <ul subtree if="folder.children.length">
+        <li each="file in folder.children" bind="file.name"></li>
+        <li else>No files</li>
+      </ul>
+    </li>
+    <li else>No folders found</li>
   </ul>
 </div>
 ```
