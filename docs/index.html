@@ -653,10 +653,13 @@
   <div class="mobile-nav" show="mobileOpen">
     <a route="/getting-started" on:click="mobileOpen = false"><strong>Getting Started</strong></a>
     <span class="mobile-nav-group-label">Components</span>
+    <a route="/accordion" on:click="mobileOpen = false">Accordion</a>
+    <a route="/breadcrumb" on:click="mobileOpen = false">Breadcrumb</a>
     <a route="/dnd" on:click="mobileOpen = false">Drag & Drop</a>
     <a route="/dropdown" on:click="mobileOpen = false">Dropdown</a>
     <a route="/modal" on:click="mobileOpen = false">Modal</a>
     <a route="/popover" on:click="mobileOpen = false">Popover</a>
+    <a route="/scroll-spy" on:click="mobileOpen = false">Scroll Spy</a>
     <a route="/skeleton" on:click="mobileOpen = false">Skeleton</a>
     <a route="/split" on:click="mobileOpen = false">Split Pane</a>
     <a route="/stepper" on:click="mobileOpen = false">Stepper</a>
@@ -665,6 +668,8 @@
     <a route="/toast" on:click="mobileOpen = false">Toast</a>
     <a route="/tooltip" on:click="mobileOpen = false">Tooltip</a>
     <a route="/tree" on:click="mobileOpen = false">Tree</a>
+    <a route="/validation" on:click="mobileOpen = false">Validation</a>
+    <a route="/virtual-list" on:click="mobileOpen = false">Virtual List</a>
     <span class="mobile-nav-group-label">More</span>
     <a href="https://no-js.dev" target="_blank">No.JS</a>
     <a href="https://lsp.no-js.dev" target="_blank">NoJS LSP</a>
@@ -680,18 +685,23 @@
         <div class="sidebar-title">Getting Started</div>
         <a route="/getting-started" class-active="$route.path === '/getting-started'">Introduction</a>
         <div class="sidebar-title">Components</div>
-        <a route="/dnd"       class-active="$route.path === '/dnd'">Drag & Drop</a>
-        <a route="/dropdown"  class-active="$route.path === '/dropdown'">Dropdown</a>
-        <a route="/modal"     class-active="$route.path === '/modal'">Modal</a>
-        <a route="/popover"   class-active="$route.path === '/popover'">Popover</a>
-        <a route="/skeleton"  class-active="$route.path === '/skeleton'">Skeleton</a>
-        <a route="/split"     class-active="$route.path === '/split'">Split Pane</a>
-        <a route="/stepper"   class-active="$route.path === '/stepper'">Stepper</a>
-        <a route="/table"     class-active="$route.path === '/table'">Sortable Table</a>
-        <a route="/tabs"      class-active="$route.path === '/tabs'">Tabs</a>
-        <a route="/toast"     class-active="$route.path === '/toast'">Toast</a>
-        <a route="/tooltip"   class-active="$route.path === '/tooltip'">Tooltip</a>
-        <a route="/tree"      class-active="$route.path === '/tree'">Tree</a>
+        <a route="/accordion"    class-active="$route.path === '/accordion'">Accordion</a>
+        <a route="/breadcrumb"   class-active="$route.path === '/breadcrumb'">Breadcrumb</a>
+        <a route="/dnd"          class-active="$route.path === '/dnd'">Drag & Drop</a>
+        <a route="/dropdown"     class-active="$route.path === '/dropdown'">Dropdown</a>
+        <a route="/modal"        class-active="$route.path === '/modal'">Modal</a>
+        <a route="/popover"      class-active="$route.path === '/popover'">Popover</a>
+        <a route="/scroll-spy"   class-active="$route.path === '/scroll-spy'">Scroll Spy</a>
+        <a route="/skeleton"     class-active="$route.path === '/skeleton'">Skeleton</a>
+        <a route="/split"        class-active="$route.path === '/split'">Split Pane</a>
+        <a route="/stepper"      class-active="$route.path === '/stepper'">Stepper</a>
+        <a route="/table"        class-active="$route.path === '/table'">Sortable Table</a>
+        <a route="/tabs"         class-active="$route.path === '/tabs'">Tabs</a>
+        <a route="/toast"        class-active="$route.path === '/toast'">Toast</a>
+        <a route="/tooltip"      class-active="$route.path === '/tooltip'">Tooltip</a>
+        <a route="/tree"         class-active="$route.path === '/tree'">Tree</a>
+        <a route="/validation"   class-active="$route.path === '/validation'">Validation</a>
+        <a route="/virtual-list" class-active="$route.path === '/virtual-list'">Virtual List</a>
       </div>
     </nav>
 
@@ -811,10 +821,13 @@
     // Prev / Next navigation (follows sidebar order)
     var pnPages = [
       { path: '/getting-started', title: 'Getting Started' },
+      { path: '/accordion',       title: 'Accordion' },
+      { path: '/breadcrumb',      title: 'Breadcrumb' },
       { path: '/dnd',             title: 'Drag & Drop' },
       { path: '/dropdown',        title: 'Dropdown' },
       { path: '/modal',           title: 'Modal' },
       { path: '/popover',         title: 'Popover' },
+      { path: '/scroll-spy',      title: 'Scroll Spy' },
       { path: '/skeleton',        title: 'Skeleton' },
       { path: '/split',           title: 'Split Pane' },
       { path: '/stepper',         title: 'Stepper' },
@@ -823,6 +836,8 @@
       { path: '/toast',           title: 'Toast' },
       { path: '/tooltip',         title: 'Tooltip' },
       { path: '/tree',            title: 'Tree' },
+      { path: '/validation',      title: 'Validation' },
+      { path: '/virtual-list',    title: 'Virtual List' },
     ];
     function syncPrevNext() {
       var nav = document.getElementById('prev-next-nav');
