@@ -5,6 +5,22 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.14.1](https://github.com/ErickXavier/nojs-elements/compare/v1.14.0...v1.14.1) — 2026-06-11
+
+### Fixed
+
+- `$toast()` now registered via `NoJS.global()` for expression scope access
+- Fixed bare `click=` → `on:click=` in toast documentation (7 instances)
+- Updated toast docs to document `$toast()` for expressions, `NoJS.toast()` for JS
+- Added `step-complete` event to stepper docs
+- Added element-level drag/drop events table (6 CustomEvents) to DnD docs
+- Fixed default `validate-on` from "input focusout" to "input change focusout"
+- Added 4 missing element rows (accordion, breadcrumb, scroll-spy, virtual-list) to README tables
+- Updated component count from 12 to 17 across all index surfaces
+- Fixed peer-dep from >=1.11.0 to >=1.13.0
+- Regenerated `llms-full.txt` from current 17 docs/md sources
+- Added 5 missing docs site routes and .tpl pages
+
 ## [1.14.0](https://github.com/ErickXavier/nojs-elements/compare/v1.13.3...v1.14.0) — 2026-06-09
 
 ### Added
