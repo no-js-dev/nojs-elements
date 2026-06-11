@@ -44,7 +44,7 @@
 <!-- API Documentation -->
 <section class="docs-api">
 
-  <p>Lightweight toast notifications with both declarative and programmatic APIs. Toasts appear in fixed-position containers, auto-dismiss after a configurable duration, and support four visual types. Use the <code>toast</code> attribute on buttons for declarative usage, or call <code>NoJS.toast()</code> from any expression context for programmatic control.</p>
+  <p>Lightweight toast notifications with both declarative and programmatic APIs. Toasts appear in fixed-position containers, auto-dismiss after a configurable duration, and support four visual types. Use the <code>toast</code> attribute on buttons for declarative usage, or call <code>$toast()</code> from any expression context, or <code>NoJS.toast()</code> from JavaScript, for programmatic control.</p>
 
   <h3>Declarative Attributes</h3>
   <table class="docs-table">
