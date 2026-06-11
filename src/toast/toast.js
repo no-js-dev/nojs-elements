@@ -228,4 +228,5 @@ export function registerToastDirectives(NoJS) {
   };
 
   NoJS.toast = toastFn;
+  NoJS.global("toast", toastFn);
 }
