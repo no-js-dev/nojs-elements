@@ -42,7 +42,7 @@ Watches an expression and shows a toast notification whenever the value changes 
 <!-- Show a toast when `message` changes -->
 <div state="{ message: '' }">
   <input model="message" placeholder="Type a message">
-  <button click="message = 'Hello!'" toast="message"
+  <button on:click="message = 'Hello!'" toast="message"
           toast-type="success"
           toast-duration="5000">
     Show Toast
@@ -74,16 +74,16 @@ Creates a toast notification programmatically from any expression context (e.g.,
 
 ```html
 <!-- Basic usage -->
-<button click="$toast('Item saved!')">Save</button>
+<button on:click="$toast('Item saved!')">Save</button>
 
 <!-- With type -->
-<button click="$toast('Deleted', 'error')">Delete</button>
+<button on:click="$toast('Deleted', 'error')">Delete</button>
 
 <!-- Custom duration (10 seconds) -->
-<button click="$toast('Processing...', 'warning', 10000)">Process</button>
+<button on:click="$toast('Processing...', 'warning', 10000)">Process</button>
 
 <!-- Permanent toast (duration 0) -->
-<button click="$toast('Connection lost', 'error', 0)">
+<button on:click="$toast('Connection lost', 'error', 0)">
   Simulate Error
 </button>
 ```
@@ -125,10 +125,10 @@ Toasts auto-dismiss after their `duration` expires (default: 3000 ms). Setting `
 
 ```html
 <!-- Quick toast (2 seconds) -->
-<button click="$toast('Quick!', 'info', 2000)">Flash</button>
+<button on:click="$toast('Quick!', 'info', 2000)">Flash</button>
 
 <!-- Permanent toast -->
-<button click="$toast('Stay visible', 'warning', 0)">Sticky</button>
+<button on:click="$toast('Stay visible', 'warning', 0)">Sticky</button>
 ```
 
 ---
