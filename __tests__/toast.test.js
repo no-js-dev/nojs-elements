@@ -108,6 +108,7 @@ describe('$toast Global Function', () => {
 
   test('7 — $toast is registered as a global via NoJS.global()', () => {
     expect(typeof NoJS.toast).toBe('function');
+    expect(_globals.toast).toBe(NoJS.toast);
   });
 
   test('8 — $toast creates a toast element in container', () => {
