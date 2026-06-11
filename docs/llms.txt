@@ -1,8 +1,8 @@
 # NoJS Elements
 
-> NoJS Elements is a UI element plugin library for the No.JS HTML-first reactive framework. 12 declarative, accessible components — zero JavaScript required from developers. Everything is driven by HTML attributes. Requires No.JS >= 1.11.0.
+> NoJS Elements is a UI element plugin library for the No.JS HTML-first reactive framework. 17 declarative, accessible components — zero JavaScript required from developers. Everything is driven by HTML attributes. Requires No.JS >= 1.13.0.
 
-NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modals, dropdowns, toasts, tabs, trees, steppers, skeletons, split panes, and sortable tables. When loaded via CDN `<script>` tag, it auto-installs itself into NoJS — no `NoJS.use()` call needed. Each element injects scoped CSS (`.nojs-*` classes) and adds full ARIA accessibility and keyboard navigation out of the box.
+NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modals, dropdowns, toasts, tabs, trees, steppers, skeletons, split panes, sortable tables, accordions, breadcrumbs, scroll spy, and virtual lists. When loaded via CDN `<script>` tag, it auto-installs itself into NoJS — no `NoJS.use()` call needed. Each element injects scoped CSS (`.nojs-*` classes) and adds full ARIA accessibility and keyboard navigation out of the box.
 
 ## Installation
 
@@ -14,7 +14,7 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 
 ## Forms
 
-- [Validation](https://elements.no-js.dev/validation): `validate` directive on `<form>` with `$form` context (`valid`, `dirty`, `touched`, `submitting`, `errors`, `values`, `fields`, `reset()`); built-in rules (`required`, `email`, `min`, `max`, `minlength`, `maxlength`, `pattern`, `url`), custom validators via `NoJS.validator()`, per-field `validate-on` triggers, `validate-if` conditional rules, `error-class` styling
+- [Validation](https://elements.no-js.dev/validation): `validate` directive on `<form>` with `$form` context (`valid`, `dirty`, `touched`, `submitting`, `errors`, `values`, `fields`, `reset()`); built-in pipe rules (`required`, `email`, `min`, `max`, `url`, `custom`), native ValidityState passthrough (`minlength`, `maxlength`, `pattern`), custom validators via `NoJS.validator()`, per-field `validate-on` triggers, `validate-if` conditional rules, `error-class` styling
 
 ## Interaction Elements
 
@@ -31,17 +31,24 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 
 - [Tabs](https://elements.no-js.dev/tabs): `tabs`, `tab`, `panel`; 4 positions (top/bottom/left/right), disabled tabs, roving tabindex
 - [Split / Pane](https://elements.no-js.dev/split): `split`, `pane`; horizontal/vertical, min/max constraints, collapsible, persisted layout via localStorage
-- [Tree](https://elements.no-js.dev/tree): `tree`, `branch`, `subtree`; expand/collapse, selection, typeahead search, dynamic data binding
+- [Tree](https://elements.no-js.dev/tree): `tree`, `branch`, `subtree`, `tree-drag-mode`; expand/collapse, selection, typeahead search, dynamic data binding, drag-and-drop (reparent/reorder/both)
 
 ## Data & Progress Elements
 
-- [Sortable Table](https://elements.no-js.dev/table): `sortable`, `sort`, `fixed-header`, `fixed-col`; string/number/date sorting, sticky headers and columns, 3-state cycling
-- [Stepper](https://elements.no-js.dev/stepper): `stepper`, `step`; linear/free mode, validation, `$stepper` API (next/prev/goTo), progress indicator
+- [Sortable Table](https://elements.no-js.dev/table): `sortable`, `sort`, `fixed-header`, `fixed-col`, `table-reorder`; string/number/date sorting, sticky headers and columns, 3-state cycling, drag-and-drop row reordering
+- [Stepper](https://elements.no-js.dev/stepper): `stepper`, `step`, `stepper-validate`; linear/free mode, validation gate (form-based + expression-based), `$stepper` API (next/prev/goTo), progress indicator
 - [Skeleton](https://elements.no-js.dev/skeleton): `skeleton` with text/circle/rect types, multi-line, shimmer animation, reactive loading state
+
+## Navigation & Structure Elements
+
+- [Accordion](https://elements.no-js.dev/accordion): `accordion`; animated expand/collapse on native `<details>` elements, single/multi mode, keyboard navigation, CSS custom properties
+- [Breadcrumb](https://elements.no-js.dev/breadcrumb): `breadcrumb`; accessible breadcrumb trail, manual child mode or auto-track from router, custom separators via CSS custom properties
+- [Scroll Spy](https://elements.no-js.dev/scroll-spy): `spy`, `spy-offset`, `spy-threshold`; highlights navigation links based on visible sections, IntersectionObserver-based, dynamic target support
+- [Virtual List](https://elements.no-js.dev/virtual-list): `virtual-height`, `virtual-buffer`; efficient DOM virtualization for large datasets, fixed or auto-measured row heights, table/list/dl support
 
 ## Reference
 
-- [Full Documentation](https://elements.no-js.dev/llms-full.txt): Complete documentation for all 12 elements in a single file for deep context
+- [Full Documentation](https://elements.no-js.dev/llms-full.txt): Complete documentation for all 17 elements in a single file for deep context
 
 ## Ecosystem
 

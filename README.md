@@ -1,6 +1,6 @@
 # NoJS Elements
 
-![version](https://img.shields.io/badge/version-1.13.2-blue)
+![version](https://img.shields.io/badge/version-1.14.0-blue)
 [![jsDelivr hits](https://data.jsdelivr.com/v1/package/gh/erickxavier/nojs-elements/badge)](https://www.jsdelivr.com/package/gh/erickxavier/nojs-elements)
 
 **UI element plugins for No.JS** — declarative, accessible, zero JavaScript required.
@@ -58,11 +58,15 @@ When loaded via `<script>` tag, NoJS Elements auto-installs itself — no `NoJS.
 | [Dropdown](docs/md/dropdown.md) | `dropdown`, `dropdown-toggle`, `dropdown-menu`, `dropdown-item` | Keyboard-navigable dropdown menus |
 | [Toast](docs/md/toast.md) | `toast-container`, `toast` | Notification toasts with position, type, duration, and auto-dismiss |
 | [Tabs](docs/md/tabs.md) | `tabs`, `tab`, `panel`, `tab-disabled`, `tab-position` | Accessible tabbed interfaces with keyboard navigation |
-| [Tree](docs/md/tree.md) | `tree`, `branch`, `subtree` | Collapsible tree views with nested branches |
-| [Stepper](docs/md/stepper.md) | `stepper`, `step` | Multi-step wizards and progress indicators |
+| [Tree](docs/md/tree.md) | `tree`, `branch`, `subtree`, `tree-drag-mode` | Collapsible tree views with nested branches and drag-and-drop |
+| [Stepper](docs/md/stepper.md) | `stepper`, `step`, `stepper-validate` | Multi-step wizards with validation gate and progress indicators |
 | [Skeleton](docs/md/skeleton.md) | `skeleton` | Loading placeholder skeletons |
 | [Split / Pane](docs/md/split.md) | `split`, `pane` | Resizable split panels (horizontal or vertical) |
-| [Sortable Table](docs/md/table.md) | `sortable`, `sort`, `fixed-header`, `fixed-col` | Column sorting with fixed headers and columns |
+| [Sortable Table](docs/md/table.md) | `sortable`, `sort`, `fixed-header`, `fixed-col`, `table-reorder` | Column sorting with fixed headers, columns, and row reorder |
+| [Accordion](docs/md/accordion.md) | `accordion` | Animated expand/collapse on native `<details>` elements |
+| [Breadcrumb](docs/md/breadcrumb.md) | `breadcrumb` | Accessible breadcrumb trail with manual or auto-track mode |
+| [Scroll Spy](docs/md/scroll-spy.md) | `spy`, `spy-offset`, `spy-threshold` | Highlights navigation links based on visible sections |
+| [Virtual List](docs/md/virtual-list.md) | `virtual-height`, `virtual-buffer` | Efficient rendering of large datasets with DOM virtualization |
 
 > `drag`, `drop`, `drag-list`, `drag-multiple`, and `validate` were migrated out of No.JS core in **v1.13.0**. Core retains deprecation stubs — install this plugin for full functionality.
 
