@@ -9,7 +9,7 @@
 # Tests
 __tests__/
 e2e/
-jest.config.js
+jest.config.cjs
 coverage/
 
 # Build tooling

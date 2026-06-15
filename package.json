@@ -28,7 +28,7 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
-    "@erickxavier/no-js": ">=1.13.0"
+    "@erickxavier/no-js": ">=1.13.0 <2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
