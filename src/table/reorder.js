@@ -114,7 +114,7 @@ export function registerTableReorder(NoJS) {
           row._nojsReorderSetup = true;
 
           row.draggable = true;
-          row.setAttribute("aria-grabbed", "false");
+          row.setAttribute("aria-roledescription", "draggable row");
 
           // Handle restriction
           let _handleAllowed = true;
@@ -143,7 +143,6 @@ export function registerTableReorder(NoJS) {
             }
 
             dragClass.split(/\s+/).filter(Boolean).forEach((c) => row.classList.add(c));
-            row.setAttribute("aria-grabbed", "true");
           };
 
           // ── dragover ──────────────────────────────────────────────
@@ -280,7 +279,6 @@ export function registerTableReorder(NoJS) {
       function _cleanup() {
         if (_dragSourceRow) {
           dragClass.split(/\s+/).filter(Boolean).forEach((c) => _dragSourceRow.classList.remove(c));
-          _dragSourceRow.setAttribute("aria-grabbed", "false");
         }
         _clearIndicator();
         _dragSourceIndex = null;

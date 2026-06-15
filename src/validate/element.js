@@ -177,6 +177,7 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
   const clone = tpl.content.cloneNode(true);
   const wrapper = document.createElement("div");
   wrapper.style.display = "contents";
+  wrapper.setAttribute("aria-live", "polite");
   wrapper.__errorTemplateFor = anchorEl;
   const childCtx = _createContext({ $error: errorMsg, $rule: ruleName }, ctx);
   wrapper.__ctx = childCtx;
@@ -451,6 +452,13 @@ export function registerValidate(NoJS) {
               value: values[field.name],
             };
 
+            // ARIA: set aria-invalid for screen readers (WCAG 4.1.2)
+            if (!fieldValid && fieldInteracted) {
+              field.setAttribute("aria-invalid", "true");
+            } else {
+              field.removeAttribute("aria-invalid");
+            }
+
             // error-class handling
             const fieldErrorClass = field.getAttribute("error-class") || errorClassAttr;
             if (fieldErrorClass) {
@@ -652,6 +660,12 @@ export function registerValidate(NoJS) {
         const errorTpl = el.getAttribute("error");
         const fieldInputHandler = () => {
           const err = _validateField(el.value, rules, {});
+          // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
+          if (err) {
+            el.setAttribute("aria-invalid", "true");
+          } else {
+            el.removeAttribute("aria-invalid");
+          }
           if (err && errorTpl) {
             let errorEl = el.nextElementSibling?.__validationError
               ? el.nextElementSibling

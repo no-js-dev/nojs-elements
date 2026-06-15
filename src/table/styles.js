@@ -37,7 +37,7 @@ export function _injectTableStyles() {
 [table-reorder] tbody tr {
   cursor: grab;
 }
-[table-reorder] tbody tr[aria-grabbed="true"] {
+[table-reorder] tbody tr.nojs-dragging {
   cursor: grabbing;
 }
 .nojs-row-dragging {

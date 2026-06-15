@@ -224,7 +224,7 @@ describe('Popover Directive', () => {
 
   test('13 - popover trigger has correct ARIA attributes', () => {
     const { triggerEl } = setupPopover('my-popover');
-    expect(triggerEl.getAttribute('aria-haspopup')).toBe('true');
+    expect(triggerEl.getAttribute('aria-haspopup')).toBe('dialog');
     expect(triggerEl.getAttribute('aria-expanded')).toBe('false');
     expect(triggerEl.getAttribute('aria-controls')).toBe('my-popover');
   });

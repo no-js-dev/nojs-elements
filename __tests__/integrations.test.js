@@ -64,11 +64,11 @@ describe('Table + DnD: table-reorder directive', () => {
     expect(rows[2].draggable).toBe(true);
   });
 
-  test('2 - rows have aria-grabbed=false initially', () => {
+  test('2 - rows have aria-roledescription initially', () => {
     const { tbody } = setupReorderTable();
     const rows = tbody.querySelectorAll('tr');
     for (const row of rows) {
-      expect(row.getAttribute('aria-grabbed')).toBe('false');
+      expect(row.getAttribute('aria-roledescription')).toBe('draggable row');
     }
   });
 
@@ -94,7 +94,7 @@ describe('Table + DnD: table-reorder directive', () => {
     row.dispatchEvent(evt);
 
     expect(row.classList.contains('nojs-row-dragging')).toBe(true);
-    expect(row.getAttribute('aria-grabbed')).toBe('true');
+    expect(row.getAttribute('aria-roledescription')).toBe('draggable row');
   });
 
   test('5 - custom drag class is used', () => {
@@ -119,7 +119,7 @@ describe('Table + DnD: table-reorder directive', () => {
 
     row.dispatchEvent(new Event('dragend', { bubbles: true }));
     expect(row.classList.contains('nojs-row-dragging')).toBe(false);
-    expect(row.getAttribute('aria-grabbed')).toBe('false');
+    expect(row.getAttribute('aria-roledescription')).toBe('draggable row');
   });
 
   test('7 - dispatches table:reorder event on drop', () => {

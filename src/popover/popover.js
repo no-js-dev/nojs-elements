@@ -129,6 +129,7 @@ export function registerPopoverDirective(NoJS) {
 
       // Set native popover attribute for Popover API
       el.setAttribute("popover", "auto");
+      if (!el.getAttribute("role")) el.setAttribute("role", "dialog");
       el.classList.add("nojs-popover");
 
       const position = el.getAttribute("popover-position") || "bottom";
@@ -198,7 +199,7 @@ export function registerPopoverDirective(NoJS) {
         }
       }
 
-      el.setAttribute("aria-haspopup", "true");
+      el.setAttribute("aria-haspopup", "dialog");
       el.setAttribute("aria-expanded", "false");
       el.setAttribute("aria-controls", popoverId);
 

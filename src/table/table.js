@@ -141,6 +141,7 @@ export function registerSort(NoJS) {
       // Mark th as sortable
       el.setAttribute("data-sortable", "");
       el.setAttribute("aria-sort", "none");
+      if (!el.getAttribute("tabindex")) el.setAttribute("tabindex", "0");
 
       // Find parent table
       const table = el.closest("table");
@@ -180,9 +181,19 @@ export function registerSort(NoJS) {
         _applySortFromTh(el, table, sortKey, sortType, nextDir, NoJS);
       };
 
+      // Keyboard: Enter/Space triggers sort (WCAG 2.1.1)
+      const keydownHandler = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          clickHandler();
+        }
+      };
+
       el.addEventListener("click", clickHandler);
+      el.addEventListener("keydown", keydownHandler);
       addDisposer(el, () => {
         el.removeEventListener("click", clickHandler);
+        el.removeEventListener("keydown", keydownHandler);
         // Prune the per-table sort state (and captured original-order snapshots)
         // once the table is detached, otherwise _tableState.sorts keeps every
         // disposed <table> — and its full-dataset arrays — alive for the page

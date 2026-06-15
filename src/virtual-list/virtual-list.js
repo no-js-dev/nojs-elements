@@ -317,6 +317,12 @@ function _render(state, NoJS) {
     childCtx.$even = i % 2 === 0;
     childCtx.$odd = i % 2 !== 0;
 
+    // ARIA: option role with set size/position (WCAG 4.1.2)
+    clone.setAttribute("role", "option");
+    clone.setAttribute("aria-setsize", String(state.totalItems));
+    clone.setAttribute("aria-posinset", String(i + 1));
+    clone.setAttribute("tabindex", "-1");
+
     // Store context on the node so NoJS.processTree can pick it up
     clone.__ctx = Object.create(
       NoJS.findContext ? NoJS.findContext(container) || {} : {},
@@ -448,6 +454,10 @@ export function registerVirtualListDirective(NoJS) {
       // Mark the container
       el.setAttribute("data-nojs-virtual", "");
 
+      // ARIA: listbox role and keyboard focus (WCAG 4.1.2)
+      el.setAttribute("role", "listbox");
+      if (!el.getAttribute("tabindex")) el.setAttribute("tabindex", "0");
+
       // ── Parse config attributes ─────────────────────────────────
       const heightAttr = el.getAttribute("virtual-height") || "50";
       const bufferAttr = el.getAttribute("virtual-buffer") || "5";
@@ -544,6 +554,41 @@ export function registerVirtualListDirective(NoJS) {
 
       _virtualListRegistry.set(el, state);
 
+      // ── Keyboard navigation (WCAG 2.1.1) ──────────────────────
+      const keydownHandler = (e) => {
+        const items = [...el.querySelectorAll('[role="option"]')];
+        if (!items.length) return;
+        const focused = el.querySelector('[role="option"]:focus');
+        const idx = focused ? items.indexOf(focused) : -1;
+        let target = -1;
+
+        switch (e.key) {
+          case "ArrowDown":
+            e.preventDefault();
+            target = idx < items.length - 1 ? idx + 1 : idx;
+            break;
+          case "ArrowUp":
+            e.preventDefault();
+            target = idx > 0 ? idx - 1 : 0;
+            break;
+          case "Home":
+            e.preventDefault();
+            target = 0;
+            break;
+          case "End":
+            e.preventDefault();
+            target = items.length - 1;
+            break;
+          default:
+            return;
+        }
+
+        if (target >= 0 && target < items.length) {
+          items[target].focus();
+        }
+      };
+      el.addEventListener("keydown", keydownHandler);
+
       // ── Scroll handler ──────────────────────────────────────────
       let rafId = null;
       const scrollHandler = () => {
@@ -612,6 +657,7 @@ export function registerVirtualListDirective(NoJS) {
         }
 
         el.removeEventListener("scroll", scrollHandler);
+        el.removeEventListener("keydown", keydownHandler);
 
         if (state.resizeObserver) {
           state.resizeObserver.disconnect();

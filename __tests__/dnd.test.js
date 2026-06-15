@@ -315,6 +315,7 @@ describe('Drag Directive', () => {
     el.dispatchEvent(new Event('dragend', { bubbles: true }));
     expect(el.classList.contains('nojs-dragging')).toBe(false);
     expect(el.getAttribute('aria-grabbed')).toBeNull();
+    expect(el.getAttribute('aria-roledescription')).toBe('draggable item');
   });
 
   test('26 - dragend dispatches drag-end custom event', () => {
@@ -346,6 +347,7 @@ describe('Drag Directive', () => {
 
     expect(_dndState.dragging).toBeTruthy();
     expect(el.getAttribute('aria-grabbed')).toBeNull();
+    expect(el.getAttribute('aria-roledescription')).toBe('draggable item');
     expect(el.classList.contains('nojs-dragging')).toBe(true);
   });
 
@@ -357,6 +359,7 @@ describe('Drag Directive', () => {
     el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(_dndState.dragging).toBeNull();
     expect(el.getAttribute('aria-grabbed')).toBeNull();
+    expect(el.getAttribute('aria-roledescription')).toBe('draggable item');
     expect(el.classList.contains('nojs-dragging')).toBe(false);
   });
 });
