@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Virtual List — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    .virtual-container {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .virtual-item {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .auto-item {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed-height virtual list -->
+  <section>
+    <div
+      state="{ items: Array.from({ length: 1000 }, (_, i) => ({ id: i, label: 'Item ' + i })) }"
+      data-test="fixed-section"
+    >
+      <p data-test="item-count" bind="'Total: ' + items.length + ' items'"></p>
+      <div
+        virtual
+        virtual-height="40"
+        virtual-buffer="5"
+        class="virtual-container"
+        data-test="fixed-list"
+      >
+        <div each="item in items" key="item.id" class="virtual-item" data-test="virtual-item">
+          <span bind="item.label"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Auto-height virtual list -->
+  <section>
+    <div
+      state="{ autoItems: Array.from({ length: 500 }, (_, i) => ({ id: i, text: 'Auto item ' + i + (i % 3 === 0 ? ' — with extra text for variable height' : '') })) }"
+      data-test="auto-section"
+    >
+      <div
+        virtual
+        virtual-height="auto"
+        virtual-buffer="3"
+        class="virtual-container"
+        data-test="auto-list"
+      >
+        <div each="item in autoItems" key="item.id" class="auto-item">
+          <span bind="item.text"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Small dataset (fewer items than viewport) -->
+  <section>
+    <div
+      state="{ fewItems: Array.from({ length: 5 }, (_, i) => ({ id: i, name: 'Short ' + i })) }"
+      data-test="small-section"
+    >
+      <div
+        virtual
+        virtual-height="40"
+        class="virtual-container"
+        data-test="small-list"
+      >
+        <div each="item in fewItems" key="item.id" class="virtual-item">
+          <span bind="item.name"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

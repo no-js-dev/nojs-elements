@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Popover — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    .popover-content { padding: 1rem; min-width: 150px; }
+  </style>
+</head>
+<body>
+
+  <!-- Basic popover (bottom, default) -->
+  <section style="margin-top: 100px;">
+    <button popover-trigger="basic-pop" data-test="basic-trigger">Show Popover</button>
+    <div popover="basic-pop" data-test="basic-popover" class="popover-content">
+      <p data-test="basic-popover-text">Basic popover content</p>
+      <button popover-dismiss data-test="basic-dismiss">Close</button>
+    </div>
+  </section>
+
+  <!-- Popover with top position -->
+  <section style="margin-top: 200px;">
+    <button popover-trigger="top-pop" data-test="top-trigger">Top Popover</button>
+    <div popover="top-pop" popover-position="top" data-test="top-popover" class="popover-content">
+      <p>Top positioned popover</p>
+    </div>
+  </section>
+
+  <!-- Popover with dismiss button -->
+  <section>
+    <button popover-trigger="dismiss-pop" data-test="dismiss-trigger">Dismissable</button>
+    <div popover="dismiss-pop" data-test="dismiss-popover" class="popover-content">
+      <p>Click dismiss to close</p>
+      <button popover-dismiss data-test="dismiss-btn">Dismiss</button>
+    </div>
+  </section>
+
+  <!-- Multiple triggers for the same popover -->
+  <section>
+    <button popover-trigger="shared-pop" data-test="shared-trigger-1">Trigger 1</button>
+    <button popover-trigger="shared-pop" data-test="shared-trigger-2">Trigger 2</button>
+    <div popover="shared-pop" data-test="shared-popover" class="popover-content">
+      <p>Shared popover content</p>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

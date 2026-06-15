@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Breadcrumb — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Manual breadcrumb with child elements -->
+  <section>
+    <nav breadcrumb data-test="manual-breadcrumb">
+      <a href="/">Home</a>
+      <a href="/products">Products</a>
+      <a href="/products/widgets">Widgets</a>
+      <span>Current Item</span>
+    </nav>
+  </section>
+
+  <!-- Breadcrumb with custom labels via breadcrumb attribute -->
+  <section>
+    <nav breadcrumb data-test="labeled-breadcrumb">
+      <a href="/" breadcrumb="Home Page">Home</a>
+      <a href="/docs" breadcrumb="Documentation">Docs</a>
+      <span breadcrumb="API Reference">API</span>
+    </nav>
+  </section>
+
+  <!-- Breadcrumb with many items (overflow test) -->
+  <section>
+    <nav breadcrumb data-test="overflow-breadcrumb" style="max-width: 400px; overflow: hidden;">
+      <a href="/">Home</a>
+      <a href="/level-1">Level 1</a>
+      <a href="/level-1/level-2">Level 2</a>
+      <a href="/level-1/level-2/level-3">Level 3</a>
+      <a href="/level-1/level-2/level-3/level-4">Level 4</a>
+      <span>Current Deep Page</span>
+    </nav>
+  </section>
+
+  <!-- Non-nav breadcrumb (div) -->
+  <section>
+    <div breadcrumb data-test="div-breadcrumb">
+      <a href="/">Root</a>
+      <a href="/settings">Settings</a>
+      <span>Profile</span>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>

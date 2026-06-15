@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accordion — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Single-mode accordion (default) -->
+  <section>
+    <div accordion data-test="single-accordion">
+      <details data-test="panel-1">
+        <summary data-test="summary-1">Panel 1</summary>
+        <p>Content for panel 1.</p>
+      </details>
+      <details data-test="panel-2">
+        <summary data-test="summary-2">Panel 2</summary>
+        <p>Content for panel 2.</p>
+      </details>
+      <details data-test="panel-3">
+        <summary data-test="summary-3">Panel 3</summary>
+        <p>Content for panel 3.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Multi-mode accordion -->
+  <section>
+    <div accordion="multi" data-test="multi-accordion">
+      <details data-test="multi-panel-1">
+        <summary data-test="multi-summary-1">Multi Panel 1</summary>
+        <p>Multi content 1.</p>
+      </details>
+      <details data-test="multi-panel-2">
+        <summary data-test="multi-summary-2">Multi Panel 2</summary>
+        <p>Multi content 2.</p>
+      </details>
+      <details data-test="multi-panel-3">
+        <summary data-test="multi-summary-3">Multi Panel 3</summary>
+        <p>Multi content 3.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Pre-opened panel -->
+  <section>
+    <div accordion data-test="preopen-accordion">
+      <details data-test="preopen-panel-1">
+        <summary>Closed Panel</summary>
+        <p>Closed content.</p>
+      </details>
+      <details open data-test="preopen-panel-2">
+        <summary>Pre-opened Panel</summary>
+        <p>Pre-opened content.</p>
+      </details>
+    </div>
+  </section>
+
+  <script src="../../../NoJS/dist/iife/no.js"></script>
+  <script src="../../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>
