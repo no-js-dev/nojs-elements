@@ -275,16 +275,16 @@ describe('Stepper Navigation API ($stepper)', () => {
 });
 
 // =======================================================================
-//  step-change EVENT TESTS
+//  nojs:stepper-change EVENT TESTS
 // =======================================================================
 
-describe('Stepper step-change Event', () => {
+describe('Stepper nojs:stepper-change Event', () => {
   afterEach(() => {
     document.body.innerHTML = '';
     document.querySelectorAll('style[data-nojs-stepper]').forEach(s => s.remove());
   });
 
-  test('19 -- dispatches step-change on initial render', () => {
+  test('19 -- dispatches nojs:stepper-change on initial render', () => {
     const parent = document.createElement('div');
     parent.setAttribute('state', '{}');
     const el = document.createElement('div');
@@ -299,7 +299,7 @@ describe('Stepper step-change Event', () => {
     parent.appendChild(el);
 
     let detail = null;
-    el.addEventListener('step-change', (e) => { detail = e.detail; });
+    el.addEventListener('nojs:stepper-change', (e) => { detail = e.detail; });
 
     document.body.appendChild(parent);
     NoJS.processTree(parent);
@@ -309,10 +309,10 @@ describe('Stepper step-change Event', () => {
     expect(detail.total).toBe(2);
   });
 
-  test('20 -- dispatches step-change on next()', () => {
+  test('20 -- dispatches nojs:stepper-change on next()', () => {
     const { el, ctx } = setupStepper(3);
     let detail = null;
-    el.addEventListener('step-change', (e) => { detail = e.detail; });
+    el.addEventListener('nojs:stepper-change', (e) => { detail = e.detail; });
 
     ctx.$stepper.next();
     expect(detail).not.toBeNull();
@@ -320,22 +320,22 @@ describe('Stepper step-change Event', () => {
     expect(detail.total).toBe(3);
   });
 
-  test('21 -- dispatches step-change on prev()', () => {
+  test('21 -- dispatches nojs:stepper-change on prev()', () => {
     const { el, ctx } = setupStepper(3);
     ctx.$stepper.next();
 
     let detail = null;
-    el.addEventListener('step-change', (e) => { detail = e.detail; });
+    el.addEventListener('nojs:stepper-change', (e) => { detail = e.detail; });
 
     ctx.$stepper.prev();
     expect(detail).not.toBeNull();
     expect(detail.current).toBe(0);
   });
 
-  test('22 -- dispatches step-change on goTo()', () => {
+  test('22 -- dispatches nojs:stepper-change on goTo()', () => {
     const { el, ctx } = setupStepper(4, { 'stepper-mode': 'free' });
     let detail = null;
-    el.addEventListener('step-change', (e) => { detail = e.detail; });
+    el.addEventListener('nojs:stepper-change', (e) => { detail = e.detail; });
 
     ctx.$stepper.goTo(3);
     expect(detail).not.toBeNull();

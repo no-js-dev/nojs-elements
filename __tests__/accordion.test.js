@@ -158,12 +158,12 @@ describe('Accordion Directive', () => {
     expect(detailsList[1].open).toBe(true);
   });
 
-  // ─── accordion-change event ───────────────────────────────────────
+  // ─── nojs:accordion-change event ────────────────────────────────────
 
-  test('9 — fires accordion-change event on open with correct detail', () => {
+  test('9 — fires nojs:accordion-change event on open with correct detail', () => {
     const { container, detailsList } = setupAccordion(3);
     const events = [];
-    container.addEventListener('accordion-change', (e) => events.push(e.detail));
+    container.addEventListener('nojs:accordion-change', (e) => events.push(e.detail));
 
     detailsList[1].open = true;
     detailsList[1].dispatchEvent(new Event('toggle'));
@@ -174,14 +174,14 @@ describe('Accordion Directive', () => {
     expect(openEvt.index).toBe(1);
   });
 
-  test('10 — fires accordion-change event on close with open=false', () => {
+  test('10 — fires nojs:accordion-change event on close with open=false', () => {
     const { container, detailsList } = setupAccordion(3);
 
     detailsList[0].open = true;
     detailsList[0].dispatchEvent(new Event('toggle'));
 
     const events = [];
-    container.addEventListener('accordion-change', (e) => events.push(e.detail));
+    container.addEventListener('nojs:accordion-change', (e) => events.push(e.detail));
 
     detailsList[0].open = false;
     detailsList[0].dispatchEvent(new Event('toggle'));
@@ -191,10 +191,10 @@ describe('Accordion Directive', () => {
     expect(closeEvt.index).toBe(0);
   });
 
-  test('11 — accordion-change event bubbles', () => {
+  test('11 — nojs:accordion-change event bubbles', () => {
     const { parent, detailsList } = setupAccordion(2);
     let caught = false;
-    parent.addEventListener('accordion-change', () => { caught = true; });
+    parent.addEventListener('nojs:accordion-change', () => { caught = true; });
 
     detailsList[0].open = true;
     detailsList[0].dispatchEvent(new Event('toggle'));

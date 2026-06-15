@@ -1,4 +1,4 @@
-import { _dropdownState } from "./state.js";
+import { _dropdownState, _sharedListeners } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
 
 // Monotonic counter for guaranteed-unique menu ids (Date.now()+random can
@@ -8,6 +8,57 @@ let _menuIdCounter = 0;
 function addDisposer(el, fn) {
   el.__disposers = el.__disposers || [];
   el.__disposers.push(fn);
+}
+
+// ─── Singleton document-level listeners ─────────────────────────────
+// One pair of listeners handles outside-click and Escape for ALL
+// dropdown instances, avoiding O(n) document listeners.
+
+function _installSharedListeners() {
+  if (_sharedListeners.installed) return;
+
+  _sharedListeners.outsideClickHandler = (e) => {
+    // Snapshot entries — closing mutates the Map via openMenus.delete()
+    const entries = [..._dropdownState.openMenus.entries()];
+    for (const [menu, { toggle, wrapper }] of entries) {
+      if (!wrapper.contains(e.target)) {
+        menu.removeAttribute("data-open");
+        toggle.setAttribute("aria-expanded", "false");
+        if (typeof menu.hidePopover === "function") {
+          try { menu.hidePopover(); } catch { /* already hidden */ }
+        }
+        _dropdownState.openMenus.delete(menu);
+      }
+    }
+  };
+
+  _sharedListeners.escHandler = (e) => {
+    if (e.key !== "Escape") return;
+    const entries = [..._dropdownState.openMenus.entries()];
+    for (const [menu, { toggle }] of entries) {
+      menu.removeAttribute("data-open");
+      toggle.setAttribute("aria-expanded", "false");
+      if (typeof menu.hidePopover === "function") {
+        try { menu.hidePopover(); } catch { /* already hidden */ }
+      }
+      toggle.focus();
+    }
+    _dropdownState.openMenus.clear();
+  };
+
+  document.addEventListener("click", _sharedListeners.outsideClickHandler, true);
+  document.addEventListener("keydown", _sharedListeners.escHandler);
+  _sharedListeners.installed = true;
+}
+
+export function uninstallSharedListeners() {
+  if (!_sharedListeners.installed) return;
+
+  document.removeEventListener("click", _sharedListeners.outsideClickHandler, true);
+  document.removeEventListener("keydown", _sharedListeners.escHandler);
+  _sharedListeners.outsideClickHandler = null;
+  _sharedListeners.escHandler = null;
+  _sharedListeners.installed = false;
 }
 
 // ─── Position the menu using fixed viewport coordinates ─────────────
@@ -173,20 +224,9 @@ export function registerDropdownDirective(NoJS) {
       };
       el.addEventListener("click", clickHandler);
 
-      // Close on outside click
-      const outsideClick = (e) => {
-        if (isOpen() && !wrapper.contains(e.target)) close();
-      };
-      document.addEventListener("click", outsideClick, true);
-
-      // Close on Escape
-      const escHandler = (e) => {
-        if (e.key === "Escape" && isOpen()) {
-          close();
-          el.focus();
-        }
-      };
-      document.addEventListener("keydown", escHandler);
+      // Shared singleton handles outside-click and Escape for all instances
+      _sharedListeners.instanceCount++;
+      _installSharedListeners();
 
       // Keyboard on toggle
       const keydownHandler = (e) => {
@@ -244,11 +284,16 @@ export function registerDropdownDirective(NoJS) {
         el.removeEventListener("keydown", keydownHandler);
         menu.removeEventListener("keydown", menuKeydownHandler);
         menu.removeEventListener("toggle", toggleEvtHandler);
-        document.removeEventListener("click", outsideClick, true);
-        document.removeEventListener("keydown", escHandler);
         window.removeEventListener("scroll", repositionHandler, true);
         window.removeEventListener("resize", repositionHandler);
         _dropdownState.openMenus.delete(menu);
+
+        // Uninstall shared listeners when the last instance is disposed
+        _sharedListeners.instanceCount--;
+        if (_sharedListeners.instanceCount <= 0) {
+          _sharedListeners.instanceCount = 0;
+          uninstallSharedListeners();
+        }
       });
     },
   });

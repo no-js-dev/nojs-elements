@@ -1,4 +1,4 @@
-import { registerDropdownDirective } from "./dropdown.js";
+import { registerDropdownDirective, uninstallSharedListeners } from "./dropdown.js";
 import { registerDropdownItem } from "./item.js";
 import { resetDropdownState } from "./state.js";
 
@@ -8,5 +8,6 @@ export function registerDropdown(NoJS, options = {}) {
 }
 
 export function cleanupDropdown() {
+  uninstallSharedListeners();
   resetDropdownState();
 }

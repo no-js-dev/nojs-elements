@@ -12,7 +12,24 @@
       "import": "./dist/esm/nojs-elements.js",
       "require": "./dist/cjs/nojs-elements.js",
       "default": "./dist/cjs/nojs-elements.js"
-    }
+    },
+    "./accordion": "./src/accordion/index.js",
+    "./breadcrumb": "./src/breadcrumb/index.js",
+    "./dnd": "./src/dnd/index.js",
+    "./dropdown": "./src/dropdown/index.js",
+    "./modal": "./src/modal/index.js",
+    "./popover": "./src/popover/index.js",
+    "./scroll-spy": "./src/scroll-spy/index.js",
+    "./skeleton": "./src/skeleton/index.js",
+    "./split": "./src/split/index.js",
+    "./stepper": "./src/stepper/index.js",
+    "./table": "./src/table/index.js",
+    "./tabs": "./src/tabs/index.js",
+    "./toast": "./src/toast/index.js",
+    "./tooltip": "./src/tooltip/index.js",
+    "./tree": "./src/tree/index.js",
+    "./validate": "./src/validate/index.js",
+    "./virtual-list": "./src/virtual-list/index.js"
   },
   "files": [
     "dist/",
