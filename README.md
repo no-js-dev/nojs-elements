@@ -1,5 +1,6 @@
 # NoJS Elements
 
+[![CI](https://github.com/ErickXavier/nojs-elements/actions/workflows/ci.yml/badge.svg)](https://github.com/ErickXavier/nojs-elements/actions/workflows/ci.yml)
 ![version](https://img.shields.io/badge/version-1.14.1-blue)
 [![jsDelivr hits](https://data.jsdelivr.com/v1/package/gh/erickxavier/nojs-elements/badge)](https://www.jsdelivr.com/package/gh/erickxavier/nojs-elements)
 
