@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Clone NoJS Core for tests
         run: git clone --depth 1 https://github.com/ErickXavier/no-js.git "$GITHUB_WORKSPACE/../NoJS"
