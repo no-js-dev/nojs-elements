@@ -13,11 +13,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Checkout NoJS Core
-        uses: actions/checkout@v4
-        with:
-          repository: ErickXavier/no-js
-          path: ../NoJS
+      - name: Clone NoJS Core for tests
+        run: git clone --depth 1 https://github.com/ErickXavier/no-js.git "$GITHUB_WORKSPACE/../NoJS"
 
       - uses: actions/setup-node@v4
         with:
