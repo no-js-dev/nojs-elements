@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-NoJS Elements (`@erickxavier/nojs-elements`) — a plugin library of UI components for the No.JS HTML-first reactive framework. Each component is implemented as one or more NoJS directives registered via `NoJS.directive()`. Peer dependency: `@erickxavier/no-js >= 1.11.0`.
+NoJS Elements (`@no-js-dev/nojs-elements`) — a plugin library of UI components for the No.JS HTML-first reactive framework. Each component is implemented as one or more NoJS directives registered via `NoJS.directive()`. Peer dependency: `@no-js-dev/nojs >= 1.11.0`.
 
 ## Commands
 

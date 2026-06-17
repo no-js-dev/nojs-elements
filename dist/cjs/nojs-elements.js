@@ -4,7 +4,7 @@
  * @author exs.dev
  * @homepage https://elements.no-js.dev/
  * @license MIT
- * @repository https://github.com/ErickXavier/nojs-elements
+ * @repository https://github.com/no-js-dev/nojs-elements
  */
 var mt=Object.defineProperty;var bo=Object.getOwnPropertyDescriptor;var ho=Object.getOwnPropertyNames;var vo=Object.prototype.hasOwnProperty;var yo=(t,e)=>{for(var r in e)mt(t,r,{get:e[r],enumerable:!0})},xo=(t,e,r,o)=>{if(e&&typeof e=="object"||typeof e=="function")for(let n of ho(e))!vo.call(t,n)&&n!==r&&mt(t,n,{get:()=>e[n],enumerable:!(o=bo(e,n))||o.enumerable});return t};var Eo=t=>xo(mt({},"__esModule",{value:!0}),t);var Ki={};yo(Ki,{default:()=>Yi});module.exports=Eo(Ki);var w={dragging:null,selected:new Map,placeholder:null},Ne=new Map;function qt(){w.dragging=null,w.selected.clear(),w.placeholder&&(w.placeholder.remove(),w.placeholder=null),Ne.clear()}function We(){if(typeof document>"u"||document.querySelector("style[data-nojs-dnd]"))return;let t=`
 .nojs-dragging {

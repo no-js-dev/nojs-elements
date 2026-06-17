@@ -4,7 +4,7 @@
  * @author exs.dev
  * @homepage https://elements.no-js.dev/
  * @license MIT
- * @repository https://github.com/ErickXavier/nojs-elements
+ * @repository https://github.com/no-js-dev/nojs-elements
  */
 var w={dragging:null,selected:new Map,placeholder:null},Ne=new Map;function $t(){w.dragging=null,w.selected.clear(),w.placeholder&&(w.placeholder.remove(),w.placeholder=null),Ne.clear()}function We(){if(typeof document>"u"||document.querySelector("style[data-nojs-dnd]"))return;let t=`
 .nojs-dragging {

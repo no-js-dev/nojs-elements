@@ -5,9 +5,9 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/ErickXavier/nojs-elements/compare/v1.14.1...HEAD)
+## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.14.1...HEAD)
 
-## [1.14.1](https://github.com/ErickXavier/nojs-elements/compare/v1.14.0...v1.14.1) — 2026-06-11
+## [1.14.1](https://github.com/no-js-dev/nojs-elements/compare/v1.14.0...v1.14.1) — 2026-06-11
 
 ### Fixed
 
@@ -23,25 +23,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Regenerated `llms-full.txt` from current 17 docs/md sources
 - Added 5 missing docs site routes and .tpl pages
 
-## [1.14.0](https://github.com/ErickXavier/nojs-elements/compare/v1.13.3...v1.14.0) — 2026-06-09
+## [1.14.0](https://github.com/no-js-dev/nojs-elements/compare/v1.13.3...v1.14.0) — 2026-06-09
 
 ### Added
 
-- **Virtual List** element — efficient rendering of large datasets with dynamic row heights, O(log N) binary search for scroll position, and configurable overscan ([fafe96c](https://github.com/ErickXavier/nojs-elements/commit/fafe96c))
-- **Accordion** element — collapsible content panels with exclusive/multi mode, keyboard navigation, and CSS-driven animations ([27975bf](https://github.com/ErickXavier/nojs-elements/commit/27975bf))
-- **Scroll Spy** element — auto-highlights navigation links based on scroll position with configurable offset, group-level shared MutationObserver ([60d2b24](https://github.com/ErickXavier/nojs-elements/commit/60d2b24))
-- **Breadcrumb** element — auto-generates breadcrumb navigation from route hierarchy with customizable separator ([47275a2](https://github.com/ErickXavier/nojs-elements/commit/47275a2))
+- **Virtual List** element — efficient rendering of large datasets with dynamic row heights, O(log N) binary search for scroll position, and configurable overscan ([fafe96c](https://github.com/no-js-dev/nojs-elements/commit/fafe96c))
+- **Accordion** element — collapsible content panels with exclusive/multi mode, keyboard navigation, and CSS-driven animations ([27975bf](https://github.com/no-js-dev/nojs-elements/commit/27975bf))
+- **Scroll Spy** element — auto-highlights navigation links based on scroll position with configurable offset, group-level shared MutationObserver ([60d2b24](https://github.com/no-js-dev/nojs-elements/commit/60d2b24))
+- **Breadcrumb** element — auto-generates breadcrumb navigation from route hierarchy with customizable separator ([47275a2](https://github.com/no-js-dev/nojs-elements/commit/47275a2))
 - Documentation for all 4 new elements (`docs/md/`)
 - Unit tests: 104 tests across virtual-list, accordion, scroll-spy, breadcrumb
 - GitHub community files: issue template, PR template, contributing, CoC, security, npmignore
 
 ### Fixed
 
-- Scroll Spy: consolidated per-element MutationObserver to group-level shared observer — reduces DOM observer count ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
-- Virtual List: replaced rAF polling with 100ms setTimeout for container height detection ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
-- Virtual List: prefix-sum array with binary search for O(log N) height lookup replacing O(N) scan ([2d77626](https://github.com/ErickXavier/nojs-elements/commit/2d77626))
+- Scroll Spy: consolidated per-element MutationObserver to group-level shared observer — reduces DOM observer count ([2d77626](https://github.com/no-js-dev/nojs-elements/commit/2d77626))
+- Virtual List: replaced rAF polling with 100ms setTimeout for container height detection ([2d77626](https://github.com/no-js-dev/nojs-elements/commit/2d77626))
+- Virtual List: prefix-sum array with binary search for O(log N) height lookup replacing O(N) scan ([2d77626](https://github.com/no-js-dev/nojs-elements/commit/2d77626))
 
-## [1.13.3](https://github.com/ErickXavier/nojs-elements/compare/v1.13.2...v1.13.3) — 2026-06-05
+## [1.13.3](https://github.com/no-js-dev/nojs-elements/compare/v1.13.2...v1.13.3) — 2026-06-05
 
 ### Fixed
 
@@ -54,18 +54,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tree: extracted keyboard/selection helpers to module scope, added leaf node click selection and keyboard navigation.
 - Build: updated banner homepage URL to `elements.no-js.dev`, added `@repository` field.
 
-## [1.13.2](https://github.com/ErickXavier/nojs-elements/compare/v1.13.1...v1.13.2) — 2026-06-02
+## [1.13.2](https://github.com/no-js-dev/nojs-elements/compare/v1.13.1...v1.13.2) — 2026-06-02
 
 ### Fixed
 
 - Element hardening pass — disposal and reopen invariants tightened across the component suite following the 2026-05-29 deep code review. Popover disposal and the dropdown reopen behavior were the primary fixes, with related hardening across `popover`, `dropdown`, `modal`, `stepper`, `table`, `toast`, `tree`, `tabs`, `tooltip`, `split`, and `skeleton`.
 - Added `__tests__/dropdown-reopen-regression.test.js` covering the dropdown reopen regression.
 
-## [1.13.1](https://github.com/ErickXavier/nojs-elements/compare/v1.13.0...v1.13.1) — 2026-06-01
+## [1.13.1](https://github.com/no-js-dev/nojs-elements/compare/v1.13.0...v1.13.1) — 2026-06-01
 
 Ecosystem version-sync release. No functional changes to NoJS Elements — version bumped to stay lockstep with the rest of the NoJS ecosystem (NoJS-LSP plugin-metadata polish).
 
-## [1.13.0](https://github.com/ErickXavier/nojs-elements/compare/v1.12.0...v1.13.0) — 2026-06-01
+## [1.13.0](https://github.com/no-js-dev/nojs-elements/compare/v1.12.0...v1.13.0) — 2026-06-01
 
 ### Added
 
@@ -78,10 +78,10 @@ Ecosystem version-sync release. No functional changes to NoJS Elements — versi
 
 ### Changed
 
-- Peer dependency bumped to `@erickxavier/no-js >= 1.13.0` (requires `NoJS.internals` API)
+- Peer dependency bumped to `@no-js-dev/nojs >= 1.13.0` (requires `NoJS.internals` API)
 - Plugin entry point registers DnD and Validation before UI elements for integration detection
 
-## [1.12.0](https://github.com/ErickXavier/nojs-elements/compare/v1.11.0...v1.12.0) — 2026-05-27
+## [1.12.0](https://github.com/no-js-dev/nojs-elements/compare/v1.11.0...v1.12.0) — 2026-05-27
 
 ### Changed
 
@@ -96,7 +96,7 @@ Ecosystem version-sync release. No functional changes to NoJS Elements — versi
 - Connected home hero and docs hero via View Transition API (`view-transition-name: hero`)
 - Added `transition="fade"` to `route-view` matching Core
 
-## [1.11.0](https://github.com/ErickXavier/nojs-elements/releases/tag/v1.11.0) — 2026-03-26
+## [1.11.0](https://github.com/no-js-dev/nojs-elements/releases/tag/v1.11.0) — 2026-03-26
 
 ### Added
 

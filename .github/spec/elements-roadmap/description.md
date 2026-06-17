@@ -1,7 +1,7 @@
 # NoJS Elements -- Technical Specification
 
 > **Version:** 1.0.0 | **Date:** 2026-04-02 | **Status:** Approved
-> **Package:** `@erickxavier/nojs-elements` (currently v1.11.0)
+> **Package:** `@no-js-dev/nojs-elements` (currently v1.11.0)
 > **Scope:** 10 new UI element modules added to the existing plugin
 
 ---
@@ -1695,7 +1695,7 @@ const mockNoJS = {
 ### 10.4 Mitigation
 
 - Tree-shakeable if users import individual modules directly
-- Consider offering separate entry points per module: `@erickxavier/nojs-elements/tooltip`
+- Consider offering separate entry points per module: `@no-js-dev/nojs-elements/tooltip`
 - All CSS is injected lazily (only when directive is used on page)
 
 ---

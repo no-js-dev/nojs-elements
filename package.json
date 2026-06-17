@@ -1,5 +1,5 @@
 {
-  "name": "@erickxavier/nojs-elements",
+  "name": "@no-js-dev/nojs-elements",
   "version": "1.14.1",
   "description": "Element plugins for No.JS — drag-and-drop, validation, and more",
   "main": "dist/cjs/nojs-elements.js",
@@ -45,7 +45,7 @@
     "prepublishOnly": "npm run build"
   },
   "peerDependencies": {
-    "@erickxavier/no-js": ">=1.13.0 <2.0.0"
+    "@no-js-dev/nojs": ">=1.13.0 <2.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
@@ -68,11 +68,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ErickXavier/nojs-elements.git"
+    "url": "git+https://github.com/no-js-dev/nojs-elements.git"
   },
-  "homepage": "https://github.com/ErickXavier/nojs-elements#readme",
+  "homepage": "https://github.com/no-js-dev/nojs-elements#readme",
   "bugs": {
-    "url": "https://github.com/ErickXavier/nojs-elements/issues"
+    "url": "https://github.com/no-js-dev/nojs-elements/issues"
   },
   "author": "exs.dev",
   "license": "MIT"

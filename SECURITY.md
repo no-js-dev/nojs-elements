@@ -37,7 +37,7 @@ The following are in scope:
 
 ### Out of scope
 
-- Vulnerabilities in the No.JS core framework (report those to the [core repo](https://github.com/ErickXavier/no-js/security))
+- Vulnerabilities in the No.JS core framework (report those to the [core repo](https://github.com/no-js-dev/nojs/security))
 - Vulnerabilities in third-party dependencies (we have zero runtime dependencies beyond No.JS)
 - Issues requiring physical access to the user's machine
 

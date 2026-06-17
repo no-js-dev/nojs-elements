@@ -6,11 +6,11 @@ Starting with version 1.13.0, the **Drag and Drop** (`drag`, `drop`, `drag-list`
 
 | Directive | Priority | Source | Destination |
 |-----------|----------|--------|-------------|
-| `drag` | 15 | `@erickxavier/no-js` | `@erickxavier/nojs-elements` |
-| `drop` | 15 | `@erickxavier/no-js` | `@erickxavier/nojs-elements` |
-| `drag-list` | 10 | `@erickxavier/no-js` | `@erickxavier/nojs-elements` |
-| `drag-multiple` | 16 | `@erickxavier/no-js` | `@erickxavier/nojs-elements` |
-| `validate` | 30 | `@erickxavier/no-js` | `@erickxavier/nojs-elements` |
+| `drag` | 15 | `@no-js-dev/nojs` | `@no-js-dev/nojs-elements` |
+| `drop` | 15 | `@no-js-dev/nojs` | `@no-js-dev/nojs-elements` |
+| `drag-list` | 10 | `@no-js-dev/nojs` | `@no-js-dev/nojs-elements` |
+| `drag-multiple` | 16 | `@no-js-dev/nojs` | `@no-js-dev/nojs-elements` |
+| `validate` | 30 | `@no-js-dev/nojs` | `@no-js-dev/nojs-elements` |
 
 ## What Stays in Core
 
@@ -23,7 +23,7 @@ These related features remain in NoJS Core and require no changes:
 NoJS Core >= 1.13.0 includes **stub directives** for `drag`, `drop`, `drag-list`, `drag-multiple`, and `validate`. If you use these directives without loading NoJS Elements, you will see a console warning:
 
 ```
-[NoJS] "drag" requires @erickxavier/nojs-elements. Install and call NoJS.use(NoJSElements).
+[NoJS] "drag" requires @no-js-dev/nojs-elements. Install and call NoJS.use(NoJSElements).
 ```
 
 The stubs ensure your app does not throw errors — the directives are silently skipped with a warning.
@@ -32,8 +32,8 @@ The stubs ensure your app does not throw errors — the directives are silently 
 
 | Package | Minimum Version |
 |---------|----------------|
-| `@erickxavier/no-js` | `>= 1.13.0` |
-| `@erickxavier/nojs-elements` | `>= 1.13.0` |
+| `@no-js-dev/nojs` | `>= 1.13.0` |
+| `@no-js-dev/nojs-elements` | `>= 1.13.0` |
 
 Both packages must be at version 1.13.0 or later. Earlier versions of NoJS Elements do not include the DnD and Validation modules, and earlier versions of Core do not have the stub mechanism.
 
@@ -81,7 +81,7 @@ The CDN build of NoJS Elements auto-installs when it detects `window.NoJS`. No J
 ### Before (Core only)
 
 ```javascript
-import NoJS from '@erickxavier/no-js';
+import NoJS from '@no-js-dev/nojs';
 
 NoJS.config({ /* ... */ });
 NoJS.init();
@@ -90,12 +90,12 @@ NoJS.init();
 ### After (Core + Elements)
 
 ```bash
-npm install @erickxavier/nojs-elements
+npm install @no-js-dev/nojs-elements
 ```
 
 ```javascript
-import NoJS from '@erickxavier/no-js';
-import NoJSElements from '@erickxavier/nojs-elements';
+import NoJS from '@no-js-dev/nojs';
+import NoJSElements from '@no-js-dev/nojs-elements';
 
 NoJS.config({ /* ... */ });
 NoJS.use(NoJSElements);
@@ -109,12 +109,12 @@ NoJS.init();
 ## CJS / require() Users
 
 ```bash
-npm install @erickxavier/nojs-elements
+npm install @no-js-dev/nojs-elements
 ```
 
 ```javascript
-const NoJS = require('@erickxavier/no-js');
-const NoJSElements = require('@erickxavier/nojs-elements');
+const NoJS = require('@no-js-dev/nojs');
+const NoJSElements = require('@no-js-dev/nojs-elements');
 
 NoJS.config({ /* ... */ });
 NoJS.use(NoJSElements);

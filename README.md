@@ -1,8 +1,8 @@
 # NoJS Elements
 
-[![CI](https://github.com/ErickXavier/nojs-elements/actions/workflows/ci.yml/badge.svg)](https://github.com/ErickXavier/nojs-elements/actions/workflows/ci.yml)
+[![CI](https://github.com/no-js-dev/nojs-elements/actions/workflows/ci.yml/badge.svg)](https://github.com/no-js-dev/nojs-elements/actions/workflows/ci.yml)
 ![version](https://img.shields.io/badge/version-1.14.1-blue)
-[![jsDelivr hits](https://data.jsdelivr.com/v1/package/gh/erickxavier/nojs-elements/badge)](https://www.jsdelivr.com/package/gh/erickxavier/nojs-elements)
+[![jsDelivr hits](https://data.jsdelivr.com/v1/package/gh/no-js-dev/nojs-elements/badge)](https://www.jsdelivr.com/package/gh/no-js-dev/nojs-elements)
 
 **UI element plugins for No.JS** — declarative, accessible, zero JavaScript required.
 
@@ -13,7 +13,7 @@
 ### NPM
 
 ```bash
-npm install @erickxavier/nojs-elements
+npm install @no-js-dev/nojs-elements
 ```
 
 ### CDN
@@ -29,8 +29,8 @@ npm install @erickxavier/nojs-elements
 ### ESM
 
 ```javascript
-import NoJS from '@erickxavier/no-js';
-import NoJSElements from '@erickxavier/nojs-elements';
+import NoJS from '@no-js-dev/nojs';
+import NoJSElements from '@no-js-dev/nojs-elements';
 
 NoJS.use(NoJSElements);
 ```
@@ -132,7 +132,7 @@ This plugin requires **No.JS >= 1.13.0** as a peer dependency.
 
 Detailed documentation for each element is available in [`docs/md/`](docs/md/).
 
-For the full directive reference with all attributes, events, CSS classes, and accessibility details, see the [NoJS-Skill directive reference](https://github.com/ErickXavier/nojs-skill/blob/main/references/directives.md#drag-and-drop).
+For the full directive reference with all attributes, events, CSS classes, and accessibility details, see the [NoJS-Skill directive reference](https://github.com/no-js-dev/nojs-skill/blob/main/references/directives.md#drag-and-drop).
 
 ---
 
@@ -140,10 +140,10 @@ For the full directive reference with all attributes, events, CSS classes, and a
 
 | Tool | Description |
 |------|-------------|
-| [No.JS](https://github.com/ErickXavier/no-js) | Core HTML-first reactive framework (peer dependency) |
+| [No.JS](https://github.com/no-js-dev/nojs) | Core HTML-first reactive framework (peer dependency) |
 | **NoJS Elements** | This package — UI element plugins |
-| [NoJS-LSP](https://github.com/ErickXavier/nojs-lsp) | VS Code extension — autocomplete, hover docs, diagnostics |
-| [NoJS-Skill](https://github.com/ErickXavier/nojs-skill) | Claude Code skill — guided No.JS project generation |
+| [NoJS-LSP](https://github.com/no-js-dev/nojs-lsp) | VS Code extension — autocomplete, hover docs, diagnostics |
+| [NoJS-Skill](https://github.com/no-js-dev/nojs-skill) | Claude Code skill — guided No.JS project generation |
 
 ---
 

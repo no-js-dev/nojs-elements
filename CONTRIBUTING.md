@@ -31,13 +31,13 @@ We are committed to providing a welcoming, inclusive, and harassment-free experi
 
 ## Getting Started
 
-NoJS Elements (`@erickxavier/nojs-elements`) is a plugin library of UI components for the [No.JS](https://no-js.dev/) HTML-first reactive framework. Each component is implemented as one or more NoJS directives.
+NoJS Elements (`@no-js-dev/nojs-elements`) is a plugin library of UI components for the [No.JS](https://no-js.dev/) HTML-first reactive framework. Each component is implemented as one or more NoJS directives.
 
 | Repository | Package | Purpose |
 | --- | --- | --- |
-| [nojs-elements](https://github.com/ErickXavier/nojs-elements) | `@erickxavier/nojs-elements` | UI element plugins |
-| [no-js](https://github.com/ErickXavier/no-js) | `@erickxavier/no-js` | Core framework (peer dependency) |
-| [nojs-lsp](https://github.com/ErickXavier/nojs-lsp) | `nojs-lsp` | VS Code language server |
+| [nojs-elements](https://github.com/no-js-dev/nojs-elements) | `@no-js-dev/nojs-elements` | UI element plugins |
+| [no-js](https://github.com/no-js-dev/nojs) | `@no-js-dev/nojs` | Core framework (peer dependency) |
+| [nojs-lsp](https://github.com/no-js-dev/nojs-lsp) | `nojs-lsp` | VS Code language server |
 
 If your change adds a new directive, the **LSP repo** may need updates too (completions, hover docs).
 
@@ -92,7 +92,7 @@ Every element lives in `src/<name>/` and follows this structure:
 ### Setup
 
 ```bash
-git clone https://github.com/ErickXavier/nojs-elements.git
+git clone https://github.com/no-js-dev/nojs-elements.git
 cd nojs-elements
 npm install
 
@@ -225,7 +225,7 @@ npm run build && npm test
 
 ## Need Help?
 
-- **Found a bug?** Open an [Issue](https://github.com/ErickXavier/nojs-elements/issues)
-- **First-time contributor?** Look for issues labeled [`good first issue`](https://github.com/ErickXavier/nojs-elements/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+- **Found a bug?** Open an [Issue](https://github.com/no-js-dev/nojs-elements/issues)
+- **First-time contributor?** Look for issues labeled [`good first issue`](https://github.com/no-js-dev/nojs-elements/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
 We appreciate every contribution, no matter how small. Welcome aboard!
