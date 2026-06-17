@@ -47,13 +47,13 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 ### NPM
 
 ```bash
-npm install @erickxavier/nojs-elements
+npm install @no-js-dev/nojs-elements
 ```
 
 ### CDN
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@erickxavier/nojs-elements/dist/iife/nojs-elements.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@no-js-dev/nojs-elements/dist/iife/nojs-elements.js"></script>
 ```
 
 ## Usage
@@ -61,8 +61,8 @@ npm install @erickxavier/nojs-elements
 ### ESM
 
 ```javascript
-import NoJS from '@erickxavier/no-js';
-import NoJSElements from '@erickxavier/nojs-elements';
+import NoJS from '@no-js-dev/nojs';
+import NoJSElements from '@no-js-dev/nojs-elements';
 
 NoJS.use(NoJSElements);
 ```

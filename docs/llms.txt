@@ -55,6 +55,6 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 - [No.JS Framework](https://no-js.dev/): The core HTML-first reactive framework (required peer dependency)
 - [No.JS Full Docs](https://no-js.dev/llms-full.txt): Complete No.JS framework documentation
 - [NoJS LSP](https://lsp.no-js.dev/): VS Code extension with completion, hover, and diagnostics for No.JS directives
-- [NoJS Skill](https://github.com/ErickXavier/nojs-skill): AI agent reference for No.JS — full directive, filter, and validation docs
-- [npm](https://www.npmjs.com/package/@erickxavier/nojs-elements): Install via npm
-- [GitHub](https://github.com/ErickXavier/nojs-elements): Source code, issues, and contributions
+- [NoJS Skill](https://github.com/no-js-dev/nojs-skill): AI agent reference for No.JS — full directive, filter, and validation docs
+- [npm](https://www.npmjs.com/package/@no-js-dev/nojs-elements): Install via npm
+- [GitHub](https://github.com/no-js-dev/nojs-elements): Source code, issues, and contributions
