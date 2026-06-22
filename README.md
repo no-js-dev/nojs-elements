@@ -10,40 +10,15 @@
 
 ## Installation
 
-### NPM
-
-```bash
-npm install @no-js-dev/nojs-elements
-```
-
-### CDN
-
-```html
-<script src="https://cdn.no-js.dev/elements"></script>
-```
-
----
-
-## Usage
-
-### ESM
-
-```javascript
-import NoJS from '@no-js-dev/nojs';
-import NoJSElements from '@no-js-dev/nojs-elements';
-
-NoJS.use(NoJSElements);
-```
-
-### CDN (Script Tag)
-
-When loaded via `<script>` tag, NoJS Elements auto-installs itself — no `NoJS.use()` call needed:
+Add both script tags to your HTML — NoJS Core first, then Elements:
 
 ```html
 <script src="https://cdn.no-js.dev/"></script>
-<script src="https://cdn.no-js.dev/elements"></script>
+<script src="https://cdn-elements.no-js.dev/"></script>
 <!-- That's it — all elements are ready to use -->
 ```
+
+NoJS Elements auto-installs itself when loaded via `<script>` tag — no `NoJS.use()` call needed.
 
 ---
 
@@ -132,7 +107,7 @@ This plugin requires **No.JS >= 1.13.0** as a peer dependency.
 
 Detailed documentation for each element is available in [`docs/md/`](docs/md/).
 
-For the full directive reference with all attributes, events, CSS classes, and accessibility details, see the [NoJS-Skill directive reference](https://github.com/no-js-dev/nojs-skill/blob/main/references/directives.md#drag-and-drop).
+For the full directive reference with all attributes, events, CSS classes, and accessibility details, see the [NoJS-Skill element references](https://github.com/no-js-dev/nojs-skill/blob/main/nojs/references/elements/).
 
 ---
 
@@ -150,6 +125,13 @@ For the full directive reference with all attributes, events, CSS classes, and a
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request.
+
+```bash
+npm install            # install dependencies
+npm run build          # esbuild → dist/{iife,esm,cjs}/nojs-elements.js
+npm test               # Jest unit tests
+cd e2e && npx playwright test   # E2E tests (Playwright)
+```
 
 - [Changelog](CHANGELOG.md)
 

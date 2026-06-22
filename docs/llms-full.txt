@@ -7,7 +7,7 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 ## Table of Contents
 
 ### Installation
-- [Getting Started](#getting-started) — NPM, CDN, ESM usage
+- [Getting Started](#getting-started) — CDN script tag usage
 
 ### Interaction Elements
 - [Drag & Drop](#drag-and-drop) — `drag`, `drop`, `drag-list`, `drag-multiple`
@@ -44,38 +44,15 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 
 ## Installation
 
-### NPM
-
-```bash
-npm install @no-js-dev/nojs-elements
-```
-
-### CDN
-
-```html
-<script src="https://cdn.jsdelivr.net/npm/@no-js-dev/nojs-elements/dist/iife/nojs-elements.js"></script>
-```
-
-## Usage
-
-### ESM
-
-```javascript
-import NoJS from '@no-js-dev/nojs';
-import NoJSElements from '@no-js-dev/nojs-elements';
-
-NoJS.use(NoJSElements);
-```
-
-### CDN (Script Tag)
-
-When loaded via `<script>` tag, NoJS Elements auto-installs itself — no `NoJS.use()` call needed:
+Add both script tags to your HTML — NoJS Core first, then Elements:
 
 ```html
 <script src="https://cdn.no-js.dev/"></script>
-<script src="https://cdn.no-js.dev/elements"></script>
+<script src="https://cdn-elements.no-js.dev/"></script>
 <!-- That's it — all elements are ready to use -->
 ```
+
+NoJS Elements auto-installs itself when loaded via `<script>` tag — no `NoJS.use()` call needed.
 
 ## Peer Dependency
 
@@ -107,7 +84,7 @@ This plugin requires **No.JS >= 1.13.0** as a peer dependency.
 
 # Drag and Drop
 
-> The DnD module is included in NoJS Elements. When using the CDN, it is auto-installed — no separate registration is needed. For ESM usage, call `NoJS.use(NoJSElements)` once.
+> The DnD module is included in NoJS Elements. When using the CDN, it is auto-installed — no separate registration is needed.
 
 ## `drag` — Make an Element Draggable
 
@@ -365,7 +342,7 @@ No.JS automatically adds:
 
 # Validation
 
-> The Validation module is included in NoJS Elements. When using the CDN, it is auto-installed — no separate registration is needed. For ESM usage, call `NoJS.use(NoJSElements)` once.
+> The Validation module is included in NoJS Elements. When using the CDN, it is auto-installed — no separate registration is needed.
 
 ## `<form validate>` — Form-Level Validation
 

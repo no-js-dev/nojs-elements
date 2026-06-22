@@ -6,7 +6,7 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 
 ## Installation
 
-- [Getting Started](https://elements.no-js.dev/): NPM install, CDN script tag, ESM/IIFE usage, peer dependency on No.JS
+- [Getting Started](https://elements.no-js.dev/): CDN script tag usage, peer dependency on No.JS
 
 ## Drag & Drop
 
@@ -56,5 +56,4 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 - [No.JS Full Docs](https://no-js.dev/llms-full.txt): Complete No.JS framework documentation
 - [NoJS LSP](https://lsp.no-js.dev/): VS Code extension with completion, hover, and diagnostics for No.JS directives
 - [NoJS Skill](https://github.com/no-js-dev/nojs-skill): AI agent reference for No.JS — full directive, filter, and validation docs
-- [npm](https://www.npmjs.com/package/@no-js-dev/nojs-elements): Install via npm
 - [GitHub](https://github.com/no-js-dev/nojs-elements): Source code, issues, and contributions

@@ -5,7 +5,19 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.15.3...HEAD)
+## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.15.4...HEAD)
+
+## [1.15.4](https://github.com/no-js-dev/nojs-elements/compare/v1.15.3...v1.15.4) — 2026-06-22
+
+### Fixed
+
+- fix(docs): remove npm/ESM sections from README and docs — NoJS Elements is CDN-only
+- fix(docs): remove npmjs.com link from llms.txt
+- fix(docs): remove npm/ESM/CJS migration sections from migration-from-core.md
+- fix(docs): expand Contributing section with build/test commands
+- fix(docs): standardize CDN URL to cdn-elements.no-js.dev/
+- fix(docs): remove surviving ESM instructions from llms-full.txt
+- fix(docs): fix dead link to Skill repo element references
 
 ## [1.15.3](https://github.com/no-js-dev/nojs-elements/compare/v1.15.2...v1.15.3) — 2026-06-20
 

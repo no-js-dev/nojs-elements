@@ -59,7 +59,7 @@ Both packages must be at version 1.13.0 or later. Earlier versions of NoJS Eleme
 
 ```html
 <script src="https://cdn.no-js.dev/"></script>
-<script src="https://cdn.no-js.dev/elements/"></script>
+<script src="https://cdn-elements.no-js.dev/"></script>
 
 <form validate>
   <input name="email" validate="required|email" />
@@ -73,53 +73,6 @@ Both packages must be at version 1.13.0 or later. Earlier versions of NoJS Eleme
 The CDN build of NoJS Elements auto-installs when it detects `window.NoJS`. No JavaScript code changes are needed — just add the second `<script>` tag.
 
 **Order matters:** the Core script must load before the Elements script.
-
----
-
-## npm / ESM Users
-
-### Before (Core only)
-
-```javascript
-import NoJS from '@no-js-dev/nojs';
-
-NoJS.config({ /* ... */ });
-NoJS.init();
-```
-
-### After (Core + Elements)
-
-```bash
-npm install @no-js-dev/nojs-elements
-```
-
-```javascript
-import NoJS from '@no-js-dev/nojs';
-import NoJSElements from '@no-js-dev/nojs-elements';
-
-NoJS.config({ /* ... */ });
-NoJS.use(NoJSElements);
-NoJS.init();
-```
-
-**Order matters:** `NoJS.use(NoJSElements)` must be called before `NoJS.init()`.
-
----
-
-## CJS / require() Users
-
-```bash
-npm install @no-js-dev/nojs-elements
-```
-
-```javascript
-const NoJS = require('@no-js-dev/nojs');
-const NoJSElements = require('@no-js-dev/nojs-elements');
-
-NoJS.config({ /* ... */ });
-NoJS.use(NoJSElements);
-NoJS.init();
-```
 
 ---
 
