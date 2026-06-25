@@ -1,5 +1,5 @@
 /**
- * NoJS Elements v1.15.5 — Element plugins for No.JS
+ * NoJS Elements v1.15.6 — Element plugins for No.JS
  * Drag-and-drop, and more.
  * @author exs.dev
  * @homepage https://elements.no-js.dev/

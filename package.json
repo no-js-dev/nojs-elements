@@ -1,6 +1,6 @@
 {
   "name": "@no-js-dev/nojs-elements",
-  "version": "1.15.5",
+  "version": "1.15.6",
   "description": "Element plugins for No.JS — drag-and-drop, validation, and more",
   "main": "dist/cjs/nojs-elements.js",
   "module": "dist/esm/nojs-elements.js",
