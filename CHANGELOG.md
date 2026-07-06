@@ -5,7 +5,13 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.16.1...HEAD)
+## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.17.0...HEAD)
+
+## [1.17.0](https://github.com/no-js-dev/nojs-elements/compare/v1.16.1...v1.17.0) — 2026-07-06
+
+### Changed
+
+- Bump to 1.17.0 for ecosystem version sync (NoJS Core QUERY method release). No functional changes to elements.
 
 ## [1.16.1](https://github.com/no-js-dev/nojs-elements/compare/v1.16.0...v1.16.1) — 2026-07-03
 
