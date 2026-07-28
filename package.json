@@ -41,8 +41,8 @@
   "devDependencies": {
     "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
-    "@playwright/test": "^1.62.0",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@playwright/test": "^1.61.1",
+    "@testing-library/jest-dom": "^7.0.0",
     "babel-jest": "^30.2.0",
     "esbuild": "^0.28.1",
     "jest": "^30.4.2",
