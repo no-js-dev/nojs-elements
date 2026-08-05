@@ -24,3 +24,32 @@ jobs:
       - run: npm install
       - run: npm run build
       - run: npm test
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Clone NoJS Core
+        run: git clone --depth 1 https://github.com/no-js-dev/nojs.git "$GITHUB_WORKSPACE/../NoJS"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Build NoJS Core
+        run: cd "$GITHUB_WORKSPACE/../NoJS" && npm ci && node build.js
+
+      - name: Install Elements dependencies
+        run: npm ci
+
+      - name: Build Elements
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run e2e tests
+        run: cd e2e && npx playwright test --project=chromium
