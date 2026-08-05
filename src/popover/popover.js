@@ -225,16 +225,19 @@ export function registerPopoverDirective(NoJS) {
         }
         if (!_supportsPopover(entry.popoverEl)) return;
         // Hide before opening so the popover is never visible at (0,0).
+        // try/finally guarantees visibility is cleared even if positioning throws.
         entry.popoverEl.style.visibility = "hidden";
-        entry.popoverEl.togglePopover();
-        // Position synchronously, then reveal.
-        if (_isPopoverOpen(entry.popoverEl)) {
-          _positionPopover(entry.popoverEl, el, entry.position);
+        try {
+          entry.popoverEl.togglePopover();
+          // Position synchronously, then reveal.
+          if (_isPopoverOpen(entry.popoverEl)) {
+            _positionPopover(entry.popoverEl, el, entry.position);
+            _startTracking(entry, el);
+          } else {
+            _stopTracking(entry);
+          }
+        } finally {
           entry.popoverEl.style.visibility = "";
-          _startTracking(entry, el);
-        } else {
-          entry.popoverEl.style.visibility = "";
-          _stopTracking(entry);
         }
       };
       el.addEventListener("click", clickHandler);
@@ -288,13 +291,16 @@ export function registerPopoverDirective(NoJS) {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl, "showPopover")) return false;
     entry.popoverEl.style.visibility = "hidden";
-    try { entry.popoverEl.showPopover(); } catch { entry.popoverEl.style.visibility = ""; return false; }
-    const anchor = anchorEl || [...entry.triggerEls][0];
-    if (anchor) {
-      _positionPopover(entry.popoverEl, anchor, entry.position);
-      entry.popoverEl.style.visibility = "";
-      _startTracking(entry, anchor);
-    } else {
+    try {
+      entry.popoverEl.showPopover();
+      const anchor = anchorEl || [...entry.triggerEls][0];
+      if (anchor) {
+        _positionPopover(entry.popoverEl, anchor, entry.position);
+        _startTracking(entry, anchor);
+      }
+    } catch {
+      return false;
+    } finally {
       entry.popoverEl.style.visibility = "";
     }
     return true;
@@ -312,15 +318,17 @@ export function registerPopoverDirective(NoJS) {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl)) return false;
     entry.popoverEl.style.visibility = "hidden";
-    entry.popoverEl.togglePopover();
-    const anchor = anchorEl || [...entry.triggerEls][0];
-    if (anchor && _isPopoverOpen(entry.popoverEl)) {
-      _positionPopover(entry.popoverEl, anchor, entry.position);
+    try {
+      entry.popoverEl.togglePopover();
+      const anchor = anchorEl || [...entry.triggerEls][0];
+      if (anchor && _isPopoverOpen(entry.popoverEl)) {
+        _positionPopover(entry.popoverEl, anchor, entry.position);
+        _startTracking(entry, anchor);
+      } else {
+        _stopTracking(entry);
+      }
+    } finally {
       entry.popoverEl.style.visibility = "";
-      _startTracking(entry, anchor);
-    } else {
-      entry.popoverEl.style.visibility = "";
-      _stopTracking(entry);
     }
     return true;
   };
