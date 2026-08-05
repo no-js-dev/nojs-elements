@@ -158,9 +158,9 @@ export function registerPopoverDirective(NoJS) {
         const isOpen = e.newState === "open";
         entry.open = isOpen;
         for (const t of entry.triggerEls) t.setAttribute("aria-expanded", String(isOpen));
-        // Stop live-position tracking and hide once the popover closes.
+        // Stop live-position tracking and reset visibility once the popover closes.
         if (!isOpen) {
-          el.classList.remove("nojs-popover--positioned");
+          el.style.visibility = "";
           _stopTracking(entry);
         }
       };
@@ -224,15 +224,16 @@ export function registerPopoverDirective(NoJS) {
           return;
         }
         if (!_supportsPopover(entry.popoverEl)) return;
-        entry.popoverEl.classList.remove("nojs-popover--positioned");
+        // Hide before opening so the popover is never visible at (0,0).
+        entry.popoverEl.style.visibility = "hidden";
         entry.popoverEl.togglePopover();
-        // Position synchronously so the popover is never visible at (0,0).
+        // Position synchronously, then reveal.
         if (_isPopoverOpen(entry.popoverEl)) {
           _positionPopover(entry.popoverEl, el, entry.position);
-          entry.popoverEl.classList.add("nojs-popover--positioned");
+          entry.popoverEl.style.visibility = "";
           _startTracking(entry, el);
         } else {
-          entry.popoverEl.classList.remove("nojs-popover--positioned");
+          entry.popoverEl.style.visibility = "";
           _stopTracking(entry);
         }
       };
@@ -286,13 +287,15 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.open = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl, "showPopover")) return false;
-    entry.popoverEl.classList.remove("nojs-popover--positioned");
-    try { entry.popoverEl.showPopover(); } catch { return false; }
+    entry.popoverEl.style.visibility = "hidden";
+    try { entry.popoverEl.showPopover(); } catch { entry.popoverEl.style.visibility = ""; return false; }
     const anchor = anchorEl || [...entry.triggerEls][0];
     if (anchor) {
       _positionPopover(entry.popoverEl, anchor, entry.position);
-      entry.popoverEl.classList.add("nojs-popover--positioned");
+      entry.popoverEl.style.visibility = "";
       _startTracking(entry, anchor);
+    } else {
+      entry.popoverEl.style.visibility = "";
     }
     return true;
   };
@@ -308,15 +311,15 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.toggle = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl)) return false;
-    entry.popoverEl.classList.remove("nojs-popover--positioned");
+    entry.popoverEl.style.visibility = "hidden";
     entry.popoverEl.togglePopover();
     const anchor = anchorEl || [...entry.triggerEls][0];
     if (anchor && _isPopoverOpen(entry.popoverEl)) {
       _positionPopover(entry.popoverEl, anchor, entry.position);
-      entry.popoverEl.classList.add("nojs-popover--positioned");
+      entry.popoverEl.style.visibility = "";
       _startTracking(entry, anchor);
     } else {
-      entry.popoverEl.classList.remove("nojs-popover--positioned");
+      entry.popoverEl.style.visibility = "";
       _stopTracking(entry);
     }
     return true;
