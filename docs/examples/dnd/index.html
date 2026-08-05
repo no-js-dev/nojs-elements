@@ -176,8 +176,8 @@
                drag-list="evtA" template="item-tpl" drag-list-key="id"
                drag-type="evt" drop-accept="evt" drop-sort="vertical"
                drag-list-remove
-               on:reorder="reorderLog = 'reordered:' + $event.detail.from + '->' + $event.detail.to"
-               on:remove="removeLog = 'removed:' + $event.detail.index">
+               on:nojs:dnd-reorder="reorderLog = 'reordered:' + $event.detail.from + '->' + $event.detail.to"
+               on:nojs:dnd-remove="removeLog = 'removed:' + $event.detail.index">
           </div>
           <span class="value" data-test="reorder-log" bind="reorderLog"></span>
           <span class="value" data-test="remove-log" bind="removeLog"></span>
@@ -186,7 +186,7 @@
           <div class="list" data-test="evt-b"
                drag-list="evtB" template="item-tpl" drag-list-key="id"
                drag-type="evt" drop-accept="evt" drop-sort="vertical"
-               on:receive="receiveLog = 'received:' + $event.detail.item.name">
+               on:nojs:dnd-receive="receiveLog = 'received:' + $event.detail.item.name">
           </div>
           <span class="value" data-test="receive-log" bind="receiveLog"></span>
         </div>

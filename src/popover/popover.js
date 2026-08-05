@@ -13,6 +13,12 @@ function _supportsPopover(el, method = "togglePopover") {
   return !!el && typeof el[method] === "function";
 }
 
+// Safe check for `:popover-open` — jsdom and older browsers throw on the
+// unsupported pseudo-class, so we catch and return false.
+function _isPopoverOpen(el) {
+  try { return el.matches(":popover-open"); } catch { return false; }
+}
+
 // ─── Positioning helper ─────────────────────────────────────────────
 
 const GAP = 8;
@@ -80,7 +86,7 @@ function _startTracking(entry, anchorEl) {
       stop();
       return;
     }
-    if (typeof popoverEl.matches === "function" && !popoverEl.matches(":popover-open")) {
+    if (!_isPopoverOpen(popoverEl)) {
       stop();
       return;
     }
@@ -152,8 +158,11 @@ export function registerPopoverDirective(NoJS) {
         const isOpen = e.newState === "open";
         entry.open = isOpen;
         for (const t of entry.triggerEls) t.setAttribute("aria-expanded", String(isOpen));
-        // Stop live-position tracking once the popover closes.
-        if (!isOpen) _stopTracking(entry);
+        // Stop live-position tracking and hide once the popover closes.
+        if (!isOpen) {
+          el.classList.remove("nojs-popover--positioned");
+          _stopTracking(entry);
+        }
       };
       el.addEventListener("toggle", toggleHandler);
 
@@ -215,16 +224,17 @@ export function registerPopoverDirective(NoJS) {
           return;
         }
         if (!_supportsPopover(entry.popoverEl)) return;
+        entry.popoverEl.classList.remove("nojs-popover--positioned");
         entry.popoverEl.togglePopover();
-        // Position after opening, then track scroll/resize while it stays open.
-        requestAnimationFrame(() => {
-          if (entry.popoverEl.matches(":popover-open")) {
-            _positionPopover(entry.popoverEl, el, entry.position);
-            _startTracking(entry, el);
-          } else {
-            _stopTracking(entry);
-          }
-        });
+        // Position synchronously so the popover is never visible at (0,0).
+        if (_isPopoverOpen(entry.popoverEl)) {
+          _positionPopover(entry.popoverEl, el, entry.position);
+          entry.popoverEl.classList.add("nojs-popover--positioned");
+          _startTracking(entry, el);
+        } else {
+          entry.popoverEl.classList.remove("nojs-popover--positioned");
+          _stopTracking(entry);
+        }
       };
       el.addEventListener("click", clickHandler);
 
@@ -276,13 +286,13 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.open = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl, "showPopover")) return false;
+    entry.popoverEl.classList.remove("nojs-popover--positioned");
     try { entry.popoverEl.showPopover(); } catch { return false; }
     const anchor = anchorEl || [...entry.triggerEls][0];
     if (anchor) {
-      requestAnimationFrame(() => {
-        _positionPopover(entry.popoverEl, anchor, entry.position);
-        _startTracking(entry, anchor);
-      });
+      _positionPopover(entry.popoverEl, anchor, entry.position);
+      entry.popoverEl.classList.add("nojs-popover--positioned");
+      _startTracking(entry, anchor);
     }
     return true;
   };
@@ -298,14 +308,15 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.toggle = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl)) return false;
+    entry.popoverEl.classList.remove("nojs-popover--positioned");
     entry.popoverEl.togglePopover();
     const anchor = anchorEl || [...entry.triggerEls][0];
-    if (anchor && entry.popoverEl.matches(":popover-open")) {
-      requestAnimationFrame(() => {
-        _positionPopover(entry.popoverEl, anchor, entry.position);
-        _startTracking(entry, anchor);
-      });
+    if (anchor && _isPopoverOpen(entry.popoverEl)) {
+      _positionPopover(entry.popoverEl, anchor, entry.position);
+      entry.popoverEl.classList.add("nojs-popover--positioned");
+      _startTracking(entry, anchor);
     } else {
+      entry.popoverEl.classList.remove("nojs-popover--positioned");
       _stopTracking(entry);
     }
     return true;
