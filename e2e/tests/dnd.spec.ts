@@ -23,7 +23,7 @@ test.describe('Drag and Drop', () => {
 
     await expect(firstItem).toHaveAttribute('draggable', 'true');
     await expect(firstItem).toHaveAttribute('role', 'option');
-    await expect(firstItem).toHaveAttribute('aria-grabbed', 'false');
+    await expect(firstItem).toHaveAttribute('aria-roledescription', 'draggable item');
   });
 
   test('drag item from list A to list B transfers the item', async ({ page }) => {
@@ -227,27 +227,37 @@ test.describe('Drag and Drop', () => {
     await expect(firstItem).toBeFocused();
   });
 
-  test('keyboard DnD: Space activates drag mode (aria-grabbed)', async ({ page }) => {
+  test('keyboard DnD: Space activates drag mode (nojs-dragging class + live-region announcement)', async ({ page }) => {
     const kbList = page.getByTestId('kb-list');
     const firstItem = kbList.getByTestId('item').first();
 
     await firstItem.focus();
+    await expect(firstItem).not.toHaveClass(/nojs-dragging/);
+
     await page.keyboard.press('Space');
 
-    // After Space, aria-grabbed should be "true"
-    await expect(firstItem).toHaveAttribute('aria-grabbed', 'true');
+    // After Space, the drag class should be applied
+    await expect(firstItem).toHaveClass(/nojs-dragging/);
+
+    // Live region should announce the grab
+    const liveRegion = page.locator('.nojs-dnd-live-region');
+    await expect(liveRegion).toHaveText(/Grabbed .+\. Use arrow keys to (?:move|reorder)\./);
   });
 
-  test('keyboard DnD: Escape cancels drag mode', async ({ page }) => {
+  test('keyboard DnD: Escape cancels drag mode (class removed + cancellation announcement)', async ({ page }) => {
     const kbList = page.getByTestId('kb-list');
     const firstItem = kbList.getByTestId('item').first();
 
     await firstItem.focus();
     await page.keyboard.press('Space');
-    await expect(firstItem).toHaveAttribute('aria-grabbed', 'true');
+    await expect(firstItem).toHaveClass(/nojs-dragging/);
 
     await page.keyboard.press('Escape');
-    await expect(firstItem).toHaveAttribute('aria-grabbed', 'false');
+    await expect(firstItem).not.toHaveClass(/nojs-dragging/);
+
+    // Live region should announce the cancellation
+    const liveRegion = page.locator('.nojs-dnd-live-region');
+    await expect(liveRegion).toHaveText(/(?:Drag|Reorder) cancelled\./);
   });
 
   // ── Visual feedback (CSS classes) ────────────────────────────────

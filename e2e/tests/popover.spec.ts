@@ -58,7 +58,7 @@ test.describe('Popover', () => {
     const trigger = page.getByTestId('basic-trigger');
 
     // Before opening
-    await expect(trigger).toHaveAttribute('aria-haspopup', 'true');
+    await expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');
 
     // After opening

@@ -33,13 +33,10 @@
           </tr>
         </thead>
         <tbody>
-          <tr each="user in users">
+          <tr each="user in users" else="noUsersTpl">
             <td bind="user.name"></td>
             <td bind="user.age"></td>
             <td bind="user.email"></td>
-          </tr>
-          <tr else>
-            <td colspan="3">No users found</td>
           </tr>
         </tbody>
       </table>
@@ -62,17 +59,17 @@
           </tr>
         </thead>
         <tbody>
-          <tr each="person in people">
+          <tr each="person in people" else="noDataTpl">
             <td bind="person.name"></td>
             <td bind="person.age"></td>
-          </tr>
-          <tr else>
-            <td colspan="2">No data</td>
           </tr>
         </tbody>
       </table>
     </div>
   </section>
+
+  <template id="noUsersTpl"><tr><td colspan="3">No users found</td></tr></template>
+  <template id="noDataTpl"><tr><td colspan="2">No data</td></tr></template>
 
   <script src="../../../NoJS/dist/iife/no.js"></script>
   <script src="../../../dist/iife/nojs-elements.js"></script>

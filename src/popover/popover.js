@@ -13,6 +13,12 @@ function _supportsPopover(el, method = "togglePopover") {
   return !!el && typeof el[method] === "function";
 }
 
+// Safe check for `:popover-open` — jsdom and older browsers throw on the
+// unsupported pseudo-class, so we catch and return false.
+function _isPopoverOpen(el) {
+  try { return el.matches(":popover-open"); } catch { return false; }
+}
+
 // ─── Positioning helper ─────────────────────────────────────────────
 
 const GAP = 8;
@@ -80,7 +86,7 @@ function _startTracking(entry, anchorEl) {
       stop();
       return;
     }
-    if (typeof popoverEl.matches === "function" && !popoverEl.matches(":popover-open")) {
+    if (!_isPopoverOpen(popoverEl)) {
       stop();
       return;
     }
@@ -152,8 +158,11 @@ export function registerPopoverDirective(NoJS) {
         const isOpen = e.newState === "open";
         entry.open = isOpen;
         for (const t of entry.triggerEls) t.setAttribute("aria-expanded", String(isOpen));
-        // Stop live-position tracking once the popover closes.
-        if (!isOpen) _stopTracking(entry);
+        // Stop live-position tracking and reset visibility once the popover closes.
+        if (!isOpen) {
+          el.style.visibility = "";
+          _stopTracking(entry);
+        }
       };
       el.addEventListener("toggle", toggleHandler);
 
@@ -215,16 +224,21 @@ export function registerPopoverDirective(NoJS) {
           return;
         }
         if (!_supportsPopover(entry.popoverEl)) return;
-        entry.popoverEl.togglePopover();
-        // Position after opening, then track scroll/resize while it stays open.
-        requestAnimationFrame(() => {
-          if (entry.popoverEl.matches(":popover-open")) {
+        // Hide before opening so the popover is never visible at (0,0).
+        // try/finally guarantees visibility is cleared even if positioning throws.
+        entry.popoverEl.style.visibility = "hidden";
+        try {
+          entry.popoverEl.togglePopover();
+          // Position synchronously, then reveal.
+          if (_isPopoverOpen(entry.popoverEl)) {
             _positionPopover(entry.popoverEl, el, entry.position);
             _startTracking(entry, el);
           } else {
             _stopTracking(entry);
           }
-        });
+        } finally {
+          entry.popoverEl.style.visibility = "";
+        }
       };
       el.addEventListener("click", clickHandler);
 
@@ -276,13 +290,18 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.open = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl, "showPopover")) return false;
-    try { entry.popoverEl.showPopover(); } catch { return false; }
-    const anchor = anchorEl || [...entry.triggerEls][0];
-    if (anchor) {
-      requestAnimationFrame(() => {
+    entry.popoverEl.style.visibility = "hidden";
+    try {
+      entry.popoverEl.showPopover();
+      const anchor = anchorEl || [...entry.triggerEls][0];
+      if (anchor) {
         _positionPopover(entry.popoverEl, anchor, entry.position);
         _startTracking(entry, anchor);
-      });
+      }
+    } catch {
+      return false;
+    } finally {
+      entry.popoverEl.style.visibility = "";
     }
     return true;
   };
@@ -298,15 +317,18 @@ export function registerPopoverDirective(NoJS) {
   popoverApi.toggle = (id, anchorEl) => {
     const entry = _popoverRegistry.get(id);
     if (!entry || !entry.popoverEl || !_supportsPopover(entry.popoverEl)) return false;
-    entry.popoverEl.togglePopover();
-    const anchor = anchorEl || [...entry.triggerEls][0];
-    if (anchor && entry.popoverEl.matches(":popover-open")) {
-      requestAnimationFrame(() => {
+    entry.popoverEl.style.visibility = "hidden";
+    try {
+      entry.popoverEl.togglePopover();
+      const anchor = anchorEl || [...entry.triggerEls][0];
+      if (anchor && _isPopoverOpen(entry.popoverEl)) {
         _positionPopover(entry.popoverEl, anchor, entry.position);
         _startTracking(entry, anchor);
-      });
-    } else {
-      _stopTracking(entry);
+      } else {
+        _stopTracking(entry);
+      }
+    } finally {
+      entry.popoverEl.style.visibility = "";
     }
     return true;
   };
