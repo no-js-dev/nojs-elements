@@ -5,7 +5,19 @@ All notable changes to **NoJS Elements** will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.20.1...HEAD)
+## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.20.2...HEAD)
+
+## [1.20.2](https://github.com/no-js-dev/nojs-elements/compare/v1.20.1...v1.20.2) — 2026-08-05
+
+### Fixed
+
+- fix(popover): popover opened at viewport (0,0) for one frame before positioning, swallowing outside clicks (light dismiss) — now hidden inline until synchronously positioned, exception-safe via try/finally ([`3ffda07`](https://github.com/no-js-dev/nojs-elements/commit/3ffda07), [`ec24f76`](https://github.com/no-js-dev/nojs-elements/commit/ec24f76), [`134b2f8`](https://github.com/no-js-dev/nojs-elements/commit/134b2f8), [#80](https://github.com/no-js-dev/nojs-elements/issues/80), PR [#81](https://github.com/no-js-dev/nojs-elements/pull/81))
+
+### Changed
+
+- test(a11y): rewrite dnd keyboard tests — assert `aria-roledescription` + drag class + live-region (aria-grabbed deprecated-removal now correctly asserted); popover trigger `aria-haspopup="dialog"` ([`c46e638`](https://github.com/no-js-dev/nojs-elements/commit/c46e638), PR [#81](https://github.com/no-js-dev/nojs-elements/pull/81))
+- docs(examples): table example migrated off the removed v1.15 sibling else pattern; dnd example listens to `nojs:dnd-*` events ([`3ffda07`](https://github.com/no-js-dev/nojs-elements/commit/3ffda07), PR [#81](https://github.com/no-js-dev/nojs-elements/pull/81))
+- ci(e2e): new e2e job (chromium, clones+builds Core on node 22) — Playwright suite now gates every PR ([`c46e638`](https://github.com/no-js-dev/nojs-elements/commit/c46e638), [`79048da`](https://github.com/no-js-dev/nojs-elements/commit/79048da), PR [#81](https://github.com/no-js-dev/nojs-elements/pull/81))
 
 ## [1.20.1](https://github.com/no-js-dev/nojs-elements/compare/v1.20.0...v1.20.1) — 2026-08-04
 
