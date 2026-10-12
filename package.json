@@ -39,7 +39,7 @@
     "start": "node docs/dev-server.js"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
+    "@babel/core": "^8.0.7",
     "@babel/preset-env": "^8.0.2",
     "@playwright/test": "^1.61.1",
     "@testing-library/jest-dom": "^7.0.0",
