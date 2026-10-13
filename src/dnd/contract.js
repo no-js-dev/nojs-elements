@@ -8,6 +8,10 @@
 // - drop:  the drop statement. Compiled to a server action; its implicit
 //          variables become schema-validated payload members.
 // - *-disabled / drop-max: evaluated server-side, delivered as JSON values.
+// - $source.list / $target.list: bound by the server at action time, never
+//   by the client. With a `drag` source and a `drop` target core's values
+//   are null for both (see __tests__/dnd.test.js); drag-list sources carry
+//   their list once drag-list runs on the host API.
 
 const SOURCE_TARGET_EL = "it is a DOM element; client mechanics never send DOM nodes";
 
