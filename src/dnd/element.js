@@ -1,6 +1,6 @@
 import { _dndState, _dragListRegistry } from "./state.js";
 import { _injectDndStyles } from "./styles.js";
-import { _internal } from "../_compat.js";
+import { _internal, _markBound } from "../_compat.js";
 
 // Guarded helper: remove a core directive stub, warn on old cores that lack the API.
 function _removeCoreStub(NoJS, name) {
@@ -230,6 +230,7 @@ export function registerDrag(NoJS) {
     init(el, name, expr) {
       _injectDndStyles();
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
 
       const type = el.getAttribute("drag-type") || "default";
       const effect = el.getAttribute("drag-effect") || "move";
@@ -460,6 +461,7 @@ export function registerDrop(NoJS) {
     init(el, name, expr) {
       _injectDndStyles();
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
 
       const acceptAttr = el.getAttribute("drop-accept") || "default";
       const dropEffect = el.getAttribute("drop-effect") || "move";
@@ -676,6 +678,7 @@ export function registerDragList(NoJS) {
     init(el, name, listPath) {
       _injectDndStyles();
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
 
       const tplId = el.getAttribute("template");
       const keyProp = el.getAttribute("drag-list-key");
@@ -1131,6 +1134,7 @@ export function registerDragMultiple(NoJS) {
     priority: 16,
     init(el, name) {
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
       const group = el.getAttribute("drag-group");
       const selectClass = el.getAttribute("drag-multiple-class") || "nojs-selected";
 

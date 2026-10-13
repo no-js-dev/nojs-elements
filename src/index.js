@@ -35,6 +35,11 @@ function _rebindSwappedNodes(NoJS) {
   const nodes = document.querySelectorAll(SWAPPED);
   for (const el of nodes) {
     if (!el.__declared) continue;            // not yet processed → real directive will catch it
+    // Already bound by the real directive against the live context: re-binding
+    // would dispose and re-walk its subtree, which kills structural directives
+    // inside it (an `each` loop inside a [drop] zone stops re-rendering).
+    if (el.__nojsElBoundCtx !== undefined && NoJS.findContext &&
+        el.__nojsElBoundCtx === NoJS.findContext(el)) continue;
     const disposeTree = _internal(NoJS, 'disposeTree');
     if (typeof disposeTree === 'function') {
       disposeTree(el);                       // fires stub disposers, resets __declared, clears listeners
