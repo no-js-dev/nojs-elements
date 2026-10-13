@@ -658,3 +658,19 @@ describe('Expression capture (no re-read of mutated attributes)', () => {
     void dw;
   });
 });
+
+describe('Drop implicit lists (core reference semantics)', () => {
+  afterEach(() => { document.body.innerHTML = ''; resetDndState(); });
+
+  test('a `drag` source gives $source.list === null and $target.list === null', () => {
+    const { el: dragEl } = setupDrag("'item1'");
+    const { wrapper, el } = setupDrop('seen = [$source.list, $target.list, $source.index, $target.index]', { state: { seen: 'unset' } });
+    const start = new Event('dragstart', { bubbles: true });
+    start.dataTransfer = { setData() {}, effectAllowed: '' };
+    dragEl.dispatchEvent(start);
+    const drop = new Event('drop', { bubbles: true, cancelable: true });
+    drop.dataTransfer = { dropEffect: '' };
+    el.dispatchEvent(drop);
+    expect(NoJS.findContext(wrapper).seen).toEqual([null, null, null, 0]);
+  });
+});
