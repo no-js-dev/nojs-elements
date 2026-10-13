@@ -248,13 +248,16 @@ export function registerDrag(NoJS) {
 
 // Core backend: the drag value and drag-disabled are expressions evaluated
 // in the element's reactive context.
+// Expressions are captured once at init: re-reading the attribute at event
+// time would evaluate whatever a later DOM mutation wrote into it.
 function _coreDragBackend(NoJS, el, expr) {
   const ctx = NoJS.findContext(el);
   _markBound(el, ctx);
+  const disabledExpr = el.getAttribute("drag-disabled");
   return {
     ctx,
     value: () => NoJS.evaluate(expr, ctx),
-    disabled: () => NoJS.evaluate(el.getAttribute("drag-disabled"), ctx),
+    disabled: () => (disabledExpr ? NoJS.evaluate(disabledExpr, ctx) : false),
     watchDisabled: (fn) => addDisposer(el, ctx.$watch(fn)),
     onDispose: (fn) => addDisposer(el, fn),
   };
@@ -520,9 +523,11 @@ export function registerDrop(NoJS) {
 function _coreDropBackend(NoJS, el, expr) {
   const ctx = NoJS.findContext(el);
   _markBound(el, ctx);
+  const disabledExpr = el.getAttribute("drop-disabled");
+  const maxExpr = el.getAttribute("drop-max");
   return {
-    disabled: () => NoJS.evaluate(el.getAttribute("drop-disabled"), ctx),
-    max: () => NoJS.evaluate(el.getAttribute("drop-max"), ctx),
+    disabled: () => (disabledExpr ? NoJS.evaluate(disabledExpr, ctx) : false),
+    max: () => (maxExpr ? NoJS.evaluate(maxExpr, ctx) : undefined),
     run(extraVars) {
       const execStatement = _internal(NoJS, 'execStatement');
       if (typeof execStatement === 'function') {

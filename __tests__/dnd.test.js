@@ -627,3 +627,34 @@ describe('DnD Cleanup', () => {
     expect(_dndState.selected.get('dispose-grp').size).toBe(0);
   });
 });
+
+describe('Expression capture (no re-read of mutated attributes)', () => {
+  afterEach(() => { document.body.innerHTML = ''; resetDndState(); });
+
+  test('drag-disabled mutated after init is not evaluated at dragstart', () => {
+    const { wrapper, el } = setupDrag("'item1'", { dragDisabled: 'false', state: { hits: 0 } });
+    el.setAttribute('drag-disabled', 'hits = hits + 1');
+    const evt = new Event('dragstart', { bubbles: true, cancelable: true });
+    evt.dataTransfer = { setData() {}, effectAllowed: '' };
+    el.dispatchEvent(evt);
+    expect(NoJS.findContext(wrapper).hits).toBe(0);
+    expect(evt.defaultPrevented).toBe(false);
+  });
+
+  test('drop-disabled / drop-max mutated after init are not evaluated on drop', () => {
+    const { wrapper: dw, el: dragEl } = setupDrag("'item1'");
+    const { wrapper, el } = setupDrop('', { state: { hits: 0 } });
+    el.setAttribute('drop-disabled', 'hits = hits + 1');
+    el.setAttribute('drop-max', 'hits = hits + 100');
+    const start = new Event('dragstart', { bubbles: true });
+    start.dataTransfer = { setData() {}, effectAllowed: '' };
+    dragEl.dispatchEvent(start);
+    for (const type of ['dragenter', 'dragover', 'drop']) {
+      const e = new Event(type, { bubbles: true, cancelable: true });
+      e.dataTransfer = { dropEffect: '' };
+      el.dispatchEvent(e);
+    }
+    expect(NoJS.findContext(wrapper).hits).toBe(0);
+    void dw;
+  });
+});
