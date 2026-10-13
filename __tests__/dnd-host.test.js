@@ -256,3 +256,33 @@ describe('drop (host)', () => {
     expect(host.exec.mock.calls[0][1].$drag).toBe('v1.token-0');
   });
 });
+
+describe('drop-disabled watcher (host)', () => {
+  test('turning drop-disabled true mid-drag clears drag-over state and placeholder', () => {
+    const ul = buildList(2);
+    ul.setAttribute('drop-disabled', 'false');
+    ul.setAttribute('drop-placeholder', 'auto');
+    const host = createHost();
+    init('drop', ul, host);
+    init('drag', ul.children[0], createHost());
+    ul.children[0].dispatchEvent(dragEvent('dragstart'));
+    ul.dispatchEvent(dragEvent('dragenter', 5));
+    ul.dispatchEvent(dragEvent('dragover', 5));
+    expect(ul.classList.contains('nojs-drag-over')).toBe(true);
+    expect(ul.querySelector('.nojs-drop-placeholder')).not.toBeNull();
+
+    ul.setAttribute('drop-disabled', 'true');
+    const w = host.watchers.find((x) => x.attr === 'drop-disabled');
+    w.cb('true', 'false');
+
+    expect(ul.classList.contains('nojs-drag-over')).toBe(false);
+    expect(ul.querySelector('.nojs-drop-placeholder')).toBeNull();
+  });
+
+  test('no watcher is registered when drop-disabled is not declared on the element', () => {
+    const ul = buildList(1);
+    const host = createHost();
+    init('drop', ul, host);
+    expect(host.watchers.find((x) => x.attr === 'drop-disabled')).toBeUndefined();
+  });
+});

@@ -502,6 +502,7 @@ export function registerDrop(NoJS) {
       init(el, host) {
         _injectDndStyles();
         _initDrop(el, _hostDropBackend(el, host));
+        _watchHostDropDisabled(el, host);
       },
     });
     return;
@@ -562,6 +563,20 @@ function _hostDropBackend(el, host) {
     },
     onDispose: (fn) => host.onDispose(el, fn),
   };
+}
+
+// A server morph (action or push) can disable the zone mid-drag: drop the
+// visual drag-over state and the placeholder; the next dragover recomputes.
+function _watchHostDropDisabled(el, host) {
+  if (!el.hasAttribute("drop-disabled")) return;
+  host.watch(el, "drop-disabled", () => {
+    if (!host.value(el, "drop-disabled")) return;
+    const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
+    const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
+    dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    if (_dndState.placeholder && el.contains(_dndState.placeholder)) _removePlaceholder();
+  });
 }
 
 function _initDrop(el, backend) {
