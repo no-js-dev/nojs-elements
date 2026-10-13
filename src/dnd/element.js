@@ -1,6 +1,7 @@
 import { _dndState, _dragListRegistry } from "./state.js";
 import { _injectDndStyles } from "./styles.js";
-import { _internal } from "../_compat.js";
+import { _internal, _markBound } from "../_compat.js";
+import { isHostBackend } from "../_host.js";
 
 // Guarded helper: remove a core directive stub, warn on old cores that lack the API.
 function _removeCoreStub(NoJS, name) {
@@ -223,229 +224,271 @@ function _announce(message) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDrag(NoJS) {
+  if (isHostBackend(NoJS)) {
+    NoJS.directive("drag", {
+      priority: 15,
+      init(el, host) {
+        _injectDndStyles();
+        _initDrag(el, _hostDragBackend(el, host));
+      },
+    });
+    return;
+  }
+
   _removeCoreStub(NoJS, "drag");
 
   NoJS.directive("drag", {
     priority: 15,
     init(el, name, expr) {
       _injectDndStyles();
-      const ctx = NoJS.findContext(el);
-
-      const type = el.getAttribute("drag-type") || "default";
-      const effect = el.getAttribute("drag-effect") || "move";
-      const handleSel = el.getAttribute("drag-handle");
-      const imageSel = el.getAttribute("drag-image");
-      const imageOffsetAttr = el.getAttribute("drag-image-offset") || "0,0";
-      const disabledExpr = el.getAttribute("drag-disabled");
-      const dragClass = el.getAttribute("drag-class") || "nojs-dragging";
-      const ghostClass = el.getAttribute("drag-ghost-class");
-
-      // Set draggable
-      el.draggable = true;
-
-      // Accessibility (WCAG 4.1.2 — aria-grabbed is deprecated, use aria-roledescription)
-      el.setAttribute("aria-roledescription", "draggable item");
-      if (!el.getAttribute("role")) el.setAttribute("role", "button");
-      if (!el.getAttribute("tabindex")) el.setAttribute("tabindex", "0");
-
-      // Handle restriction: prevent drag from non-handle areas
-      let _handleAllowed = true;
-      if (handleSel) {
-        const mousedownHandler = (e) => {
-          _handleAllowed = !!e.target.closest(handleSel);
-        };
-        el.addEventListener("mousedown", mousedownHandler);
-        addDisposer(el, () => el.removeEventListener("mousedown", mousedownHandler));
-      }
-
-      // Drag start
-      const dragstartHandler = (e) => {
-        // Handle check
-        if (handleSel && !_handleAllowed) {
-          e.preventDefault();
-          return;
-        }
-
-        // Disabled check
-        if (disabledExpr && NoJS.evaluate(disabledExpr, ctx)) {
-          e.preventDefault();
-          return;
-        }
-
-        const item = NoJS.evaluate(expr, ctx);
-
-        // Check for multi-select
-        const group = el.getAttribute("drag-group");
-        let dragItem = item;
-        if (group && _dndState.selected.has(group)) {
-          const selectedSet = _dndState.selected.get(group);
-          if (selectedSet.size > 0) {
-            // If this element is selected, drag all selected items
-            const hasThis = [...selectedSet].some((s) => s.el === el);
-            if (hasThis) {
-              dragItem = [...selectedSet].map((s) => s.item);
-            }
-          }
-        }
-
-        // Store dragging state
-        _dndState.dragging = {
-          item: dragItem,
-          type,
-          effect,
-          sourceEl: el,
-          sourceCtx: ctx,
-          sourceList: null,
-          sourceIndex: null,
-          listDirective: null,
-        };
-
-        // Set dataTransfer
-        if (e.dataTransfer) {
-          e.dataTransfer.effectAllowed = effect;
-          e.dataTransfer.setData("text/plain", "");
-
-          // Multi-select: stacked cards drag image
-          if (Array.isArray(dragItem) && dragItem.length > 1 && e.dataTransfer.setDragImage) {
-            const ghost = _buildStackGhost(el, dragItem.length);
-            document.body.appendChild(ghost);
-            const rect = el.getBoundingClientRect();
-            e.dataTransfer.setDragImage(ghost, rect.width / 2, rect.height / 2);
-            requestAnimationFrame(() => ghost.remove());
-          } else if (imageSel && e.dataTransfer.setDragImage) {
-            // Custom drag image
-            if (imageSel === "none") {
-              const empty = document.createElement("div");
-              empty.style.cssText = "width:1px;height:1px;opacity:0;position:fixed;top:-999px";
-              document.body.appendChild(empty);
-              const [ox, oy] = imageOffsetAttr.split(",").map(Number);
-              e.dataTransfer.setDragImage(empty, ox || 0, oy || 0);
-              requestAnimationFrame(() => empty.remove());
-            } else {
-              const imgEl = el.querySelector(imageSel);
-              if (imgEl) {
-                const [ox, oy] = imageOffsetAttr.split(",").map(Number);
-                if (ghostClass) imgEl.classList.add(ghostClass);
-                e.dataTransfer.setDragImage(imgEl, ox || 0, oy || 0);
-              }
-            }
-          }
-        }
-
-        // Apply drag class to dragged element (and all selected items if multi-select)
-        dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-        if (Array.isArray(dragItem) && group && _dndState.selected.has(group)) {
-          for (const s of _dndState.selected.get(group)) {
-            if (s.el !== el) dragClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.add(c));
-          }
-        }
-
-        // Screen reader announcement (WCAG 4.1.3)
-        const dragLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
-        _announce(`Grabbed ${dragLabel}. Use arrow keys to move.`);
-
-        // Dispatch custom event
-        el.dispatchEvent(
-          new CustomEvent("nojs:dnd-start", {
-            bubbles: true,
-            detail: { item: dragItem, index: _dndState.dragging.sourceIndex, el },
-          })
-        );
-      };
-
-      // Drag end
-      const dragendHandler = () => {
-        // Remove drag class from this element and all selected items
-        dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-        const group = el.getAttribute("drag-group");
-        if (group && _dndState.selected.has(group)) {
-          for (const s of _dndState.selected.get(group)) {
-            dragClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
-          }
-        }
-
-        // Ghost class cleanup
-        if (ghostClass && imageSel && imageSel !== "none") {
-          const imgEl = el.querySelector(imageSel);
-          if (imgEl) imgEl.classList.remove(ghostClass);
-        }
-
-        // Dispatch custom event
-        el.dispatchEvent(
-          new CustomEvent("nojs:dnd-end", {
-            bubbles: true,
-            detail: {
-              item: _dndState.dragging?.item,
-              index: _dndState.dragging?.sourceIndex,
-              dropped: _dndState.dragging === null,
-            },
-          })
-        );
-
-        // Clear dragging state
-        _dndState.dragging = null;
-        _removePlaceholder();
-      };
-
-      el.addEventListener("dragstart", dragstartHandler);
-      el.addEventListener("dragend", dragendHandler);
-      addDisposer(el, () => {
-        el.removeEventListener("dragstart", dragstartHandler);
-        el.removeEventListener("dragend", dragendHandler);
-      });
-
-      // Reactive disabled toggle
-      if (disabledExpr) {
-        function updateDisabled() {
-          const disabled = !!NoJS.evaluate(disabledExpr, ctx);
-          el.draggable = !disabled;
-          if (disabled) el.removeAttribute("aria-roledescription");
-          else el.setAttribute("aria-roledescription", "draggable item");
-        }
-        const unwatchDisabled = ctx.$watch(updateDisabled);
-        addDisposer(el, unwatchDisabled);
-      }
-
-      // Keyboard DnD support
-      const keydownHandler = (e) => {
-        // Clear stale state from elements removed from DOM
-        if (_dndState.dragging && !_dndState.dragging.sourceEl.isConnected) {
-          _dndState.dragging = null;
-        }
-        if (e.key === " " && !_dndState.dragging) {
-          e.preventDefault();
-          const item = NoJS.evaluate(expr, ctx);
-          _dndState.dragging = {
-            item,
-            type,
-            effect,
-            sourceEl: el,
-            sourceCtx: ctx,
-            sourceList: null,
-            sourceIndex: null,
-            listDirective: null,
-          };
-          dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          const kbLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
-          _announce(`Grabbed ${kbLabel}. Use arrow keys to move.`);
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-start", {
-              bubbles: true,
-              detail: { item, index: null, el },
-            })
-          );
-        } else if (e.key === "Escape" && _dndState.dragging && _dndState.dragging.sourceEl === el) {
-          e.preventDefault();
-          dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          _announce("Drag cancelled.");
-          _dndState.dragging = null;
-          _removePlaceholder();
-        }
-      };
-      el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
+      _initDrag(el, _coreDragBackend(NoJS, el, expr));
     },
   });
+}
+
+// Core backend: the drag value and drag-disabled are expressions evaluated
+// in the element's reactive context.
+// Expressions are captured once at init: re-reading the attribute at event
+// time would evaluate whatever a later DOM mutation wrote into it.
+function _coreDragBackend(NoJS, el, expr) {
+  const ctx = NoJS.findContext(el);
+  _markBound(el, ctx);
+  const disabledExpr = el.getAttribute("drag-disabled");
+  return {
+    ctx,
+    value: () => NoJS.evaluate(expr, ctx),
+    disabled: () => (disabledExpr ? NoJS.evaluate(disabledExpr, ctx) : false),
+    watchDisabled: (fn) => addDisposer(el, ctx.$watch(fn)),
+    onDispose: (fn) => addDisposer(el, fn),
+  };
+}
+
+// Host backend (compiled sites): the server evaluated both expressions.
+// `drag` holds a sealed value reference that is echoed back, never read;
+// `drag-disabled` holds the delivered boolean.
+function _hostDragBackend(el, host) {
+  return {
+    ctx: null,
+    value: () => el.getAttribute("drag"),
+    disabled: () => host.value(el, "drag-disabled"),
+    watchDisabled: (fn) => host.watch(el, "drag-disabled", fn),
+    onDispose: (fn) => host.onDispose(el, fn),
+  };
+}
+
+function _initDrag(el, backend) {
+  const type = el.getAttribute("drag-type") || "default";
+  const effect = el.getAttribute("drag-effect") || "move";
+  const handleSel = el.getAttribute("drag-handle");
+  const imageSel = el.getAttribute("drag-image");
+  const imageOffsetAttr = el.getAttribute("drag-image-offset") || "0,0";
+  const disabledExpr = el.getAttribute("drag-disabled");
+  const dragClass = el.getAttribute("drag-class") || "nojs-dragging";
+  const ghostClass = el.getAttribute("drag-ghost-class");
+
+  // Set draggable
+  el.draggable = true;
+
+  // Accessibility (WCAG 4.1.2 — aria-grabbed is deprecated, use aria-roledescription)
+  el.setAttribute("aria-roledescription", "draggable item");
+  if (!el.getAttribute("role")) el.setAttribute("role", "button");
+  if (!el.getAttribute("tabindex")) el.setAttribute("tabindex", "0");
+
+  // Handle restriction: prevent drag from non-handle areas
+  let _handleAllowed = true;
+  if (handleSel) {
+    const mousedownHandler = (e) => {
+      _handleAllowed = !!e.target.closest(handleSel);
+    };
+    el.addEventListener("mousedown", mousedownHandler);
+    backend.onDispose(() => el.removeEventListener("mousedown", mousedownHandler));
+  }
+
+  // Drag start
+  const dragstartHandler = (e) => {
+    // Handle check
+    if (handleSel && !_handleAllowed) {
+      e.preventDefault();
+      return;
+    }
+
+    // Disabled check
+    if (disabledExpr && backend.disabled()) {
+      e.preventDefault();
+      return;
+    }
+
+    const item = backend.value();
+
+    // Check for multi-select
+    const group = el.getAttribute("drag-group");
+    let dragItem = item;
+    if (group && _dndState.selected.has(group)) {
+      const selectedSet = _dndState.selected.get(group);
+      if (selectedSet.size > 0) {
+        // If this element is selected, drag all selected items
+        const hasThis = [...selectedSet].some((s) => s.el === el);
+        if (hasThis) {
+          dragItem = [...selectedSet].map((s) => s.item);
+        }
+      }
+    }
+
+    // Store dragging state
+    _dndState.dragging = {
+      item: dragItem,
+      type,
+      effect,
+      sourceEl: el,
+      sourceCtx: backend.ctx,
+      sourceList: null,
+      sourceIndex: null,
+      listDirective: null,
+    };
+
+    // Set dataTransfer
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = effect;
+      e.dataTransfer.setData("text/plain", "");
+
+      // Multi-select: stacked cards drag image
+      if (Array.isArray(dragItem) && dragItem.length > 1 && e.dataTransfer.setDragImage) {
+        const ghost = _buildStackGhost(el, dragItem.length);
+        document.body.appendChild(ghost);
+        const rect = el.getBoundingClientRect();
+        e.dataTransfer.setDragImage(ghost, rect.width / 2, rect.height / 2);
+        requestAnimationFrame(() => ghost.remove());
+      } else if (imageSel && e.dataTransfer.setDragImage) {
+        // Custom drag image
+        if (imageSel === "none") {
+          const empty = document.createElement("div");
+          empty.style.cssText = "width:1px;height:1px;opacity:0;position:fixed;top:-999px";
+          document.body.appendChild(empty);
+          const [ox, oy] = imageOffsetAttr.split(",").map(Number);
+          e.dataTransfer.setDragImage(empty, ox || 0, oy || 0);
+          requestAnimationFrame(() => empty.remove());
+        } else {
+          const imgEl = el.querySelector(imageSel);
+          if (imgEl) {
+            const [ox, oy] = imageOffsetAttr.split(",").map(Number);
+            if (ghostClass) imgEl.classList.add(ghostClass);
+            e.dataTransfer.setDragImage(imgEl, ox || 0, oy || 0);
+          }
+        }
+      }
+    }
+
+    // Apply drag class to dragged element (and all selected items if multi-select)
+    dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+    if (Array.isArray(dragItem) && group && _dndState.selected.has(group)) {
+      for (const s of _dndState.selected.get(group)) {
+        if (s.el !== el) dragClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.add(c));
+      }
+    }
+
+    // Screen reader announcement (WCAG 4.1.3)
+    const dragLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
+    _announce(`Grabbed ${dragLabel}. Use arrow keys to move.`);
+
+    // Dispatch custom event
+    el.dispatchEvent(
+      new CustomEvent("nojs:dnd-start", {
+        bubbles: true,
+        detail: { item: dragItem, index: _dndState.dragging.sourceIndex, el },
+      })
+    );
+  };
+
+  // Drag end
+  const dragendHandler = () => {
+    // Remove drag class from this element and all selected items
+    dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    const group = el.getAttribute("drag-group");
+    if (group && _dndState.selected.has(group)) {
+      for (const s of _dndState.selected.get(group)) {
+        dragClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
+      }
+    }
+
+    // Ghost class cleanup
+    if (ghostClass && imageSel && imageSel !== "none") {
+      const imgEl = el.querySelector(imageSel);
+      if (imgEl) imgEl.classList.remove(ghostClass);
+    }
+
+    // Dispatch custom event
+    el.dispatchEvent(
+      new CustomEvent("nojs:dnd-end", {
+        bubbles: true,
+        detail: {
+          item: _dndState.dragging?.item,
+          index: _dndState.dragging?.sourceIndex,
+          dropped: _dndState.dragging === null,
+        },
+      })
+    );
+
+    // Clear dragging state
+    _dndState.dragging = null;
+    _removePlaceholder();
+  };
+
+  el.addEventListener("dragstart", dragstartHandler);
+  el.addEventListener("dragend", dragendHandler);
+  backend.onDispose(() => {
+    el.removeEventListener("dragstart", dragstartHandler);
+    el.removeEventListener("dragend", dragendHandler);
+  });
+
+  // Reactive disabled toggle
+  if (disabledExpr) {
+    function updateDisabled() {
+      const disabled = !!backend.disabled();
+      el.draggable = !disabled;
+      if (disabled) el.removeAttribute("aria-roledescription");
+      else el.setAttribute("aria-roledescription", "draggable item");
+    }
+    backend.watchDisabled(updateDisabled);
+  }
+
+  // Keyboard DnD support
+  const keydownHandler = (e) => {
+    // Clear stale state from elements removed from DOM
+    if (_dndState.dragging && !_dndState.dragging.sourceEl.isConnected) {
+      _dndState.dragging = null;
+    }
+    if (e.key === " " && !_dndState.dragging) {
+      e.preventDefault();
+      const item = backend.value();
+      _dndState.dragging = {
+        item,
+        type,
+        effect,
+        sourceEl: el,
+        sourceCtx: backend.ctx,
+        sourceList: null,
+        sourceIndex: null,
+        listDirective: null,
+      };
+      dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      const kbLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
+      _announce(`Grabbed ${kbLabel}. Use arrow keys to move.`);
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-start", {
+          bubbles: true,
+          detail: { item, index: null, el },
+        })
+      );
+    } else if (e.key === "Escape" && _dndState.dragging && _dndState.dragging.sourceEl === el) {
+      e.preventDefault();
+      dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      _announce("Drag cancelled.");
+      _dndState.dragging = null;
+      _removePlaceholder();
+    }
+  };
+  el.addEventListener("keydown", keydownHandler);
+  backend.onDispose(() => el.removeEventListener("keydown", keydownHandler));
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -453,214 +496,281 @@ export function registerDrag(NoJS) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDrop(NoJS) {
+  if (isHostBackend(NoJS)) {
+    NoJS.directive("drop", {
+      priority: 15,
+      init(el, host) {
+        _injectDndStyles();
+        _initDrop(el, _hostDropBackend(el, host));
+        _watchHostDropDisabled(el, host);
+      },
+    });
+    return;
+  }
+
   _removeCoreStub(NoJS, "drop");
 
   NoJS.directive("drop", {
     priority: 15,
     init(el, name, expr) {
       _injectDndStyles();
-      const ctx = NoJS.findContext(el);
+      _initDrop(el, _coreDropBackend(NoJS, el, expr));
+    },
+  });
+}
 
-      const acceptAttr = el.getAttribute("drop-accept") || "default";
-      const dropEffect = el.getAttribute("drop-effect") || "move";
-      const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
-      const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
-      const disabledExpr = el.getAttribute("drop-disabled");
-      const maxExpr = el.getAttribute("drop-max");
-      const sortDir = el.getAttribute("drop-sort");
-      const placeholderAttr = el.getAttribute("drop-placeholder");
-      const placeholderClass = el.getAttribute("drop-placeholder-class");
-
-      // Accessibility
-      el.setAttribute("aria-dropeffect", dropEffect);
-
-      // Track dragenter/dragleave depth for nested elements
-      let _enterDepth = 0;
-
-      const dragoverHandler = (e) => {
-        if (!_dndState.dragging) return;
-
-        // Disabled check
-        if (disabledExpr && NoJS.evaluate(disabledExpr, ctx)) return;
-
-        const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-        let maxOk = true;
-        if (maxExpr) {
-          const max = NoJS.evaluate(maxExpr, ctx);
-          const childCount = _countVisibleChildren(el);
-          if (typeof max === "number" && childCount >= max) maxOk = false;
-        }
-
-        if (!typeOk || !maxOk) {
-          rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          _removePlaceholder();
-          return;
-        }
-
-        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-
-        e.preventDefault();
-        if (e.dataTransfer) e.dataTransfer.dropEffect = dropEffect;
-
-        // Sortable: calculate index and show placeholder
-        if (sortDir) {
-          const idx = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
-          if (placeholderAttr) {
-            _insertPlaceholder(el, idx, placeholderAttr, placeholderClass);
-          }
-          // Dispatch throttled drag-over event
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-over", {
-              bubbles: false,
-              detail: { item: _dndState.dragging.item, index: idx },
-            })
-          );
-        }
-      };
-
-      const dragenterHandler = (e) => {
-        if (!_dndState.dragging) return;
-        if (disabledExpr && NoJS.evaluate(disabledExpr, ctx)) return;
-
-        _enterDepth++;
-        if (_enterDepth === 1) {
-          const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-          let maxOk = true;
-          if (maxExpr) {
-            const max = NoJS.evaluate(maxExpr, ctx);
-            const childCount = _countVisibleChildren(el);
-            if (typeof max === "number" && childCount >= max) maxOk = false;
-          }
-
-          if (typeOk && maxOk) {
-            dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-            el.dispatchEvent(
-              new CustomEvent("nojs:dnd-enter", {
-                bubbles: false,
-                detail: { item: _dndState.dragging.item, type: _dndState.dragging.type },
-              })
-            );
-          } else {
-            rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          }
-        }
-      };
-
-      const dragleaveHandler = (e) => {
-        if (!_dndState.dragging) return;
-
-        _enterDepth--;
-        if (_enterDepth <= 0) {
-          _enterDepth = 0;
-          dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          _removePlaceholder();
-
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-leave", {
-              bubbles: false,
-              detail: { item: _dndState.dragging.item },
-            })
-          );
-        }
-      };
-
-      const dropHandler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        _enterDepth = 0;
-
-        if (!_dndState.dragging) return;
-        if (disabledExpr && NoJS.evaluate(disabledExpr, ctx)) return;
-        if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
-
-        // Max capacity check
-        if (maxExpr) {
-          const max = NoJS.evaluate(maxExpr, ctx);
-          const childCount = _countVisibleChildren(el);
-          if (typeof max === "number" && childCount >= max) return;
-        }
-
-        const dragItem = _dndState.dragging.item;
-        const dragType = _dndState.dragging.type;
-        const dragEffect = _dndState.dragging.effect;
-
-        // Calculate drop index
-        let dropIndex = 0;
-        if (sortDir) {
-          dropIndex = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
-        }
-
-        // Remove visual feedback
-        dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-        _removePlaceholder();
-
-        // Execute drop expression with implicit variables
-        const extraVars = {
-          $drag: dragItem,
-          $dragType: dragType,
-          $dragEffect: dragEffect,
-          $dropIndex: dropIndex,
-          $source: {
-            list: _dndState.dragging.sourceList,
-            index: _dndState.dragging.sourceIndex,
-            el: _dndState.dragging.sourceEl,
-          },
-          $target: { list: null, index: dropIndex, el },
-          $el: el,
-        };
-
-        const execStatement = _internal(NoJS, 'execStatement');
-        if (typeof execStatement === 'function') {
-          execStatement(expr, ctx, extraVars);
-        } else {
-          (_internal(NoJS, 'warn') || console.warn)(
-            '[nojs-elements] core too old (<1.13.0): internals.execStatement unavailable; drop expression skipped.'
-          );
-        }
-
-        // Clear dragging state BEFORE dispatch to prevent re-entry
-        _dndState.dragging = null;
-
-        // Dispatch custom event after expression runs
-        el.dispatchEvent(
-          new CustomEvent("nojs:dnd-drop", {
-            bubbles: false,
-            detail: {
-              item: dragItem,
-              index: dropIndex,
-              source: extraVars.$source,
-              target: extraVars.$target,
-              effect: dragEffect,
-            },
-          })
+// Core backend: the drop statement runs in the element's context with the
+// implicit variables; drop-disabled / drop-max are expressions.
+function _coreDropBackend(NoJS, el, expr) {
+  const ctx = NoJS.findContext(el);
+  _markBound(el, ctx);
+  const disabledExpr = el.getAttribute("drop-disabled");
+  const maxExpr = el.getAttribute("drop-max");
+  return {
+    disabled: () => (disabledExpr ? NoJS.evaluate(disabledExpr, ctx) : false),
+    max: () => (maxExpr ? NoJS.evaluate(maxExpr, ctx) : undefined),
+    run(extraVars) {
+      const execStatement = _internal(NoJS, 'execStatement');
+      if (typeof execStatement === 'function') {
+        execStatement(expr, ctx, extraVars);
+      } else {
+        (_internal(NoJS, 'warn') || console.warn)(
+          '[nojs-elements] core too old (<1.13.0): internals.execStatement unavailable; drop expression skipped.'
         );
-      };
+      }
+    },
+    onDispose: (fn) => addDisposer(el, fn),
+  };
+}
 
-      // Keyboard: Enter/Space to drop when item is grabbed
-      const keydownHandler = (e) => {
-        if (!_dndState.dragging) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          dropHandler(e);
-        }
-      };
-
-      el.addEventListener("dragover", dragoverHandler);
-      el.addEventListener("dragenter", dragenterHandler);
-      el.addEventListener("dragleave", dragleaveHandler);
-      el.addEventListener("drop", dropHandler);
-      el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => {
-        el.removeEventListener("dragover", dragoverHandler);
-        el.removeEventListener("dragenter", dragenterHandler);
-        el.removeEventListener("dragleave", dragleaveHandler);
-        el.removeEventListener("drop", dropHandler);
-        el.removeEventListener("keydown", keydownHandler);
+// Host backend (compiled sites): the drop statement was compiled to a server
+// action; `drop` holds its binding key. Mechanics report the implicit
+// variables as the action payload: serializable members only — DOM elements
+// never leave the browser and the server binds `list` itself.
+function _hostDropBackend(el, host) {
+  return {
+    disabled: () => host.value(el, "drop-disabled"),
+    max: () => host.value(el, "drop-max"),
+    run(extraVars) {
+      host.exec(el.getAttribute("drop"), {
+        $drag: extraVars.$drag,
+        $dragType: extraVars.$dragType,
+        $dragEffect: extraVars.$dragEffect,
+        $dropIndex: extraVars.$dropIndex,
+        $source: { index: extraVars.$source.index },
+        $target: { index: extraVars.$target.index },
       });
     },
+    onDispose: (fn) => host.onDispose(el, fn),
+  };
+}
+
+// A server morph (action or push) can disable the zone mid-drag: drop the
+// visual drag-over state and the placeholder; the next dragover recomputes.
+function _watchHostDropDisabled(el, host) {
+  if (!el.hasAttribute("drop-disabled")) return;
+  host.watch(el, "drop-disabled", () => {
+    if (!host.value(el, "drop-disabled")) return;
+    const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
+    const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
+    dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    if (_dndState.placeholder && el.contains(_dndState.placeholder)) _removePlaceholder();
+  });
+}
+
+function _initDrop(el, backend) {
+  const acceptAttr = el.getAttribute("drop-accept") || "default";
+  const dropEffect = el.getAttribute("drop-effect") || "move";
+  const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
+  const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
+  const disabledExpr = el.getAttribute("drop-disabled");
+  const maxExpr = el.getAttribute("drop-max");
+  const sortDir = el.getAttribute("drop-sort");
+  const placeholderAttr = el.getAttribute("drop-placeholder");
+  const placeholderClass = el.getAttribute("drop-placeholder-class");
+
+  // Accessibility
+  el.setAttribute("aria-dropeffect", dropEffect);
+
+  // Track dragenter/dragleave depth for nested elements
+  let _enterDepth = 0;
+
+  const dragoverHandler = (e) => {
+    if (!_dndState.dragging) return;
+
+    // Disabled check
+    if (disabledExpr && backend.disabled()) return;
+
+    const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+    let maxOk = true;
+    if (maxExpr) {
+      const max = backend.max();
+      const childCount = _countVisibleChildren(el);
+      if (typeof max === "number" && childCount >= max) maxOk = false;
+    }
+
+    if (!typeOk || !maxOk) {
+      rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      _removePlaceholder();
+      return;
+    }
+
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = dropEffect;
+
+    // Sortable: calculate index and show placeholder
+    if (sortDir) {
+      const idx = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
+      if (placeholderAttr) {
+        _insertPlaceholder(el, idx, placeholderAttr, placeholderClass);
+      }
+      // Dispatch throttled drag-over event
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-over", {
+          bubbles: false,
+          detail: { item: _dndState.dragging.item, index: idx },
+        })
+      );
+    }
+  };
+
+  const dragenterHandler = (e) => {
+    if (!_dndState.dragging) return;
+    if (disabledExpr && backend.disabled()) return;
+
+    _enterDepth++;
+    if (_enterDepth === 1) {
+      const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+      let maxOk = true;
+      if (maxExpr) {
+        const max = backend.max();
+        const childCount = _countVisibleChildren(el);
+        if (typeof max === "number" && childCount >= max) maxOk = false;
+      }
+
+      if (typeOk && maxOk) {
+        dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+        el.dispatchEvent(
+          new CustomEvent("nojs:dnd-enter", {
+            bubbles: false,
+            detail: { item: _dndState.dragging.item, type: _dndState.dragging.type },
+          })
+        );
+      } else {
+        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      }
+    }
+  };
+
+  const dragleaveHandler = (e) => {
+    if (!_dndState.dragging) return;
+
+    _enterDepth--;
+    if (_enterDepth <= 0) {
+      _enterDepth = 0;
+      dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      _removePlaceholder();
+
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-leave", {
+          bubbles: false,
+          detail: { item: _dndState.dragging.item },
+        })
+      );
+    }
+  };
+
+  const dropHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    _enterDepth = 0;
+
+    if (!_dndState.dragging) return;
+    if (disabledExpr && backend.disabled()) return;
+    if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
+
+    // Max capacity check
+    if (maxExpr) {
+      const max = backend.max();
+      const childCount = _countVisibleChildren(el);
+      if (typeof max === "number" && childCount >= max) return;
+    }
+
+    const dragItem = _dndState.dragging.item;
+    const dragType = _dndState.dragging.type;
+    const dragEffect = _dndState.dragging.effect;
+
+    // Calculate drop index
+    let dropIndex = 0;
+    if (sortDir) {
+      dropIndex = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
+    }
+
+    // Remove visual feedback
+    dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    _removePlaceholder();
+
+    // Execute drop expression with implicit variables
+    const extraVars = {
+      $drag: dragItem,
+      $dragType: dragType,
+      $dragEffect: dragEffect,
+      $dropIndex: dropIndex,
+      $source: {
+        list: _dndState.dragging.sourceList,
+        index: _dndState.dragging.sourceIndex,
+        el: _dndState.dragging.sourceEl,
+      },
+      $target: { list: null, index: dropIndex, el },
+      $el: el,
+    };
+
+    backend.run(extraVars);
+
+    // Clear dragging state BEFORE dispatch to prevent re-entry
+    _dndState.dragging = null;
+
+    // Dispatch custom event after expression runs
+    el.dispatchEvent(
+      new CustomEvent("nojs:dnd-drop", {
+        bubbles: false,
+        detail: {
+          item: dragItem,
+          index: dropIndex,
+          source: extraVars.$source,
+          target: extraVars.$target,
+          effect: dragEffect,
+        },
+      })
+    );
+  };
+
+  // Keyboard: Enter/Space to drop when item is grabbed
+  const keydownHandler = (e) => {
+    if (!_dndState.dragging) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      dropHandler(e);
+    }
+  };
+
+  el.addEventListener("dragover", dragoverHandler);
+  el.addEventListener("dragenter", dragenterHandler);
+  el.addEventListener("dragleave", dragleaveHandler);
+  el.addEventListener("drop", dropHandler);
+  el.addEventListener("keydown", keydownHandler);
+  backend.onDispose(() => {
+    el.removeEventListener("dragover", dragoverHandler);
+    el.removeEventListener("dragenter", dragenterHandler);
+    el.removeEventListener("dragleave", dragleaveHandler);
+    el.removeEventListener("drop", dropHandler);
+    el.removeEventListener("keydown", keydownHandler);
   });
 }
 
@@ -676,6 +786,7 @@ export function registerDragList(NoJS) {
     init(el, name, listPath) {
       _injectDndStyles();
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
 
       const tplId = el.getAttribute("template");
       const keyProp = el.getAttribute("drag-list-key");
@@ -1131,6 +1242,7 @@ export function registerDragMultiple(NoJS) {
     priority: 16,
     init(el, name) {
       const ctx = NoJS.findContext(el);
+      _markBound(el, ctx);
       const group = el.getAttribute("drag-group");
       const selectClass = el.getAttribute("drag-multiple-class") || "nojs-selected";
 
