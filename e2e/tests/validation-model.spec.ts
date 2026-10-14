@@ -55,4 +55,38 @@ test.describe('Validation with model', () => {
     await expect(name).toHaveValue('Ada');
     await expect(page.getByTestId('input-echo')).toHaveText('Ada');
   });
+
+  test('checkbox and select with model keep the user choice', async ({ page }) => {
+    const agree = page.getByTestId('choice-agree');
+    const size = page.getByTestId('choice-size');
+
+    await agree.click();
+    await expect(agree).toBeChecked();
+    await size.selectOption('b');
+    await expect(size).toHaveValue('b');
+    await expect(page.getByTestId('choice-echo')).toHaveText('true/b');
+
+    await agree.click();
+    await expect(agree).not.toBeChecked();
+    await expect(page.getByTestId('choice-echo')).toHaveText('false/b');
+  });
+
+  test('without model, on:input reads $form.fields for the current keystroke', async ({ page }) => {
+    await page.getByTestId('plain-code').click();
+    await page.keyboard.type('a@b.co');
+    await expect(page.getByTestId('plain-log')).toHaveText('FFFFTT');
+  });
+
+  test('without model, on:focusout sees the field touched with its error', async ({ page }) => {
+    await page.getByTestId('plain-mail').click();
+    await page.getByTestId('plain-code').click();
+    await expect(page.getByTestId('plain-seen')).toHaveText('true:Required');
+  });
+
+  test('without model, aria-invalid follows typing before blur', async ({ page }) => {
+    const mail = page.getByTestId('plain-mail');
+    await mail.click();
+    await page.keyboard.type('bad');
+    await expect(mail).toHaveAttribute('aria-invalid', 'true');
+  });
 });
