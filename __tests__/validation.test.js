@@ -652,3 +652,163 @@ describe('Validate State Module', () => {
     expect(() => resetValidateState()).not.toThrow();
   });
 });
+
+// =======================================================================
+//  MODEL + VALIDATE-ON TESTS
+//  Per-field validate-on listeners must not wipe a `model` field's value.
+// =======================================================================
+
+describe('model with validate-on', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  function mount(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  async function render(html) {
+    const wrapper = mount(html);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper.querySelector('form');
+  }
+
+  function type(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function blur(input) {
+    input.dispatchEvent(new Event('focusout', { bubbles: true }));
+  }
+
+  const loginForm = (emailOn, passwordOn = '') => `
+    <form validate state="{ email: '', password: '' }">
+      <input name="email" model="email" type="email" validate="required,email" ${emailOn}>
+      <input name="password" model="password" type="password" validate="required,min:8" ${passwordOn}>
+      <button type="submit">Log In</button>
+    </form>`;
+
+  test('36 - validate-on="blur" keeps the typed value in the input and the model', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const password = form.querySelector('[name="password"]');
+
+    type(email, 'a@b.com');
+    expect(email.value).toBe('a@b.com');
+    blur(email);
+    type(password, 'longpassword');
+    blur(password);
+
+    const ctx = NoJS.findContext(form);
+    expect(email.value).toBe('a@b.com');
+    expect(password.value).toBe('longpassword');
+    expect(ctx.email).toBe('a@b.com');
+    expect(ctx.password).toBe('longpassword');
+    expect(ctx.$form.valid).toBe(true);
+    expect(ctx.$form.values).toEqual({ email: 'a@b.com', password: 'longpassword' });
+    expect(form.querySelector('button').disabled).toBe(false);
+  });
+
+  test('37 - validate-on="input" keeps the typed value on every keystroke', async () => {
+    const form = await render(loginForm('validate-on="input"', 'validate-on="input"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    for (const partial of ['a', 'a@', 'a@b', 'a@b.com']) {
+      type(email, partial);
+      expect(email.value).toBe(partial);
+      expect(ctx.email).toBe(partial);
+    }
+  });
+
+  test('38 - form-level validate-on keeps model values', async () => {
+    const form = await render(`
+      <form validate validate-on="blur" state="{ email: '' }">
+        <input name="email" model="email" type="email" validate="required,email">
+        <button type="submit">Go</button>
+      </form>`);
+    const email = form.querySelector('[name="email"]');
+
+    type(email, 'x@y.io');
+    blur(email);
+
+    expect(email.value).toBe('x@y.io');
+    expect(NoJS.findContext(form).email).toBe('x@y.io');
+  });
+
+  test('39 - state on an ancestor element keeps model values', async () => {
+    const form = await render(`
+      <div state="{ email: '' }">
+        <form validate>
+          <input name="email" model="email" type="email" validate="required,email" validate-on="blur">
+        </form>
+      </div>`);
+    const email = form.querySelector('[name="email"]');
+
+    type(email, 'a@b.com');
+    blur(email);
+
+    expect(email.value).toBe('a@b.com');
+    expect(NoJS.findContext(email).email).toBe('a@b.com');
+  });
+
+  test('40 - invalid typed value is kept, reported on blur and blocks submit', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    type(email, 'bad');
+    expect(email.value).toBe('bad');
+    expect(ctx.$form.errors.email).toBeUndefined();
+
+    blur(email);
+    expect(email.value).toBe('bad');
+    expect(ctx.email).toBe('bad');
+    expect(ctx.$form.valid).toBe(false);
+    expect(ctx.$form.errors.email).toBeTruthy();
+    expect(email.getAttribute('aria-invalid')).toBe('true');
+    expect(form.querySelector('button').disabled).toBe(true);
+  });
+
+  test('41 - setting the model from state still updates the input', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    ctx.email = 'set@from.state';
+    await new Promise((r) => setTimeout(r, 0));
+    expect(email.value).toBe('set@from.state');
+
+    type(email, 'typed@after.io');
+    expect(email.value).toBe('typed@after.io');
+    expect(ctx.email).toBe('typed@after.io');
+  });
+
+  test('42 - field listeners are re-appended after the subtree is processed', async () => {
+    const wrapper = mount(loginForm('validate-on="blur"'));
+    const email = wrapper.querySelector('[name="email"]');
+    NoJS.processTree(wrapper);
+    const addSpy = jest.spyOn(email, 'addEventListener');
+    await Promise.resolve();
+    expect(addSpy.mock.calls.map((c) => c[0]).sort()).toEqual(['focusout', 'input']);
+    addSpy.mockRestore();
+  });
+
+  test('43 - no listener is re-added when the form is disposed first', async () => {
+    const wrapper = mount(loginForm('validate-on="blur"'));
+    const form = wrapper.querySelector('form');
+    const email = wrapper.querySelector('[name="email"]');
+    NoJS.processTree(wrapper);
+    const addSpy = jest.spyOn(email, 'addEventListener');
+    for (const dispose of form.__disposers) dispose();
+    await Promise.resolve();
+    expect(addSpy).not.toHaveBeenCalled();
+    addSpy.mockRestore();
+  });
+});

@@ -528,6 +528,13 @@ export function registerValidate(NoJS) {
         }
 
         // ── Event binding with validate-on support ─────────
+        const fieldListeners = [];
+        function listenField(field, type, fn) {
+          field.addEventListener(type, fn);
+          fieldListeners.push([field, type, fn]);
+          addDisposer(el, () => field.removeEventListener(type, fn));
+        }
+
         function bindFieldEvents(field) {
           if (!field.name) return;
           const triggers = _getValidationTriggers(field, el);
@@ -545,8 +552,7 @@ export function registerValidate(NoJS) {
           };
 
           if (triggers.includes("input")) {
-            field.addEventListener("input", handler);
-            addDisposer(el, () => field.removeEventListener("input", handler));
+            listenField(field, "input", handler);
           } else {
             // Always track dirty and re-validate on input for data accuracy
             // (validate-on only affects visual feedback like error-class/templates)
@@ -555,24 +561,20 @@ export function registerValidate(NoJS) {
               formCtx.dirty = true;
               checkValidity();
             };
-            field.addEventListener("input", silentInputHandler);
-            addDisposer(el, () => field.removeEventListener("input", silentInputHandler));
+            listenField(field, "input", silentInputHandler);
           }
           if (triggers.includes("blur") || triggers.includes("focusout")) {
             const blurFocusoutHandler = () => {
               touchHandler();
               if (triggers.includes("blur")) handler();
             };
-            field.addEventListener("focusout", blurFocusoutHandler);
-            addDisposer(el, () => field.removeEventListener("focusout", blurFocusoutHandler));
+            listenField(field, "focusout", blurFocusoutHandler);
           } else {
             // Always track touched on focusout
-            field.addEventListener("focusout", touchHandler);
-            addDisposer(el, () => field.removeEventListener("focusout", touchHandler));
+            listenField(field, "focusout", touchHandler);
           }
           if (triggers.includes("submit")) {
-            field.addEventListener("focusout", touchHandler);
-            addDisposer(el, () => field.removeEventListener("focusout", touchHandler));
+            listenField(field, "focusout", touchHandler);
           }
         }
 
@@ -608,6 +610,20 @@ export function registerValidate(NoJS) {
           for (const field of getFields()) {
             bindFieldEvents(field);
           }
+          // These listeners are bound while the form initialises, before the
+          // fields' own directives (e.g. `model`) attach theirs. checkValidity()
+          // notifies the context synchronously, so running first made `model`
+          // re-render its stale value and wipe what the user typed. Once the
+          // subtree is processed, move them to the end of each field's list.
+          let disposed = false;
+          addDisposer(el, () => { disposed = true; });
+          queueMicrotask(() => {
+            if (disposed) return;
+            for (const [field, type, fn] of fieldListeners) {
+              field.removeEventListener(type, fn);
+              field.addEventListener(type, fn);
+            }
+          });
         }
 
         const submitHandler = (e) => {
