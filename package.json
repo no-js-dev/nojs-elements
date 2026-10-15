@@ -36,7 +36,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:verbose": "jest --verbose",
-    "start": "node docs/dev-server.js"
+    "start": "node docs/dev-server.js",
+    "version:sync": "node scripts/version.mjs sync",
+    "version:check": "node scripts/version.mjs check",
+    "prepare": "node scripts/version.mjs install"
   },
   "devDependencies": {
     "@babel/core": "^8.0.1",
