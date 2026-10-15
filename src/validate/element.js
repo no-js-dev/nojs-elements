@@ -23,6 +23,7 @@ let _cloneTemplate;
 let _disposeChildren;
 let _disposeTree;
 let _warn;
+let _execStatement;
 
 // ── Reset the __declared marker so processTree re-processes a subtree ──
 // Mirrors core's dom._clearDeclared (not exposed on internals). On a fresh
@@ -225,6 +226,25 @@ function _getModelEvent(field) {
     : "input";
 }
 
+// ── Sync a select/checkbox/radio `model` before validating on input ──
+// Core's `model` syncs these on "change", which fires after "input".
+// checkValidity() notifies the context synchronously, so an unsynced
+// `model` would re-render its stale value over the user's pick. Write the
+// value the way core's `model` does on "change"; the later "change" then
+// writes the same value again.
+function _syncChoiceModel(field, fn) {
+  return () => {
+    const expr = field.getAttribute("model");
+    // An `if`-gated `model` is inactive: leave its state alone, as core does.
+    const gated = field.__gatedDirs && field.__gatedDirs.some((d) => d.name === "model");
+    if (expr && !gated && _execStatement && (field.type !== "radio" || field.checked)) {
+      const val = field.type === "checkbox" ? field.checked : field.value;
+      _execStatement(`${expr} = __val`, _findContext(field), { __val: val });
+    }
+    fn();
+  };
+}
+
 // ── Backward-compat: old _validateField for field-level validation ───
 function _validateField(value, rules, allValues) {
   const ruleList = rules.split("|").map((r) => r.trim());
@@ -300,6 +320,7 @@ export function registerValidate(NoJS) {
   // back to disposing children (still removes from DOM at the call site).
   _disposeTree = _internal(NoJS, 'disposeTree') || _disposeChildren;
   _warn = _internal(NoJS, 'warn') || console.warn;
+  _execStatement = _internal(NoJS, 'execStatement');
 
   // Remove the core stub so we can register the full implementation
   const removeCore = _internal(NoJS, 'removeCoreDirective');
@@ -547,13 +568,18 @@ export function registerValidate(NoJS) {
         function bindFieldEvents(field) {
           if (!field.name) return;
           const triggers = _getValidationTriggers(field, el);
-          // A `model` field syncs its value on the same event core's `model`
-          // uses: "change" for select/checkbox/radio, "input" otherwise.
+          // Value listeners run on "input", as in v1.21.1. A text `model`
+          // field syncs on "input" too, so its listener moves after `model`'s.
+          // A select/checkbox/radio `model` syncs later, on "change": its
+          // listener keeps its place and syncs the model before validating.
           const modelEvent = _getModelEvent(field);
-          const valueEvent = modelEvent || "input";
           const listenValue = (fn) => {
-            listenField(field, valueEvent, fn);
-            if (modelEvent) modelListeners.push([field, valueEvent, fn]);
+            if (modelEvent === "change") {
+              listenField(field, "input", _syncChoiceModel(field, fn));
+              return;
+            }
+            listenField(field, "input", fn);
+            if (modelEvent) modelListeners.push([field, "input", fn]);
           };
 
           const handler = () => {
@@ -630,9 +656,9 @@ export function registerValidate(NoJS) {
           // Field listeners are bound while the form initialises, before the
           // field's own `model` attaches its listener. checkValidity()
           // notifies the context synchronously, so running first made `model`
-          // re-render its stale value and wipe what the user typed or picked.
-          // Once the subtree is processed, move the value listeners of `model`
-          // fields after `model`'s. Fields without `model` keep their order.
+          // re-render its stale value and wipe what the user typed.
+          // Once the subtree is processed, move the value listeners of text
+          // `model` fields after `model`'s. Other fields keep their order.
           if (modelListeners.length) {
             let disposed = false;
             addDisposer(el, () => { disposed = true; });

@@ -73,6 +73,25 @@
     </form>
   </section>
 
+  <!-- ======== Scenario 5: select/checkbox/radio with model, validate-on="input" ======== -->
+  <section>
+    <p class="test-label">Test 5: input validates select, checkbox and radio with model</p>
+    <form validate validate-on="input" state="{ pickSize: 'a', pickAgree: true, pickColor: 'red' }" data-test="pick-form">
+      <label>Size
+        <select name="pickSize" model="pickSize" validate="required" error-class="bad" data-test="pick-size">
+          <option value="">-</option>
+          <option value="a">A</option>
+          <option value="b">B</option>
+        </select>
+      </label>
+      <label><input type="checkbox" name="pickAgree" model="pickAgree" error-class="bad" data-test="pick-agree"> Agree</label>
+      <label><input type="radio" name="pickColor" value="red" model="pickColor" error-class="bad" data-test="pick-red"> Red</label>
+      <label><input type="radio" name="pickColor" value="blue" model="pickColor" error-class="bad" data-test="pick-blue"> Blue</label>
+      <p>State: <span bind="pickSize + '/' + pickAgree + '/' + pickColor" data-test="pick-echo"></span></p>
+      <p>Validated: <span bind="$form.values.pickSize + '/' + $form.values.pickAgree + '/' + $form.values.pickColor + '/' + ($form.errors.pickSize || '-')" data-test="pick-validated"></span></p>
+    </form>
+  </section>
+
   <script src="../../NoJS/dist/iife/no.js"></script>
   <script src="../../dist/iife/nojs-elements.js"></script>
   <script>

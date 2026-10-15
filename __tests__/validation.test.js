@@ -899,4 +899,187 @@ describe('model with validate-on', () => {
     expect(addSpy).not.toHaveBeenCalled();
     addSpy.mockRestore();
   });
+
+
+  // ── select/checkbox/radio: `model` syncs on change, validation on input ──
+
+  const choiceForm = (on) => `
+    <form validate ${on} state="{ size: 'a', agree: false, color: 'red' }">
+      <select name="size" model="size" validate="required" error-class="bad">
+        <option value="">-</option><option value="a">A</option><option value="b">B</option>
+      </select>
+      <input name="agree" type="checkbox" model="agree">
+      <input type="radio" name="color" value="red" model="color">
+      <input type="radio" name="color" value="blue" model="color">
+    </form>`;
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+
+  // Every form validation pass adds or removes the field's error-class once.
+  function countRuns(field) {
+    const add = jest.spyOn(field.classList, 'add');
+    const remove = jest.spyOn(field.classList, 'remove');
+    return {
+      get runs() {
+        return [...add.mock.calls, ...remove.mock.calls].filter(([c]) => c === 'bad').length;
+      },
+      reset() { add.mockClear(); remove.mockClear(); },
+      restore() { add.mockRestore(); remove.mockRestore(); },
+    };
+  }
+
+  test('49 - a script-dispatched input on a model select validates, keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const select = form.querySelector('select');
+    const ctx = NoJS.findContext(form);
+    const counter = countRuns(select);
+
+    select.value = 'b';
+    fire(select, 'input');
+    expect(counter.runs).toBe(1);
+    expect(ctx.$form.values.size).toBe('b');
+    expect(ctx.$form.fields.size.dirty).toBe(true);
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+
+    fire(select, 'change');
+    expect(ctx.size).toBe('b');
+    expect(select.value).toBe('b');
+    counter.restore();
+  });
+
+  test('50 - a script-dispatched input on a model checkbox or radio validates, keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const box = form.querySelector('[name="agree"]');
+    const red = form.querySelector('[value="red"]');
+    const blue = form.querySelector('[value="blue"]');
+    const ctx = NoJS.findContext(form);
+
+    box.checked = true;
+    fire(box, 'input');
+    expect(ctx.$form.values.agree).toBe(true);
+    expect(box.checked).toBe(true);
+    expect(ctx.agree).toBe(true);
+    fire(box, 'change');
+    expect(ctx.agree).toBe(true);
+
+    blue.checked = true;
+    fire(blue, 'input');
+    expect(ctx.$form.values.color).toBe('blue');
+    expect(blue.checked).toBe(true);
+    expect(red.checked).toBe(false);
+    expect(ctx.color).toBe('blue');
+    fire(blue, 'change');
+    expect(ctx.color).toBe('blue');
+  });
+
+  test('51 - a pick firing input then change validates once', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const select = form.querySelector('select');
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+    const counter = countRuns(select);
+
+    pick(select, 'b');
+    expect(counter.runs).toBe(1);
+    expect(ctx.size).toBe('b');
+
+    counter.reset();
+    box.click();
+    expect(counter.runs).toBe(1);
+    expect(box.checked).toBe(true);
+    expect(ctx.agree).toBe(true);
+    counter.restore();
+  });
+
+  test('52 - a change-only dispatch syncs the model without validating, as in v1.21.1', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const select = form.querySelector('select');
+    const ctx = NoJS.findContext(form);
+    const before = ctx.$form.values.size;
+    const counter = countRuns(select);
+
+    select.value = 'b';
+    fire(select, 'change');
+    expect(counter.runs).toBe(0);
+    expect(ctx.size).toBe('b');
+    expect(ctx.$form.values.size).toBe(before);
+    counter.restore();
+  });
+
+  test('52b - another field validating later does not revert a script-dispatched pick', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const select = form.querySelector('select');
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    select.value = 'b';
+    fire(select, 'input');
+    box.checked = true;
+    fire(box, 'input');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    expect(ctx.$form.values.size).toBe('b');
+    expect(ctx.agree).toBe(true);
+  });
+
+  test('52c - an input on an unchecked radio leaves the model alone', async () => {
+    const form = await render(choiceForm('validate-on="input"'));
+    const blue = form.querySelector('[value="blue"]');
+    const ctx = NoJS.findContext(form);
+
+    fire(blue, 'input');
+    expect(ctx.color).toBe('red');
+    expect(form.querySelector('[value="red"]').checked).toBe(true);
+  });
+
+  test('52d - an if-gated model is left alone, as core leaves it', async () => {
+    const form = await render(`
+      <form validate validate-on="input" state="{ agree: false, on: false }">
+        <input name="agree" type="checkbox" model="agree" if="on">
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+    expect(box.__gatedDirs.some((d) => d.name === 'model')).toBe(true);
+
+    box.checked = true;
+    fire(box, 'input');
+    expect(ctx.agree).toBe(false);
+    expect(ctx.$form.values.agree).toBe(true);
+  });
+
+  // A picked model select must get exactly the feedback a plain select gets
+  // (the v1.21.1 code path) for every validate-on value.
+  test.each([
+    ['input'], ['blur'], ['focusout'], ['submit'], ['input blur'],
+  ])('53 - validate-on="%s" gives a model select the same feedback as a plain one', async (on) => {
+    const wrapper = mount(['model="size"', ''].map((m) => `
+      <form validate validate-on="${on}" state="{ size: 'a' }">
+        <select name="size" ${m} validate="required">
+          <option value="">-</option><option value="a" selected>A</option>
+        </select>
+      </form>`).join(''));
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    const [model, plain] = wrapper.querySelectorAll('select');
+    const feedback = (f) => {
+      const form = NoJS.findContext(f.form).$form;
+      return {
+        aria: f.getAttribute('aria-invalid'),
+        error: form.errors.size,
+        valid: form.fields.size.valid,
+        dirty: form.fields.size.dirty,
+        touched: form.fields.size.touched,
+      };
+    };
+
+    for (const f of [model, plain]) pick(f, '');
+    expect(feedback(model)).toEqual(feedback(plain));
+    expect(model.value).toBe('');
+    expect(NoJS.findContext(model).size).toBe('');
+
+    for (const f of [model, plain]) blur(f);
+    expect(feedback(model)).toEqual(feedback(plain));
+    expect(model.value).toBe('');
+  });
 });
