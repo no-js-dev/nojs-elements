@@ -217,14 +217,6 @@ function _getValidationTriggers(field, form) {
   return ["input", "focusout"];
 }
 
-// ── Event core's `model` syncs on, or null without `model` ──────────
-function _getModelEvent(field) {
-  if (!field.hasAttribute("model")) return null;
-  return field.tagName === "SELECT" || field.type === "checkbox" || field.type === "radio"
-    ? "change"
-    : "input";
-}
-
 // ── Backward-compat: old _validateField for field-level validation ───
 function _validateField(value, rules, allValues) {
   const ruleList = rules.split("|").map((r) => r.trim());
@@ -536,25 +528,9 @@ export function registerValidate(NoJS) {
         }
 
         // ── Event binding with validate-on support ─────────
-        // Value listeners of `model` fields, re-appended after the subtree is
-        // processed (see below).
-        const modelListeners = [];
-        function listenField(field, type, fn) {
-          field.addEventListener(type, fn);
-          addDisposer(el, () => field.removeEventListener(type, fn));
-        }
-
         function bindFieldEvents(field) {
           if (!field.name) return;
           const triggers = _getValidationTriggers(field, el);
-          // A `model` field syncs its value on the same event core's `model`
-          // uses: "change" for select/checkbox/radio, "input" otherwise.
-          const modelEvent = _getModelEvent(field);
-          const valueEvent = modelEvent || "input";
-          const listenValue = (fn) => {
-            listenField(field, valueEvent, fn);
-            if (modelEvent) modelListeners.push([field, valueEvent, fn]);
-          };
 
           const handler = () => {
             dirtyFields.add(field.name);
@@ -569,7 +545,8 @@ export function registerValidate(NoJS) {
           };
 
           if (triggers.includes("input")) {
-            listenValue(handler);
+            field.addEventListener("input", handler);
+            addDisposer(el, () => field.removeEventListener("input", handler));
           } else {
             // Always track dirty and re-validate on input for data accuracy
             // (validate-on only affects visual feedback like error-class/templates)
@@ -578,20 +555,24 @@ export function registerValidate(NoJS) {
               formCtx.dirty = true;
               checkValidity();
             };
-            listenValue(silentInputHandler);
+            field.addEventListener("input", silentInputHandler);
+            addDisposer(el, () => field.removeEventListener("input", silentInputHandler));
           }
           if (triggers.includes("blur") || triggers.includes("focusout")) {
             const blurFocusoutHandler = () => {
               touchHandler();
               if (triggers.includes("blur")) handler();
             };
-            listenField(field, "focusout", blurFocusoutHandler);
+            field.addEventListener("focusout", blurFocusoutHandler);
+            addDisposer(el, () => field.removeEventListener("focusout", blurFocusoutHandler));
           } else {
             // Always track touched on focusout
-            listenField(field, "focusout", touchHandler);
+            field.addEventListener("focusout", touchHandler);
+            addDisposer(el, () => field.removeEventListener("focusout", touchHandler));
           }
           if (triggers.includes("submit")) {
-            listenField(field, "focusout", touchHandler);
+            field.addEventListener("focusout", touchHandler);
+            addDisposer(el, () => field.removeEventListener("focusout", touchHandler));
           }
         }
 
@@ -626,24 +607,6 @@ export function registerValidate(NoJS) {
           // Per-field event binding with validate-on
           for (const field of getFields()) {
             bindFieldEvents(field);
-          }
-          // Field listeners are bound while the form initialises, before the
-          // field's own `model` attaches its listener. checkValidity()
-          // notifies the context synchronously, so running first made `model`
-          // re-render its stale value and wipe what the user typed or picked.
-          // Once the subtree is processed, move the value listeners of `model`
-          // fields after `model`'s. Fields without `model` keep their order.
-          if (modelListeners.length) {
-            let disposed = false;
-            addDisposer(el, () => { disposed = true; });
-            queueMicrotask(() => {
-              if (disposed) return;
-              for (const [field, type, fn] of modelListeners) {
-                field.removeEventListener(type, fn);
-                field.addEventListener(type, fn);
-              }
-              modelListeners.length = 0;
-            });
           }
         }
 
