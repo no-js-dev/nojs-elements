@@ -1,6 +1,7 @@
 import NoJS from '../../NoJS/src/index.js';
 import NoJSElements from '../src/index.js';
 import { _validityMap, _rulePriority, resetValidateState } from '../src/validate/state.js';
+import { _internal } from '../src/_compat.js';
 
 // ─── Install the plugin once before all tests ────────────────────────
 beforeAll(() => {
@@ -650,5 +651,252 @@ describe('Validate State Module', () => {
 
   test('35 - resetValidateState does not throw', () => {
     expect(() => resetValidateState()).not.toThrow();
+  });
+});
+
+// =======================================================================
+//  MODEL + VALIDATE-ON TESTS
+//  Per-field validate-on listeners must not wipe a `model` field's value,
+//  and fields without `model` must keep their v1.21.1 listener order.
+// =======================================================================
+
+describe('model with validate-on', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  function mount(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  async function render(html) {
+    const wrapper = mount(html);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper.querySelector('form');
+  }
+
+  function type(input, value) {
+    input.value = value;
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  function blur(input) {
+    input.dispatchEvent(new Event('focusout', { bubbles: true }));
+  }
+
+  function pick(select, value) {
+    select.value = value;
+    select.dispatchEvent(new Event('input', { bubbles: true }));
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+
+  const loginForm = (emailOn, passwordOn = '') => `
+    <form validate state="{ email: '', password: '' }">
+      <input name="email" model="email" type="text" validate="required|email" ${emailOn}>
+      <input name="password" model="password" type="password" validate="required" ${passwordOn}>
+      <button type="submit">Log In</button>
+    </form>`;
+
+  test('36 - validate-on="blur" keeps the typed value in the input and the model', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const password = form.querySelector('[name="password"]');
+
+    type(email, 'a@b.com');
+    expect(email.value).toBe('a@b.com');
+    blur(email);
+    type(password, 'secret');
+    blur(password);
+
+    const ctx = NoJS.findContext(form);
+    expect(email.value).toBe('a@b.com');
+    expect(password.value).toBe('secret');
+    expect(ctx.email).toBe('a@b.com');
+    expect(ctx.password).toBe('secret');
+    expect(ctx.$form.valid).toBe(true);
+    expect(ctx.$form.values).toEqual({ email: 'a@b.com', password: 'secret' });
+    expect(form.querySelector('button').disabled).toBe(false);
+  });
+
+  test('37 - validate-on="input" keeps the typed value on every keystroke', async () => {
+    const form = await render(loginForm('validate-on="input"', 'validate-on="input"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    for (const partial of ['a', 'a@', 'a@b', 'a@b.com']) {
+      type(email, partial);
+      expect(email.value).toBe(partial);
+      expect(ctx.email).toBe(partial);
+    }
+    expect(ctx.$form.fields.email.valid).toBe(true);
+  });
+
+  test('38 - form-level validate-on keeps model values', async () => {
+    const form = await render(`
+      <form validate validate-on="blur" state="{ email: '' }">
+        <input name="email" model="email" validate="required|email">
+        <button type="submit">Go</button>
+      </form>`);
+    const email = form.querySelector('[name="email"]');
+
+    type(email, 'x@y.io');
+    blur(email);
+
+    expect(email.value).toBe('x@y.io');
+    expect(NoJS.findContext(form).email).toBe('x@y.io');
+  });
+
+  test('39 - state on an ancestor element keeps model values', async () => {
+    const form = await render(`
+      <div state="{ email: '' }">
+        <form validate>
+          <input name="email" model="email" validate="required|email" validate-on="blur">
+        </form>
+      </div>`);
+    const email = form.querySelector('[name="email"]');
+
+    type(email, 'a@b.com');
+    blur(email);
+
+    expect(email.value).toBe('a@b.com');
+    expect(NoJS.findContext(email).email).toBe('a@b.com');
+  });
+
+  test('40 - invalid typed value is kept, reported on blur and blocks submit', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    type(email, 'bad');
+    expect(email.value).toBe('bad');
+    expect(ctx.$form.errors.email).toBeUndefined();
+
+    blur(email);
+    expect(email.value).toBe('bad');
+    expect(ctx.email).toBe('bad');
+    expect(ctx.$form.valid).toBe(false);
+    expect(ctx.$form.errors.email).toBe('Invalid email');
+    expect(email.getAttribute('aria-invalid')).toBe('true');
+    expect(form.querySelector('button').disabled).toBe(true);
+  });
+
+  test('41 - setting the model from state still updates the input', async () => {
+    const form = await render(loginForm('validate-on="blur"'));
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    ctx.email = 'set@from.state';
+    await new Promise((r) => setTimeout(r, 0));
+    expect(email.value).toBe('set@from.state');
+
+    type(email, 'typed@after.io');
+    expect(email.value).toBe('typed@after.io');
+    expect(ctx.email).toBe('typed@after.io');
+  });
+
+  test('42 - checkbox with model keeps the user choice', async () => {
+    const form = await render(`
+      <form validate validate-on="blur" state="{ agree: false }">
+        <input name="agree" type="checkbox" model="agree" validate="required">
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(ctx.agree).toBe(true);
+    box.click();
+    expect(box.checked).toBe(false);
+    expect(ctx.agree).toBe(false);
+  });
+
+  test('43 - select and radio with model keep the user choice', async () => {
+    const form = await render(`
+      <form validate validate-on="input" state="{ size: 'a', color: 'red' }">
+        <select name="size" model="size" validate="required">
+          <option value="a">A</option><option value="b">B</option>
+        </select>
+        <input type="radio" name="color" value="red" model="color">
+        <input type="radio" name="color" value="blue" model="color">
+      </form>`);
+    const select = form.querySelector('select');
+    const blue = form.querySelector('[value="blue"]');
+    const ctx = NoJS.findContext(form);
+
+    pick(select, 'b');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    expect(ctx.$form.values.size).toBe('b');
+
+    blue.click();
+    expect(blue.checked).toBe(true);
+    expect(ctx.color).toBe('blue');
+  });
+
+  test('44 - without model, on:input reads $form for the current keystroke', async () => {
+    const form = await render(`
+      <form validate state="{ log: '' }">
+        <input name="email" validate="required|email" validate-on="input"
+               on:input="log = log + ($form.valid ? 'T' : 'F')">
+      </form>`);
+    const email = form.querySelector('[name="email"]');
+    const ctx = NoJS.findContext(form);
+
+    for (const partial of ['a', 'a@', 'a@b.c', 'a@b.co']) type(email, partial);
+    expect(ctx.log).toBe('FFTT');
+  });
+
+  test('45 - without model, on:focusout reads touched state and errors', async () => {
+    const form = await render(`
+      <form validate state="{ seen: '' }">
+        <input name="email" validate="required|email" validate-on="blur"
+               on:focusout="seen = $form.fields.email.touched + ':' + ($form.errors.email || '-')">
+      </form>`);
+    const email = form.querySelector('[name="email"]');
+
+    blur(email);
+    expect(NoJS.findContext(form).seen).toBe('true:Required');
+  });
+
+  test('46 - without model, aria-invalid follows typing in a blur field', async () => {
+    const form = await render(`
+      <form validate>
+        <input name="email" validate="required|email" validate-on="blur">
+      </form>`);
+    const email = form.querySelector('[name="email"]');
+
+    type(email, 'bad');
+    expect(email.getAttribute('aria-invalid')).toBe('true');
+    type(email, 'a@b.com');
+    expect(email.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test('47 - fields without model are never re-bound', async () => {
+    const wrapper = mount(`
+      <form validate validate-on="blur">
+        <input name="email" validate="required|email">
+      </form>`);
+    const email = wrapper.querySelector('[name="email"]');
+    NoJS.processTree(wrapper);
+    const addSpy = jest.spyOn(email, 'addEventListener');
+    await Promise.resolve();
+    expect(addSpy).not.toHaveBeenCalled();
+    addSpy.mockRestore();
+  });
+
+  test('48 - a form disposed before the microtask re-binds nothing', async () => {
+    const wrapper = mount(loginForm('validate-on="blur"'));
+    const email = wrapper.querySelector('[name="email"]');
+    NoJS.processTree(wrapper);
+    const addSpy = jest.spyOn(email, 'addEventListener');
+    _internal(NoJS, 'disposeTree')(wrapper.querySelector('form'));
+    await Promise.resolve();
+    expect(addSpy).not.toHaveBeenCalled();
+    addSpy.mockRestore();
   });
 });
