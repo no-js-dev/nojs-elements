@@ -16,6 +16,9 @@ import { registerAccordion, cleanupAccordion } from "./accordion/index.js";
 import { registerVirtualList, cleanupVirtualList } from "./virtual-list/index.js";
 import { registerScrollSpy, cleanupScrollSpy } from "./scroll-spy/index.js";
 import { _internal } from "./_compat.js";
+import { isHostBackend } from "./_host.js";
+import { dndContract } from "./dnd/contract.js";
+import { DND_HOST_DIRECTIVES } from "./dnd/index.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
 const SWAPPED = '[validate],[drag],[drop],[drag-list],[drag-multiple]';
@@ -35,6 +38,11 @@ function _rebindSwappedNodes(NoJS) {
   const nodes = document.querySelectorAll(SWAPPED);
   for (const el of nodes) {
     if (!el.__declared) continue;            // not yet processed → real directive will catch it
+    // Already bound by the real directive against the live context: re-binding
+    // would dispose and re-walk its subtree, which kills structural directives
+    // inside it (an `each` loop inside a [drop] zone stops re-rendering).
+    if (el.__nojsElBoundCtx !== undefined && NoJS.findContext &&
+        el.__nojsElBoundCtx === NoJS.findContext(el)) continue;
     const disposeTree = _internal(NoJS, 'disposeTree');
     if (typeof disposeTree === 'function') {
       disposeTree(el);                       // fires stub disposers, resets __declared, clears listeners
@@ -70,10 +78,43 @@ const ELEMENT_DIRECTIVE_ATTRS = [
   "spy", "spy-offset", "spy-threshold",
 ];
 
+// Directives whose module has not been migrated to the NoJS-Server host API.
+// On compiled sites each is registered as a stub that warns when used, so a
+// missing element is loud instead of silently inert.
+const HOST_PENDING_DIRECTIVES = [
+  "validate", "drag-list", "drag-multiple",
+  ...ELEMENT_DIRECTIVE_ATTRS,
+].filter((d) => !DND_HOST_DIRECTIVES.includes(d));
+
+function _installHost(NoJS, options) {
+  registerDnd(NoJS, options);
+  for (const name of HOST_PENDING_DIRECTIVES) {
+    NoJS.directive(name, {
+      priority: 30,
+      init(el, host) {
+        host.warn(
+          `"${name}" is not yet available on NoJS-Server compiled sites (host API migration pending); the element is not initialized.`
+        );
+      },
+    });
+  }
+}
+
 const NoJSElements = {
   name: "nojs-elements",
 
+  // Attribute contract for the NoJS-Server compiler (ADR-021): typed
+  // attributes per directive. Only host-migrated directives are declared.
+  contract: {
+    directives: { ...dndContract },
+  },
+
   install(NoJS, options = {}) {
+    if (isHostBackend(NoJS)) {
+      _installHost(NoJS, options);
+      return;
+    }
+
     // Core extracted modules (register first — other elements may integrate)
     registerDnd(NoJS, options);
     registerValidation(NoJS, options);
@@ -111,6 +152,7 @@ const NoJSElements = {
   //     registers cleanly, only re-runs over its own directive attributes —
   //     never overrides core.)
   init(NoJS) {
+    if (isHostBackend(NoJS)) return;
     _rebindSwappedNodes(NoJS);
 
     if (typeof document === "undefined" || !document.body) return;

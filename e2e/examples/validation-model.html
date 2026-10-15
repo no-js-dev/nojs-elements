@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validation with model — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; }
+    .test-label { font-weight: 600; margin: 0 0 0.75rem; color: #555; }
+    label { display: block; margin-bottom: 0.5rem; }
+    .error { color: #b00020; }
+  </style>
+</head>
+<body>
+
+  <!-- ======== Scenario 1: model + field-level validate-on="blur" ======== -->
+  <section>
+    <p class="test-label">Test 1: model with validate-on="blur" posts the typed values</p>
+    <form validate post="/api/login" state="{ email: '', password: '' }" data-test="blur-form">
+      <label>Email
+        <input name="email" model="email" type="text" validate="required|email" validate-on="blur"
+               error-required="Email is required" error-email="Enter a valid email" data-test="blur-email">
+      </label>
+      <span class="error" if="$form.errors.email" bind="$form.errors.email" data-test="blur-email-error"></span>
+      <label>Password
+        <input name="password" model="password" type="password" validate="required" minlength="8" data-test="blur-password">
+      </label>
+      <button type="submit" data-test="blur-submit">Log In</button>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 2: model + validate-on="input" ======== -->
+  <section>
+    <p class="test-label">Test 2: model with validate-on="input" keeps every keystroke</p>
+    <form validate state="{ name: '' }" data-test="input-form">
+      <label>Name
+        <input name="name" model="name" validate="required" validate-on="input" data-test="input-name">
+      </label>
+      <p>Echo: <span bind="name" data-test="input-echo"></span></p>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 3: checkbox and select with model ======== -->
+  <section>
+    <p class="test-label">Test 3: checkbox and select with model in a validate-on form</p>
+    <form validate validate-on="blur" state="{ agree: false, size: 'a' }" data-test="choice-form">
+      <label><input type="checkbox" name="agree" model="agree" data-test="choice-agree"> Agree</label>
+      <label>Size
+        <select name="size" model="size" validate="required" data-test="choice-size">
+          <option value="a">A</option>
+          <option value="b">B</option>
+        </select>
+      </label>
+      <p>State: <span bind="agree + '/' + size" data-test="choice-echo"></span></p>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 4: fields without model keep their handler order ======== -->
+  <section>
+    <p class="test-label">Test 4: on:input, on:focusout and aria-invalid without model</p>
+    <form validate state="{ log: '', seen: '' }" data-test="plain-form">
+      <label>Code
+        <input name="code" validate="required|email" validate-on="input"
+               on:input="log = log + ($form.fields.code.valid ? 'T' : 'F')" data-test="plain-code">
+      </label>
+      <label>Email
+        <input name="mail" validate="required|email" validate-on="blur"
+               on:focusout="seen = $form.fields.mail.touched + ':' + ($form.errors.mail || '-')" data-test="plain-mail">
+      </label>
+      <p>Log: <span bind="log" data-test="plain-log"></span></p>
+      <p>Seen: <span bind="seen" data-test="plain-seen"></span></p>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 5: select/checkbox/radio with model, validate-on="input" ======== -->
+  <section>
+    <p class="test-label">Test 5: input validates select, checkbox and radio with model</p>
+    <form validate validate-on="input" state="{ pickSize: 'a', pickAgree: true, pickColor: 'red' }" data-test="pick-form">
+      <label>Size
+        <select name="pickSize" model="pickSize" validate="required" error-class="bad" data-test="pick-size">
+          <option value="">-</option>
+          <option value="a">A</option>
+          <option value="b">B</option>
+        </select>
+      </label>
+      <label><input type="checkbox" name="pickAgree" model="pickAgree" error-class="bad" data-test="pick-agree"> Agree</label>
+      <label><input type="radio" name="pickColor" value="red" model="pickColor" error-class="bad" data-test="pick-red"> Red</label>
+      <label><input type="radio" name="pickColor" value="blue" model="pickColor" error-class="bad" data-test="pick-blue"> Blue</label>
+      <p>State: <span bind="pickSize + '/' + pickAgree + '/' + pickColor" data-test="pick-echo"></span></p>
+      <p>Validated: <span bind="$form.values.pickSize + '/' + $form.values.pickAgree + '/' + $form.values.pickColor + '/' + ($form.errors.pickSize || '-')" data-test="pick-validated"></span></p>
+    </form>
+  </section>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.use(NoJSElements);
+    NoJS.init();
+  </script>
+</body>
+</html>
