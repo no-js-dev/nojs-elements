@@ -44,7 +44,7 @@
 <section class="demo-section">
   <h2>Text Skeleton</h2>
   <p>Toggle loading state to show or hide the skeleton placeholder.</p>
-  <div class="demo-tabbed" state="{ showCode: false, loading: true, countdown: 3 }" on:mounted="const tick = () => { if(countdown > 0) { countdown--; setTimeout(tick, 1000); } else { loading = false; } }; setTimeout(tick, 1000)">
+  <div class="demo-tabbed" state="{ showCode: false, loading: true }">
     <div class="demo-tabbed-bar">
       <div class="demo-tabbed-dots"><span></span><span></span><span></span></div>
       <div class="demo-tabbed-tabs">
@@ -59,47 +59,24 @@
       </div>
     </div>
     <div class="demo-tabbed-panel demo-tab-example" show="!showCode">
-      <div show="loading">
-        <div class="content-text">
-          <h2 skeleton="loading">Welcome to NoJS Elements</h2>
-          <p skeleton="loading">This is the real content that appears when loading is complete. NoJS Elements provides a rich set of UI components that work with simple HTML attributes.</p>
-        </div>
-        <p style="text-align:center; color: var(--text-dim); margin-top: 0.5rem;" bind="'Loading... ' + countdown + 's'"></p>
+      <div class="content-text">
+        <h2 skeleton="loading">Welcome to NoJS Elements</h2>
+        <p skeleton="loading">This is the real content that appears when loading is complete. NoJS Elements provides a rich set of UI components that work with simple HTML attributes.</p>
       </div>
-      <div show="!loading" style="text-align:center;">
-        <div class="content-text">
-          <h2>Welcome to NoJS Elements</h2>
-          <p>This is the real content that appears when loading is complete. NoJS Elements provides a rich set of UI components that work with simple HTML attributes.</p>
-        </div>
-        <button class="btn btn-primary" on:click="loading = true; countdown = 3; const tick = () => { if(countdown > 0) { countdown--; setTimeout(tick, 1000); } else { loading = false; } }; setTimeout(tick, 1000)">Play Again</button>
-      </div>
+      <button class="btn btn-primary" on:click="loading = !loading">Toggle Loading</button>
+      <span style="margin-left: 0.75rem; font-size: 0.85rem; color: var(--text-dim);">loading: <span bind="loading ? 'true' : 'false'"></span></span>
     </div>
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
       <div class="demo-code-scroll">
         <pre>
-<span class="ln"> 1</span><span class="hl-tag">&lt;div</span>
-<span class="ln"> 2</span>  <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ loading: true, countdown: 3 }"</span>
-<span class="ln"> 3</span>  <span class="hl-attr">on:mounted</span><span class="hl-op">=</span><span class="hl-str">"const tick = () =&gt; {</span>
-<span class="ln"> 4</span>    <span class="hl-str">if(countdown &gt; 0) { countdown--;</span>
-<span class="ln"> 5</span>    <span class="hl-str">setTimeout(tick, 1000); }</span>
-<span class="ln"> 6</span>    <span class="hl-str">else { loading = false; }</span>
-<span class="ln"> 7</span>  <span class="hl-str">}; setTimeout(tick, 1000)"</span><span class="hl-tag">&gt;</span>
-<span class="ln"> 8</span>
-<span class="ln"> 9</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span>
-<span class="ln">10</span>    <span class="hl-tag">&lt;h2</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Welcome</span><span class="hl-tag">&lt;/h2&gt;</span>
-<span class="ln">11</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Content...</span><span class="hl-tag">&lt;/p&gt;</span>
-<span class="ln">12</span>    <span class="hl-tag">&lt;p</span> <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"'Loading... ' + countdown + 's'"</span><span class="hl-tag">&gt;&lt;/p&gt;</span>
-<span class="ln">13</span>  <span class="hl-tag">&lt;/div&gt;</span>
-<span class="ln">14</span>
-<span class="ln">15</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"!loading"</span><span class="hl-tag">&gt;</span>
-<span class="ln">16</span>    <span class="hl-tag">&lt;h2&gt;</span><span class="hl-expr">Welcome to NoJS Elements</span><span class="hl-tag">&lt;/h2&gt;</span>
-<span class="ln">17</span>    <span class="hl-tag">&lt;p&gt;</span><span class="hl-expr">Content loaded!</span><span class="hl-tag">&lt;/p&gt;</span>
-<span class="ln">18</span>    <span class="hl-tag">&lt;button</span> <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"loading = true;</span>
-<span class="ln">19</span>      <span class="hl-str">countdown = 3; /* restart */"</span><span class="hl-tag">&gt;</span>
-<span class="ln">20</span>      <span class="hl-expr">Play Again</span>
-<span class="ln">21</span>    <span class="hl-tag">&lt;/button&gt;</span>
-<span class="ln">22</span>  <span class="hl-tag">&lt;/div&gt;</span>
-<span class="ln">23</span><span class="hl-tag">&lt;/div&gt;</span></pre>
+<span class="ln"> 1</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ loading: true }"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 2</span>  <span class="hl-tag">&lt;h2</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Welcome to NoJS Elements</span><span class="hl-tag">&lt;/h2&gt;</span>
+<span class="ln"> 3</span>  <span class="hl-tag">&lt;p</span> <span class="hl-attr">skeleton</span><span class="hl-op">=</span><span class="hl-str">"loading"</span><span class="hl-tag">&gt;</span><span class="hl-expr">This is the real content...</span><span class="hl-tag">&lt;/p&gt;</span>
+<span class="ln"> 4</span>
+<span class="ln"> 5</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"loading = !loading"</span><span class="hl-tag">&gt;</span>
+<span class="ln"> 6</span>    <span class="hl-expr">Toggle Loading</span>
+<span class="ln"> 7</span>  <span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln"> 8</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
