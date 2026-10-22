@@ -2493,7 +2493,8 @@ The skeleton directive is fully reactive. It watches the expression via `$watch`
     <p bind="user.email"></p>
   </div>
 
-  <button on:click="loading = true; fetch('/api/user').then(r => r.json()).then(u => { user = u; loading = false })">
+  <!-- call stores the response as `user`; then runs after it arrives -->
+  <button call="/api/user" as="user" on:click="loading = true" then="loading = false">
     Load User
   </button>
 </div>
