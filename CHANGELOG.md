@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.21.1...HEAD)
 
+Works with NoJS Core 1.22. Core's opt-in hardening flags all default to `false`, so v1.21.1 behavior is unchanged without them.
+
+### Added
+
+- dnd runs on the NoJS-Server plugin host API when a host provides one (`NoJS.hostApi >= 1`): drag math, placeholder and pointer tracking stay in the browser, and the drop statement becomes a server action with `$drag` / `$dropIndex` / `$dragType` / `$dragEffect` as its payload; `src/dnd/contract.js` declares the attribute contract. With the CDN core nothing changes ([`6f8cae5`](https://github.com/no-js-dev/nojs-elements/commit/6f8cae5), from [#101](https://github.com/no-js-dev/nojs-elements/pull/101), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
+
+### Fixed
+
+- dnd: the plugin init hook no longer re-binds `[drag]` / `[drop]` nodes that are already bound, so children of a drop zone initialize once (`on:init` fired twice) and, with Core 1.22, an `each` inside a drop zone re-renders after a drop ([`6f8cae5`](https://github.com/no-js-dev/nojs-elements/commit/6f8cae5), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
+- validate: fields with `model` keep the user's value under `validate-on` (text was wiped and select / checkbox / radio picks were reverted, so a validated login posted empty fields); fields without `model` and forms without `validate-on` keep the v1.21.1 listener order. `model` choice controls validate on `input` again, as in v1.21.1 ([`75d73db`](https://github.com/no-js-dev/nojs-elements/commit/75d73db) from [#103](https://github.com/no-js-dev/nojs-elements/pull/103), [`a620d2a`](https://github.com/no-js-dev/nojs-elements/commit/a620d2a), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
+- Docs site: the header and footer badges show the Elements version instead of the core version ([`c02bdd6`](https://github.com/no-js-dev/nojs-elements/commit/c02bdd6))
+
+### Documentation
+
+- Skeleton: the Text Skeleton demo leaves the loading state (it is a toggle now); the reactive loading example uses `call` with `as` / `then` instead of `fetch().then()` (PR [#108](https://github.com/no-js-dev/nojs-elements/pull/108))
+- Modal: the template demo and example work; `var-*` names are lowercase, and the confirm button sets a `confirmed` flag on the instance's state instead of calling a block-bodied arrow callback that never wrote state (PR [#109](https://github.com/no-js-dev/nojs-elements/pull/109))
+- Validation: examples submit with `<form validate post="...">` instead of calling a non-existent `post()` function; `$form.submitting` stays `true` until the form's request settles or `$form.endSubmit()` runs (new table row), and the live demos call `$form.endSubmit()` so their submit buttons re-enable (PR [#109](https://github.com/no-js-dev/nojs-elements/pull/109))
+
+### Chore
+
+- Version sync script (`scripts/version.mjs` sync / check), release hooks and `version:check` in CI ([`191795e`](https://github.com/no-js-dev/nojs-elements/commit/191795e))
+- CI runs on pull requests into release branches ([`341e249`](https://github.com/no-js-dev/nojs-elements/commit/341e249))
+- Dev-dependency bumps (esbuild 0.28.2, Jest 30.5, Playwright 1.64, Babel 8.0.7 and others); `dist/` is byte-identical ([`7ad69a7`](https://github.com/no-js-dev/nojs-elements/commit/7ad69a7), from [#102](https://github.com/no-js-dev/nojs-elements/pull/102), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
+
 ## [1.21.1](https://github.com/no-js-dev/nojs-elements/compare/v1.21.0...v1.21.1) — 2026-08-14
 
 ### Changed
