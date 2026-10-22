@@ -387,36 +387,34 @@
             <p class="modal-desc" bind="message"></p>
             <div class="modal-actions">
               <button modal-close>Cancel</button>
-              <button class="primary" on:click="onConfirm()" modal-close bind="confirmLabel || 'Confirm'"></button>
+              <button class="primary" on:click="confirmed = true" modal-close bind="label || 'Confirm'"></button>
             </div>
           </div>
         </div>
       </template>
 
       <!-- Instance 1: Delete -->
-      <div state="{ deleted: false }">
+      <div state="{ confirmed: false }">
         <div use="confirm-modal"
              var-title="'Delete Item?'"
              var-message="'This action cannot be undone. The item will be permanently removed.'"
-             var-confirmLabel="'Delete'"
-             var-onConfirm="() => { deleted = true }">
+             var-label="'Delete'">
         </div>
         <button modal-open class="primary">Delete Item</button>
-        <span show="deleted" style="margin-left: 0.5rem; color: var(--error); font-size: 0.85rem;">Deleted!</span>
+        <span show="confirmed" style="margin-left: 0.5rem; color: var(--error); font-size: 0.85rem;">Deleted!</span>
       </div>
 
       <div style="margin-top: 1rem;"></div>
 
       <!-- Instance 2: Archive -->
-      <div state="{ archived: false }">
+      <div state="{ confirmed: false }">
         <div use="confirm-modal"
              var-title="'Archive Project?'"
              var-message="'The project will be moved to the archive. You can restore it later.'"
-             var-confirmLabel="'Archive'"
-             var-onConfirm="() => { archived = true }">
+             var-label="'Archive'">
         </div>
         <button modal-open>Archive Project</button>
-        <span show="archived" style="margin-left: 0.5rem; color: var(--success); font-size: 0.85rem;">Archived!</span>
+        <span show="confirmed" style="margin-left: 0.5rem; color: var(--success); font-size: 0.85rem;">Archived!</span>
       </div>
     </div>
     <div class="demo-tabbed-panel demo-tab-code" show="showCode">
@@ -431,36 +429,35 @@
 <span class="ln"> 7</span>      <span class="hl-tag">&lt;div</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"modal-actions"</span><span class="hl-tag">&gt;</span>
 <span class="ln"> 8</span>        <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-close</span><span class="hl-tag">&gt;</span><span class="hl-expr">Cancel</span><span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln"> 9</span>        <span class="hl-tag">&lt;button</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span>
-<span class="ln">10</span>          <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"onConfirm()"</span>
+<span class="ln">10</span>          <span class="hl-attr">on:click</span><span class="hl-op">=</span><span class="hl-str">"confirmed = true"</span>
 <span class="ln">11</span>          <span class="hl-attr">modal-close</span>
-<span class="ln">12</span>          <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"confirmLabel || 'Confirm'"</span><span class="hl-tag">&gt;</span>
+<span class="ln">12</span>          <span class="hl-attr">bind</span><span class="hl-op">=</span><span class="hl-str">"label || 'Confirm'"</span><span class="hl-tag">&gt;</span>
 <span class="ln">13</span>        <span class="hl-tag">&lt;/button&gt;</span>
 <span class="ln">14</span>      <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">15</span>    <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">16</span>  <span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">17</span><span class="hl-tag">&lt;/template&gt;</span>
 <span class="ln">18</span>
-<span class="ln">19</span><span class="hl-cmt">&lt;!-- Instance 1: Delete --&gt;</span>
-<span class="ln">20</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ deleted: false }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">19</span><span class="hl-cmt">&lt;!-- Each instance owns its own confirmed flag --&gt;</span>
+<span class="ln">20</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ confirmed: false }"</span><span class="hl-tag">&gt;</span>
 <span class="ln">21</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span>
 <span class="ln">22</span>    <span class="hl-attr">var-title</span><span class="hl-op">=</span><span class="hl-str">"'Delete Item?'"</span>
 <span class="ln">23</span>    <span class="hl-attr">var-message</span><span class="hl-op">=</span><span class="hl-str">"'This action cannot be undone. The item will be permanently removed.'"</span>
-<span class="ln">24</span>    <span class="hl-attr">var-confirmLabel</span><span class="hl-op">=</span><span class="hl-str">"'Delete'"</span>
-<span class="ln">25</span>    <span class="hl-attr">var-onConfirm</span><span class="hl-op">=</span><span class="hl-str">"() =&gt; { deleted = true }"</span><span class="hl-tag">&gt;</span>
-<span class="ln">26</span>  <span class="hl-tag">&lt;/div&gt;</span>
-<span class="ln">27</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Delete Item</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">24</span>    <span class="hl-attr">var-label</span><span class="hl-op">=</span><span class="hl-str">"'Delete'"</span><span class="hl-tag">&gt;</span>
+<span class="ln">25</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">26</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span> <span class="hl-attr">class</span><span class="hl-op">=</span><span class="hl-str">"primary"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Delete Item</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">27</span>  <span class="hl-tag">&lt;span</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"confirmed"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Deleted!</span><span class="hl-tag">&lt;/span&gt;</span>
 <span class="ln">28</span><span class="hl-tag">&lt;/div&gt;</span>
 <span class="ln">29</span>
-<span class="ln">30</span><span class="hl-cmt">&lt;!-- Instance 2: Archive --&gt;</span>
-<span class="ln">31</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ archived: false }"</span><span class="hl-tag">&gt;</span>
-<span class="ln">32</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span>
-<span class="ln">33</span>    <span class="hl-attr">var-title</span><span class="hl-op">=</span><span class="hl-str">"'Archive Project?'"</span>
-<span class="ln">34</span>    <span class="hl-attr">var-message</span><span class="hl-op">=</span><span class="hl-str">"'The project will be moved to the archive. You can restore it later.'"</span>
-<span class="ln">35</span>    <span class="hl-attr">var-confirmLabel</span><span class="hl-op">=</span><span class="hl-str">"'Archive'"</span>
-<span class="ln">36</span>    <span class="hl-attr">var-onConfirm</span><span class="hl-op">=</span><span class="hl-str">"() =&gt; { archived = true }"</span><span class="hl-tag">&gt;</span>
-<span class="ln">37</span>  <span class="hl-tag">&lt;/div&gt;</span>
-<span class="ln">38</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span><span class="hl-tag">&gt;</span><span class="hl-expr">Archive Project</span><span class="hl-tag">&lt;/button&gt;</span>
-<span class="ln">39</span><span class="hl-tag">&lt;/div&gt;</span></pre>
+<span class="ln">30</span><span class="hl-tag">&lt;div</span> <span class="hl-attr">state</span><span class="hl-op">=</span><span class="hl-str">"{ confirmed: false }"</span><span class="hl-tag">&gt;</span>
+<span class="ln">31</span>  <span class="hl-tag">&lt;div</span> <span class="hl-attr">use</span><span class="hl-op">=</span><span class="hl-str">"confirm-modal"</span>
+<span class="ln">32</span>    <span class="hl-attr">var-title</span><span class="hl-op">=</span><span class="hl-str">"'Archive Project?'"</span>
+<span class="ln">33</span>    <span class="hl-attr">var-message</span><span class="hl-op">=</span><span class="hl-str">"'The project will be moved to the archive. You can restore it later.'"</span>
+<span class="ln">34</span>    <span class="hl-attr">var-label</span><span class="hl-op">=</span><span class="hl-str">"'Archive'"</span><span class="hl-tag">&gt;</span>
+<span class="ln">35</span>  <span class="hl-tag">&lt;/div&gt;</span>
+<span class="ln">36</span>  <span class="hl-tag">&lt;button</span> <span class="hl-attr">modal-open</span><span class="hl-tag">&gt;</span><span class="hl-expr">Archive Project</span><span class="hl-tag">&lt;/button&gt;</span>
+<span class="ln">37</span>  <span class="hl-tag">&lt;span</span> <span class="hl-attr">show</span><span class="hl-op">=</span><span class="hl-str">"confirmed"</span><span class="hl-tag">&gt;</span><span class="hl-expr">Archived!</span><span class="hl-tag">&lt;/span&gt;</span>
+<span class="ln">38</span><span class="hl-tag">&lt;/div&gt;</span></pre>
       </div>
     </div>
   </div>
