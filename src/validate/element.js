@@ -180,7 +180,12 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
   wrapper.style.display = "contents";
   wrapper.setAttribute("aria-live", "polite");
   wrapper.__errorTemplateFor = anchorEl;
-  const childCtx = _createContext({ $error: errorMsg, $rule: ruleName }, ctx);
+  // `err` keeps 1.21.1 templates that read the standalone field's
+  // `err.message` working inside a form.
+  const childCtx = _createContext(
+    { $error: errorMsg, $rule: ruleName, err: { message: errorMsg } },
+    ctx
+  );
   wrapper.__ctx = childCtx;
   wrapper.appendChild(clone);
 
@@ -720,7 +725,10 @@ export function registerValidate(NoJS) {
           el.tagName === "TEXTAREA" ||
           el.tagName === "SELECT")
       ) {
-        const errorTpl = el.getAttribute("error");
+        // Inside <form validate> the form path renders the error template
+        // (once, honouring validate-on). This handler keeps only its
+        // v1.21.1 aria-invalid update there.
+        const errorTpl = el.closest("form[validate]") ? null : el.getAttribute("error");
         const fieldInputHandler = () => {
           const err = _validateField(el.value, rules, {});
           // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
