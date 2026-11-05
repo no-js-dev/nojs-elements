@@ -199,7 +199,7 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
   wrapper.style.display = "contents";
   wrapper.setAttribute("aria-live", "polite");
   wrapper.__errorTemplateFor = anchorEl;
-  // `err` keeps 1.21.1 templates that read the standalone field's
+  // `err` keeps v1.21.1 templates that read the standalone field's
   // `err.message` working inside a form.
   const childCtx = _createContext(
     { $error: errorMsg, $rule: ruleName, err: { message: errorMsg } },

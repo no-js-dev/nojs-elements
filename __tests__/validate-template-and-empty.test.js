@@ -93,7 +93,7 @@ describe('Error template on a field inside <form validate>', () => {
     expect(rendered[0].textContent).toBe('Required');
   });
 
-  test('a 1.21.1 template that reads err.message still renders, once', () => {
+  test('a v1.21.1 template that reads err.message still renders, once', () => {
     const host = mount(`<div state="{}"><form validate>
       <input id="name" name="name" validate="required" error="#tpl-legacy">
       <template id="tpl-legacy"><span class="err" bind="err.message"></span></template>
@@ -131,7 +131,7 @@ describe('Error template on a field inside <form validate>', () => {
 //  Empty values and min / max / url (validate-empty opt-in)
 // ═══════════════════════════════════════════════════════════════════════
 
-describe('Empty values without validate-empty (1.21.1 default)', () => {
+describe('Empty values without validate-empty (v1.21.1 default)', () => {
   test('min:N fails an empty field, max:N and url as today', () => {
     const host = mount(`<div state="{}"><form validate>
       <input name="age" type="number" validate="min:1">
