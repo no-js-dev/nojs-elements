@@ -265,6 +265,21 @@ test.describe('Validation', () => {
     await expect(page.getByTestId('tpl-error-rendered')).not.toBeVisible();
   });
 
+  test('typing into a templated field renders the error template once', async ({ page }) => {
+    const tplInput = page.getByTestId('input-tpl');
+    const rendered = page.getByTestId('tpl-error-rendered');
+
+    await tplInput.fill('a');
+    await expect(rendered).toHaveCount(0);
+
+    await tplInput.fill('');
+    await expect(rendered).toHaveCount(1);
+    await expect(rendered).toHaveText('Required');
+
+    await tplInput.fill('b');
+    await expect(rendered).toHaveCount(0);
+  });
+
   // ── Scenario 5: Conditional validation ───────────────────────────
 
   test('validate-if: excluded field does not affect form validity', async ({ page }) => {
