@@ -157,16 +157,21 @@ Define a `<template>` containing a `<div modal>` and instantiate it with `use` a
     <h2 bind="title"></h2>
     <p bind="message"></p>
     <button modal-close>Cancel</button>
-    <button modal-close on:click="onConfirm()">Confirm</button>
+    <button modal-close on:click="confirmed = true">Confirm</button>
   </div>
 </template>
 
-<div use="confirm-tpl"
-     var-title="'Delete account?'"
-     var-message="'This action cannot be undone.'"
-     var-onConfirm="deleteAccount">
+<div state="{ confirmed: false }">
+  <div use="confirm-tpl"
+       var-title="'Delete account?'"
+       var-message="'This action cannot be undone.'">
+  </div>
+  <button modal-open>Delete account</button>
+  <p show="confirmed">Account deleted.</p>
 </div>
 ```
+
+The confirm button writes `confirmed` on the enclosing `state`, so each instance reports back through its own flag. Write `var-*` names in lowercase: HTML lowercases attribute names, so `var-confirmLabel` creates `confirmlabel`. A `var-*` value is evaluated once, when the template is instantiated; an arrow function passed as a callback cannot assign state (`() => { done = true }` does nothing).
 
 ---
 

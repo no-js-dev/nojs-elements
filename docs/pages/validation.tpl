@@ -123,12 +123,13 @@
       <tr><td><code>$form.valid</code></td><td>boolean</td><td><code>true</code> when all fields pass validation</td></tr>
       <tr><td><code>$form.dirty</code></td><td>boolean</td><td><code>true</code> when any field value has changed</td></tr>
       <tr><td><code>$form.touched</code></td><td>boolean</td><td><code>true</code> when any field has been focused and blurred</td></tr>
-      <tr><td><code>$form.submitting</code></td><td>boolean</td><td><code>true</code> during the submit event handler</td></tr>
+      <tr><td><code>$form.submitting</code></td><td>boolean</td><td><code>true</code> from a valid submit until the form&rsquo;s <code>post</code>/<code>put</code>/<code>patch</code>/<code>delete</code> request settles, or until <code>$form.endSubmit()</code> runs</td></tr>
       <tr><td><code>$form.errors</code></td><td>object</td><td>Map of field name to error message</td></tr>
       <tr><td><code>$form.values</code></td><td>object</td><td>Map of field name to current value</td></tr>
       <tr><td><code>$form.firstError</code></td><td>string | null</td><td>First error message, or <code>null</code></td></tr>
       <tr><td><code>$form.errorCount</code></td><td>number</td><td>Number of fields with errors</td></tr>
       <tr><td><code>$form.reset()</code></td><td>method</td><td>Reset dirty/touched state, clear errors, re-validate</td></tr>
+      <tr><td><code>$form.endSubmit()</code></td><td>method</td><td>Set <code>submitting</code> back to <code>false</code> and re-validate; call it from an <code>on:submit</code> handler</td></tr>
     </tbody>
   </table>
 
@@ -157,7 +158,7 @@
     </div>
     <div class="demo-tabbed-panel demo-tab-example" show="!showCode">
       <div class="validation-demo" state="{ name: '', email: '' }">
-        <form validate error-class="border-red" on:submit.prevent="">
+        <form validate error-class="border-red" on:submit.prevent="$form.endSubmit()">
           <div class="field-group">
             <label>Name</label>
             <input type="text" name="name" model="name" validate="required"
@@ -229,7 +230,7 @@
     </div>
     <div class="demo-tabbed-panel demo-tab-example" show="!showCode">
       <div class="validation-demo" state="{ hasAddress: false }">
-        <form validate error-class="border-red" on:submit.prevent="">
+        <form validate error-class="border-red" on:submit.prevent="$form.endSubmit()">
           <div class="field-group">
             <label style="display: flex; align-items: center; gap: 6px;">
               <input type="checkbox" model="hasAddress" name="hasAddress" />

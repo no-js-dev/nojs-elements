@@ -83,3 +83,44 @@ describe('Safe internals accessor (_internal)', () => {
     expect(_internal(fake, 'disposeTree')()).toBe('ok');
   });
 });
+
+describe('Init-hook re-bind: correctly bound dnd nodes are left alone', () => {
+  function buildDropList() {
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('state', "{ items: [{ id: 1, name: 'A' }, { id: 2, name: 'B' }, { id: 3, name: 'C' }] }");
+    wrapper.innerHTML =
+      '<ul drop="items = [...items, $drag]" drop-sort="vertical">' +
+      '<li each="item in items" key="item.id" drag="$index"><span bind="item.name"></span></li>' +
+      '</ul>';
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  const names = (root) => [...root.querySelectorAll('li span')].map((s) => s.textContent).join(',');
+
+  test('5 - an each loop inside a [drop] zone still re-renders after the plugin init hook', async () => {
+    const wrapper = buildDropList();
+    NoJS.processTree(wrapper);
+    expect(names(wrapper)).toBe('A,B,C');
+
+    NoJSElements.init(NoJS);
+
+    const ctx = NoJS.findContext(wrapper.querySelector('ul'));
+    ctx.items = [ctx.items[2], ctx.items[0], ctx.items[1]];
+    await new Promise((r) => setTimeout(r, 20));
+
+    expect(names(wrapper)).toBe('C,A,B');
+  });
+
+  test('6 - the init hook does not re-initialize a [drop] node bound against the live context', () => {
+    const wrapper = buildDropList();
+    NoJS.processTree(wrapper);
+    const ul = wrapper.querySelector('ul');
+    const disposersBefore = ul.__disposers;
+
+    NoJSElements.init(NoJS);
+
+    expect(ul.__disposers).toBe(disposersBefore);
+    expect(ul.__nojsElBoundCtx).toBe(NoJS.findContext(ul));
+  });
+});

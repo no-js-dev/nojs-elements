@@ -1,6 +1,6 @@
 {
   "name": "@no-js-dev/nojs-elements",
-  "version": "1.21.1",
+  "version": "1.22.0",
   "description": "Element plugins for No.JS — drag-and-drop, validation, and more",
   "main": "dist/cjs/nojs-elements.js",
   "module": "dist/esm/nojs-elements.js",
@@ -36,17 +36,20 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:verbose": "jest --verbose",
-    "start": "node docs/dev-server.js"
+    "start": "node docs/dev-server.js",
+    "version:sync": "node scripts/version.mjs sync",
+    "version:check": "node scripts/version.mjs check",
+    "prepare": "node scripts/version.mjs install"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.1",
-    "@babel/preset-env": "^8.0.2",
-    "@playwright/test": "^1.61.1",
-    "@testing-library/jest-dom": "^7.0.0",
-    "babel-jest": "^30.2.0",
-    "esbuild": "^0.28.1",
-    "jest": "^30.4.2",
-    "jest-environment-jsdom": "^30.4.1"
+    "@babel/core": "^8.0.7",
+    "@babel/preset-env": "^8.0.7",
+    "@playwright/test": "^1.64.0",
+    "@testing-library/jest-dom": "^7.0.1",
+    "babel-jest": "^30.5.2",
+    "esbuild": "^0.28.2",
+    "jest": "^30.5.2",
+    "jest-environment-jsdom": "^30.5.2"
   },
   "keywords": [
     "nojs",

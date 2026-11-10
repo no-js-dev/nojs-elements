@@ -9,7 +9,7 @@ Add `validate` to a `<form>` to enable declarative form validation. Creates a `$
 ```html
 <!-- Basic validated form -->
 <div state="{ name: '', email: '' }">
-  <form validate on:submit.prevent="post('/api/register', $form.values)">
+  <form validate post="/api/register">
     <input name="name" model="name" validate="required" placeholder="Name" />
     <span if="$form.fields.name?.touched && $form.fields.name?.error"
           bind="$form.fields.name.error"
@@ -48,7 +48,7 @@ Inside any `<form validate>`, the `$form` object is available in expressions.
 | `$form.valid` | boolean | `true` when all fields pass validation. Reflects real validity regardless of touched/dirty state |
 | `$form.dirty` | boolean | `true` when any field value has changed |
 | `$form.touched` | boolean | `true` when any field has been focused and blurred |
-| `$form.submitting` | boolean | `true` during the submit event handler (auto-resets on next frame) |
+| `$form.submitting` | boolean | `true` from a valid submit until the form's `post`/`put`/`patch`/`delete` request settles, or until `$form.endSubmit()` runs |
 | `$form.pending` | boolean | `true` when any async validators are in-flight |
 | `$form.errors` | object | Map of field name to error message — only includes errors for interacted (touched or dirty) fields |
 | `$form.values` | object | Map of field name to current value. Checkbox fields map to `true`/`false` |
@@ -61,6 +61,7 @@ Inside any `<form validate>`, the `$form` object is available in expressions.
 | Method | Description |
 |--------|-------------|
 | `$form.reset()` | Resets dirty/touched state, clears pending validators, calls native `form.reset()`, and re-validates |
+| `$form.endSubmit()` | Sets `$form.submitting` back to `false` and re-validates. Call it from an `on:submit` handler; an HTTP directive on the form calls it for you |
 
 ### Per-Field State (`$form.fields.<name>`)
 
@@ -362,11 +363,11 @@ In standalone mode, validation runs on `input` events. The error template receiv
 
 ## Submit Handling
 
-The `validate` directive sets `$form.submitting = true` during the submit event, marks all fields as touched (making all errors visible), and re-validates. After the event handler completes, `$form.submitting` resets to `false` on the next animation frame.
+The `validate` directive blocks the submit while the form is invalid. On every submit it marks all fields as touched (making all errors visible) and re-validates; when the form is valid it sets `$form.submitting = true`, which also disables the submit buttons. An HTTP directive on the form (`post`, `put`, `patch`, `delete`) sets it back to `false` when the request settles. A form handled by `on:submit` instead keeps `$form.submitting` at `true` until the handler calls `$form.endSubmit()` (for example `on:submit.prevent="sent = true; $form.endSubmit()"`).
 
 ```html
 <div state="{}">
-  <form validate on:submit.prevent="post('/api/submit', $form.values)">
+  <form validate post="/api/submit">
     <input name="name" model="name" validate="required" />
     <input name="email" model="email" validate="required|email" />
 
@@ -384,7 +385,7 @@ The `validate` directive sets `$form.submitting = true` during the submit event,
 
 ```html
 <div state="{ showAddress: false }">
-  <form validate error-class="border-red-500" on:submit.prevent="post('/api/register', $form.values)">
+  <form validate error-class="border-red-500" post="/api/register">
     <h3>Account</h3>
     <div>
       <label>Name</label>
