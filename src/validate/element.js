@@ -39,10 +39,28 @@ function _getFieldType(field) {
   return (field.getAttribute("type") || "text").toLowerCase();
 }
 
+// ── Empty values and validate-empty="skip" ───────────────────────────
+// Opt-in: with validate-empty="skip" (field, else its form), an empty
+// value passes min, max and url; emptiness is left to `required`.
+// Without it, those rules check "" as they did in v1.21.1.
+const _EMPTY_SKIPPED_RULES = new Set(["url", "min", "max"]);
+
+function _isEmptyValue(value) {
+  return value == null || String(value).trim() === "";
+}
+
+function _skipsEmpty(field) {
+  const mode = field.hasAttribute("validate-empty")
+    ? field.getAttribute("validate-empty")
+    : field.closest("form[validate]")?.getAttribute("validate-empty");
+  return mode === "skip";
+}
+
 // ── Get all failing rules from ValidityState + NoJS validators ───────
 function _getValidityErrors(field, allValues) {
   const errors = [];
   const seenRules = new Set();
+  const skipEmpty = _isEmptyValue(field.value) && _skipsEmpty(field);
 
   // First, check NoJS-specific validators from validate="" attribute
   // (these take priority over native ValidityState messages)
@@ -60,6 +78,7 @@ function _getValidityErrors(field, allValues) {
         }
       } else {
         // Built-in NoJS validators (backward compat + NoJS-only)
+        if (skipEmpty && _EMPTY_SKIPPED_RULES.has(name)) continue;
         const value = field.value;
         let msg = null;
         switch (name) {
@@ -180,7 +199,12 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
   wrapper.style.display = "contents";
   wrapper.setAttribute("aria-live", "polite");
   wrapper.__errorTemplateFor = anchorEl;
-  const childCtx = _createContext({ $error: errorMsg, $rule: ruleName }, ctx);
+  // `err` keeps v1.21.1 templates that read the standalone field's
+  // `err.message` working inside a form.
+  const childCtx = _createContext(
+    { $error: errorMsg, $rule: ruleName, err: { message: errorMsg } },
+    ctx
+  );
   wrapper.__ctx = childCtx;
   wrapper.appendChild(clone);
 
@@ -246,7 +270,8 @@ function _syncChoiceModel(field, fn) {
 }
 
 // ── Backward-compat: old _validateField for field-level validation ───
-function _validateField(value, rules, allValues) {
+function _validateField(value, rules, allValues, skipsEmpty = false) {
+  const skipEmpty = skipsEmpty && _isEmptyValue(value);
   const ruleList = rules.split("|").map((r) => r.trim());
   for (const rule of ruleList) {
     const [name, ...args] = rule.split(":");
@@ -255,6 +280,7 @@ function _validateField(value, rules, allValues) {
       const result = fn(value, ...args, allValues);
       if (result !== true && result) return result;
     } else {
+      if (skipEmpty && _EMPTY_SKIPPED_RULES.has(name)) continue;
       switch (name) {
         case "required":
           if (value == null || String(value).trim() === "") return "Required";
@@ -720,9 +746,12 @@ export function registerValidate(NoJS) {
           el.tagName === "TEXTAREA" ||
           el.tagName === "SELECT")
       ) {
-        const errorTpl = el.getAttribute("error");
+        // Inside <form validate> the form path renders the error template
+        // (once, honouring validate-on). This handler keeps only its
+        // v1.21.1 aria-invalid update there.
+        const errorTpl = el.closest("form[validate]") ? null : el.getAttribute("error");
         const fieldInputHandler = () => {
-          const err = _validateField(el.value, rules, {});
+          const err = _validateField(el.value, rules, {}, _skipsEmpty(el));
           // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
           if (err) {
             el.setAttribute("aria-invalid", "true");

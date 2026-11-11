@@ -376,6 +376,7 @@ Native browser validation popups are disabled automatically (`novalidate` is set
 | `validate` | boolean attr | *required* | Enables form-level validation and creates `$form` context |
 | `validate-on` | string | `"input change focusout"` | Space-separated list of events that trigger validation (form-wide default) |
 | `error-class` | string | — | CSS class applied to invalid fields (form-wide default, overridden per-field) |
+| `validate-empty` | `"check"` \| `"skip"` | `"check"` | `"skip"`: an empty value passes `min`, `max` and `url` (form-wide default, overridden per-field). See [Empty Values](#empty-values-validate-empty) |
 
 ---
 
@@ -465,6 +466,32 @@ Add to `<input>`, `<textarea>`, or `<select>` to define validation rules. Rules 
 
 In addition, native HTML5 validation attributes (`required`, `minlength`, `maxlength`, `pattern`, `type="email"`, `type="url"`, `min`, `max`, `step`) are also checked via the browser's `ValidityState` API. NoJS-specific validators take priority over native ones when both detect the same rule.
 
+### Empty Values (`validate-empty`)
+
+By default, `min`, `max` and `url` also check an empty field. `min:N` and `max:N` compare the empty value as `0`, so `min:1` fails an empty field. `url` fails because `""` is not a URL. A form can rely on this: `validate="min:1"` without `required` blocks an empty submit.
+
+To make these rules ignore an empty field, set `validate-empty="skip"` on the form or on a field. The field attribute wins over the form attribute.
+
+```html
+<form validate validate-empty="skip">
+  <!-- Optional: empty passes, 1 to 17 fails -->
+  <input name="age" type="number" validate="min:18" />
+  <!-- Mandatory: `required` reports the empty value -->
+  <input name="site" validate="required|url" />
+  <!-- This field keeps the default -->
+  <input name="qty" type="number" validate="min:1" validate-empty="check" />
+</form>
+```
+
+| Value | Behavior |
+|-------|----------|
+| `check` (default) | `min`, `max` and `url` check the empty value, as in v1.21.1 |
+| `skip` | An empty or whitespace-only value passes `min`, `max` and `url`. Only `required` reports it |
+
+`email` already ignores empty values. Custom validators always receive the value, empty or not. `validate-empty` also works on standalone fields.
+
+> **Planned change:** the default is planned to become `skip` in the next major version. To keep the current behavior after that, add `required` to the field or set `validate-empty="check"`.
+
 ### Field Attributes
 
 | Attribute | Type | Default | Description |
@@ -475,6 +502,7 @@ In addition, native HTML5 validation attributes (`required`, `minlength`, `maxle
 | `error` | string \| `"#templateId"` | — | Generic error message or template reference |
 | `error-{rule}` | string \| `"#templateId"` | — | Error message or template for a specific rule (e.g., `error-required="Name is required"`) |
 | `error-class` | string | *(inherits from form)* | CSS class applied when this field is invalid |
+| `validate-empty` | `"check"` \| `"skip"` | *(inherits from form)* | `"skip"`: an empty value passes `min`, `max` and `url` |
 | `as` | string | — | Exposes the field state as a named variable in context (e.g., `as="emailField"` makes `emailField.valid`, `emailField.error` available) |
 | `name` | string | *required* | Field name — used as key in `$form.fields`, `$form.values`, and `$form.errors` |
 
@@ -586,6 +614,9 @@ Reference a `<template>` for structured error rendering.
 Inside error templates, these variables are available:
 - `$error` — the error message string
 - `$rule` — the failing rule name (e.g., `"required"`, `"email"`)
+- `err.message` — the same message as `$error`, so a template written for a [standalone field](#standalone-field-validation) also works in a form
+
+The template renders once per field, after the `<template>` element, when the field's `validate-on` triggers show its error. It is removed when the field becomes valid.
 
 ### Error Class
 
@@ -699,7 +730,7 @@ Fields with `validate` can also be used outside a `<form validate>` for simple i
 </div>
 ```
 
-In standalone mode, validation runs on `input` events. The error template receives `err.message` (note: `err`, not `$error`).
+In standalone mode, validation runs on `input` events. The error template receives `err.message` (note: `err`, not `$error`) and renders after the field. A field inside a `<form validate>` is not standalone: the form renders its template (see [Error Templates](#error-templates)).
 
 ---
 
