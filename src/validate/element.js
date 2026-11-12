@@ -455,11 +455,16 @@ export function registerValidate(NoJS) {
 
             // Check validate-if
             if (!_shouldValidate(field, ctx)) {
-              // Field excluded from validation
+              // Field excluded from validation: drop the feedback it showed
+              // while it was validated.
               fields[field.name] = {
                 valid: true, dirty: fieldDirty, touched: fieldTouched,
                 error: null, value: values[field.name],
               };
+              field.removeAttribute("aria-invalid");
+              const excludedErrorClass = field.getAttribute("error-class") || errorClassAttr;
+              if (excludedErrorClass) field.classList.remove(...excludedErrorClass.split(/\s+/));
+              _clearErrorTemplate(field);
               continue;
             }
 
@@ -758,8 +763,14 @@ export function registerValidate(NoJS) {
         // Inside <form validate> the form path renders the error template
         // (once, honouring validate-on). This handler keeps only its
         // v1.21.1 aria-invalid update there.
-        const errorTpl = el.closest("form[validate]") ? null : el.getAttribute("error");
+        const inForm = !!el.closest("form[validate]");
+        const errorTpl = inForm ? null : el.getAttribute("error");
         const fieldInputHandler = () => {
+          // A field its form excludes with validate-if shows no error.
+          if (inForm && !_shouldValidate(el, _findContext(el))) {
+            el.removeAttribute("aria-invalid");
+            return;
+          }
           const err = _validateField(el.value, rules, {}, _skipsEmpty(el));
           // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
           if (err) {

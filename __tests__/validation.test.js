@@ -1248,3 +1248,116 @@ describe('model choice controls in a form without validate-on', () => {
     expect(wrapper.querySelector('[name="street"]')).not.toBeNull();
   });
 });
+
+// =======================================================================
+//  validate-if exclusion clears stale feedback (ELEM-87)
+// =======================================================================
+
+describe('validate-if exclusion', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+
+  const form = (extra = '') => `
+    <form validate error-class="bad" state="{ check: true }" ${extra}>
+      <input name="code" validate="required" validate-if="check" error="#code-err">
+      <template id="code-err"><span class="code-error" bind="$error"></span></template>
+      <input name="other" validate="required">
+    </form>`;
+
+  test('62 - an excluded field drops aria-invalid, the error-class and the error template', async () => {
+    const wrapper = await render(form());
+    const code = wrapper.querySelector('[name="code"]');
+    const other = wrapper.querySelector('[name="other"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    fire(code, 'focusout');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    expect(code.classList.contains('bad')).toBe(true);
+    expect(wrapper.querySelector('.code-error')).not.toBeNull();
+
+    ctx.check = false;
+    fire(other, 'input');
+    expect(ctx.$form.fields.code.valid).toBe(true);
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    expect(code.classList.contains('bad')).toBe(false);
+    expect(wrapper.querySelector('.code-error')).toBeNull();
+  });
+
+  test('63 - a field-level error-class is dropped too', async () => {
+    const wrapper = await render(`
+      <form validate state="{ check: true }">
+        <input name="code" validate="required" validate-if="check" error-class="red ring">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    expect(code.classList.contains('red')).toBe(true);
+    ctx.check = false;
+    fire(code, 'input');
+    expect(code.classList.contains('red')).toBe(false);
+    expect(code.classList.contains('ring')).toBe(false);
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test.each([['input'], ['blur']])('63b - validate-on="%s": an excluded field typed into gets no aria-invalid', async (on) => {
+    const wrapper = await render(`
+      <form validate validate-on="${on}" error-class="bad" state="{ check: true }">
+        <input name="code" validate="required" validate-if="check">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    fire(code, 'focusout');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    ctx.check = false;
+    code.value = '';
+    fire(code, 'input');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    expect(code.classList.contains('bad')).toBe(false);
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('64 - re-including the field restores its feedback', async () => {
+    const wrapper = await render(form());
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    ctx.check = false;
+    fire(code, 'input');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    ctx.check = true;
+    fire(code, 'input');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    expect(code.classList.contains('bad')).toBe(true);
+    expect(wrapper.querySelector('.code-error')).not.toBeNull();
+  });
+
+  test('65 - an excluded field keeps classes it did not get from validation', async () => {
+    const wrapper = await render(`
+      <form validate error-class="bad" state="{ check: false }">
+        <input name="code" class="field" validate="required" validate-if="check">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+
+    fire(code, 'input');
+    expect(code.className).toBe('field');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+  });
+});
