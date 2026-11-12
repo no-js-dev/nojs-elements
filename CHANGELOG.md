@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.22.0...HEAD)
 
+### Added
+
+- validate: opt-in `validate-empty="skip"` on a form or field (the field wins) lets an empty or whitespace-only value pass `min`, `max` and `url`, so an optional field is not rejected while empty; `required` still reports it. The default (`validate-empty="check"`) keeps the v1.21.1 behavior, where `min:1` fails an empty field and `url` fails `""`. The default is planned to become `skip` in the next major version ([`5915bca`](https://github.com/no-js-dev/nojs-elements/commit/5915bca))
+
+### Fixed
+
+- validate: a field with an error template inside `<form validate>` renders the template once, after the `<template>`, following `validate-on`. The standalone-field handler also ran there on every keystroke and inserted a second copy after the field with only `err` in scope (`$rule + ': ' + $error` showed "undefined: undefined"). That handler still sets `aria-invalid` as in v1.21.1, and form templates now also get `err.message`, so a template that reads it keeps working ([`3bbc878`](https://github.com/no-js-dev/nojs-elements/commit/3bbc878))
+
+### Documentation
+
+- Validation: new "Empty Values (`validate-empty`)" section; error templates list `err.message` and render once per field; the standalone section says a field inside `<form validate>` uses the form's template rendering
+
 ## [1.22.0](https://github.com/no-js-dev/nojs-elements/compare/v1.21.1...v1.22.0) — 2026-11-10
 
 Works with NoJS Core 1.22. Core's opt-in hardening flags all default to `false`, so v1.21.1 behavior is unchanged without them.
@@ -14,20 +26,17 @@ Works with NoJS Core 1.22. Core's opt-in hardening flags all default to `false`,
 ### Added
 
 - dnd runs on the NoJS-Server plugin host API when a host provides one (`NoJS.hostApi >= 1`): drag math, placeholder and pointer tracking stay in the browser, and the drop statement becomes a server action with `$drag` / `$dropIndex` / `$dragType` / `$dragEffect` as its payload; `src/dnd/contract.js` declares the attribute contract. With the CDN core nothing changes ([`6f8cae5`](https://github.com/no-js-dev/nojs-elements/commit/6f8cae5), from [#101](https://github.com/no-js-dev/nojs-elements/pull/101), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
-- validate: opt-in `validate-empty="skip"` on a form or field (the field wins) lets an empty or whitespace-only value pass `min`, `max` and `url`, so an optional field is not rejected while empty; `required` still reports it. The default (`validate-empty="check"`) keeps the v1.21.1 behavior, where `min:1` fails an empty field and `url` fails `""`. The default is planned to become `skip` in the next major version ([`5915bca`](https://github.com/no-js-dev/nojs-elements/commit/5915bca))
 
 ### Fixed
 
 - dnd: the plugin init hook no longer re-binds `[drag]` / `[drop]` nodes that are already bound, so children of a drop zone initialize once (`on:init` fired twice) and, with Core 1.22, an `each` inside a drop zone re-renders after a drop ([`6f8cae5`](https://github.com/no-js-dev/nojs-elements/commit/6f8cae5), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
 - validate: fields with `model` keep the user's value under `validate-on` (text was wiped and select / checkbox / radio picks were reverted, so a validated login posted empty fields); fields without `model` and forms without `validate-on` keep the v1.21.1 listener order. `model` choice controls validate on `input` again, as in v1.21.1 ([`75d73db`](https://github.com/no-js-dev/nojs-elements/commit/75d73db) from [#103](https://github.com/no-js-dev/nojs-elements/pull/103), [`a620d2a`](https://github.com/no-js-dev/nojs-elements/commit/a620d2a), PR [#106](https://github.com/no-js-dev/nojs-elements/pull/106))
-- validate: a field with an error template inside `<form validate>` renders the template once, after the `<template>`, following `validate-on`. The standalone-field handler also ran there on every keystroke and inserted a second copy after the field with only `err` in scope (`$rule + ': ' + $error` showed "undefined: undefined"). That handler still sets `aria-invalid` as in v1.21.1, and form templates now also get `err.message`, so a template that reads it keeps working ([`3bbc878`](https://github.com/no-js-dev/nojs-elements/commit/3bbc878))
 - Docs site: the header and footer badges show the Elements version instead of the core version ([`c02bdd6`](https://github.com/no-js-dev/nojs-elements/commit/c02bdd6))
 
 ### Documentation
 
 - Skeleton: the Text Skeleton demo leaves the loading state (it is a toggle now); the reactive loading example uses `call` with `as` / `then` instead of `fetch().then()` (PR [#108](https://github.com/no-js-dev/nojs-elements/pull/108))
 - Modal: the template demo and example work; `var-*` names are lowercase, and the confirm button sets a `confirmed` flag on the instance's state instead of calling a block-bodied arrow callback that never wrote state (PR [#109](https://github.com/no-js-dev/nojs-elements/pull/109))
-- Validation: new "Empty Values (`validate-empty`)" section; error templates list `err.message` and render once per field; the standalone section says a field inside `<form validate>` uses the form's template rendering
 - Validation: examples submit with `<form validate post="...">` instead of calling a non-existent `post()` function; `$form.submitting` stays `true` until the form's request settles or `$form.endSubmit()` runs (new table row), and the live demos call `$form.endSubmit()` so their submit buttons re-enable (PR [#109](https://github.com/no-js-dev/nojs-elements/pull/109))
 
 ### Chore
