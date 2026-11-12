@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- Validation: new "On a NoJS-Server Compiled Site" section: what the server and the browser do, and the differences from a core page (round-trip feedback, custom validators in the server config, synchronous validators only, submits refused by the server)
+- Validation: new "Server-Rendered Hosts" section: `validate` runs on hosts that implement the plugin host API, with the engine on the server and the browser reporting facts
 - Validation: examples no longer use a plain `disabled="..."` attribute, which core never evaluates (the button stayed disabled); the auto-disable section documents what the automatic state covers, that it replaces a `bind-disabled` on the same button, and the new `auto-disable="off"` opt-out. The custom-validator example uses the real `(value, allValues)` signature of `custom:name` (the `matchField` example threw), shows `name:arg` for validators that take arguments, and avoids a field named `confirm`, which core expressions cannot read
 - Stepper: the Events section names the events the stepper dispatches, `nojs:stepper-change` and `nojs:stepper-complete` (listened to with `on:nojs:stepper-change` / `on:nojs:stepper-complete`). The docs still showed `step-change` and `step-complete`, the names v1.15.0 replaced, so the documented listeners never ran. The old names stay unsupported (no alias): no release since v1.14.1 dispatched them. The docs site page gains an Events table, and `.nojs-step-invalid` is documented on the indicator item, where the stepper puts it
 - Migration guide: loading the Elements script after core (`async` or injected), and what it means for `<form validate>`

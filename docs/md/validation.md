@@ -465,27 +465,9 @@ The `validate` directive blocks the submit while the form is invalid. On every s
 
 ---
 
-## On a NoJS-Server Compiled Site
+## Server-Rendered Hosts
 
-A site compiled by [NoJS-Server](https://github.com/no-js-dev/nojs-server) keeps the same markup and the same results, but validation runs on the server ([ADR-028](https://github.com/no-js-dev/nojs-server/blob/main/docs/adr/ADR-028-form-validation-and-stateful-elements.md)). With the CDN core nothing on this page changes.
-
-**What the server does.** NoJS-Server loads the validation engine this package ships (`dist/esm/validate-engine.mjs`, also next to the CommonJS bundle) into its runtime. The same engine runs the directive on core pages, so rules, messages, rule priority, `validate-on`, `validate-if`, `validate-empty`, `$form` and `as` give the same answers on both. The server renders `$form` readers, `aria-invalid`, the error classes and the error templates, and it validates every submit again before the submit action runs; an invalid submit runs nothing and comes back with the errors shown.
-
-**What the browser does.** The Elements script reports facts and computes nothing:
-
-- It sets `novalidate` on the form, as on a core page. Without JavaScript the attribute is absent, so the browser's own constraint validation still protects the form.
-- On the events the directive listens to on a core page (`input`, `change` and `focusout` on the form, or per field with `validate-on`), it sends the form's field values, the event and the native validity of each failing field (`ValidityState` flags and `validationMessage`) to the server. `input` and `change` are sent after a 300 ms pause, per form; `focusout` and a submit send at once.
-- It disables the submit buttons from the form state the server renders, with the same button rules as a core page (`auto-disable="off"` and a custom `disabled` value keep their own state). While a report is waiting or on its way, the buttons stay enabled: a click is never lost, because the server checks the submit anyway.
-- It never blocks a submit. `$form.reset()` called in a server action resets the form fields in the browser too.
-
-**Differences from a core page.**
-
-| Core page | Compiled site |
-|-----------|---------------|
-| Errors and the disabled state change on the keystroke | They change after the 300 ms pause plus the server round trip |
-| `NoJS.validator()` in a page script | Custom validators live in a module named by the server config key `validators` (the same function signature); `NoJS.validator()` is not consulted |
-| A validator may return anything | Validators are synchronous: one that returns a promise fails its rule |
-| An invalid submit is stopped in the browser | The submit reaches the server, which refuses it and renders the errors |
+`validate` also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`). There the validation engine this package ships (`dist/esm/validate-engine.mjs`) runs on the server with the same rules and messages, and the browser only reports field values and native validity. With the CDN core nothing on this page changes.
 
 The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`).
 
