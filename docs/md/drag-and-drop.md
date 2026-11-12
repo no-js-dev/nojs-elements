@@ -87,26 +87,26 @@ The `drag` and `drop` directives dispatch CustomEvents on their host elements at
 
 | Event | Bubbles | `$event.detail` | Description |
 |-------|---------|-----------------|-------------|
-| `drag-start` | yes | `{ item, index, el }` | Fired on the `[drag]` element when a drag begins |
-| `drag-end` | yes | `{ item, index, dropped }` | Fired on the `[drag]` element when the drag ends. `dropped` is `true` if the item was successfully dropped |
-| `drag-enter` | no | `{ item, type }` | Fired on the `[drop]` zone when a valid draggable enters it |
-| `drag-leave` | no | `{ item }` | Fired on the `[drop]` zone when the draggable leaves |
-| `drag-over` | no | `{ item, index }` | Fired on a sortable `[drop]` zone as the item moves over it. `index` is the current insertion position |
-| `drop` | no | `{ item, index, source, target, effect }` | Fired on the `[drop]` zone after the drop expression executes. `source`/`target` contain `{ list, index, el }` |
+| `nojs:dnd-start` | yes | `{ item, index, el }` | Fired on the `[drag]` element when a drag begins |
+| `nojs:dnd-end` | yes | `{ item, index, dropped }` | Fired on the `[drag]` element when the drag ends. `dropped` is `true` if the item was successfully dropped |
+| `nojs:dnd-enter` | no | `{ item, type }` | Fired on the `[drop]` zone when a valid draggable enters it |
+| `nojs:dnd-leave` | no | `{ item }` | Fired on the `[drop]` zone when the draggable leaves |
+| `nojs:dnd-over` | no | `{ item, index }` | Fired on a sortable `[drop]` zone as the item moves over it. `index` is the current insertion position |
+| `nojs:dnd-drop` | no | `{ item, index, source, target, effect }` | Fired on the `[drop]` zone after the drop expression executes. `source`/`target` contain `{ list, index, el }` |
 
 ```html
 <!-- React to drag lifecycle -->
 <div drag="task"
-     on:drag-start="console.log('Started dragging', $event.detail.item)"
-     on:drag-end="console.log('Dropped?', $event.detail.dropped)">
+     on:nojs:dnd-start="console.log('Started dragging', $event.detail.item)"
+     on:nojs:dnd-end="console.log('Dropped?', $event.detail.dropped)">
   Drag me
 </div>
 
 <div drop="items = [...items, $drag]"
      drop-accept="default"
-     on:drag-enter="console.log('Item entered zone')"
-     on:drag-leave="console.log('Item left zone')"
-     on:drop="console.log('Dropped!', $event.detail.item)">
+     on:nojs:dnd-enter="console.log('Item entered zone')"
+     on:nojs:dnd-leave="console.log('Item left zone')"
+     on:nojs:dnd-drop="console.log('Dropped!', $event.detail.item)">
   Drop here
 </div>
 ```
@@ -134,7 +134,7 @@ High-level shorthand for sortable lists bound to arrays. Combines `each` + `drag
        drop-accept="task"
        drop-sort="vertical"
        drag-list-remove
-       on:reorder="console.log('reordered')">
+       on:nojs:dnd-reorder="console.log('reordered')">
   </div>
 
   <div drag-list="done"
@@ -144,7 +144,7 @@ High-level shorthand for sortable lists bound to arrays. Combines `each` + `drag
        drop-accept="task"
        drop-sort="vertical"
        drag-list-remove
-       on:receive="console.log('received', $event.detail.item)">
+       on:nojs:dnd-receive="console.log('received', $event.detail.item)">
   </div>
 </div>
 
@@ -178,9 +178,11 @@ High-level shorthand for sortable lists bound to arrays. Combines `each` + `drag
 
 | Event | `$event.detail` | Description |
 |-------|-----------------|-------------|
-| `on:reorder` | `{ list, item, from, to }` | Item reordered within same list |
-| `on:receive` | `{ list, item, from, fromList }` | Item received from another list |
-| `on:remove` | `{ list, item, index }` | Item removed (dragged out) |
+| `on:nojs:dnd-reorder` | `{ list, item, from, to }` | Item reordered within same list |
+| `on:nojs:dnd-receive` | `{ list, item, from, fromList }` | Item received from another list |
+| `on:nojs:dnd-remove` | `{ list, item, index }` | Item removed (dragged out) |
+
+> Before v1.15.0 these events were named `drag-start`, `drag-end`, `drag-enter`, `drag-leave`, `drag-over`, `drop`, `reorder`, `receive` and `remove`. The old names are no longer dispatched: replace `on:drag-start` with `on:nojs:dnd-start`, `on:reorder` with `on:nojs:dnd-reorder`, and so on. A listener on `on:drop` still runs, because the browser fires its native `drop` event, but that event has no `$event.detail`.
 
 ---
 

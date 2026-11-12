@@ -123,9 +123,9 @@
   <table class="docs-table">
     <thead><tr><th>Event</th><th><code>$event.detail</code></th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td><code>on:reorder</code></td><td><code>{ list, item, from, to }</code></td><td>Item reordered within same list</td></tr>
-      <tr><td><code>on:receive</code></td><td><code>{ list, item, from, fromList }</code></td><td>Item received from another list</td></tr>
-      <tr><td><code>on:remove</code></td><td><code>{ list, item, index }</code></td><td>Item removed (dragged out)</td></tr>
+      <tr><td><code>on:nojs:dnd-reorder</code></td><td><code>{ list, item, from, to }</code></td><td>Item reordered within same list</td></tr>
+      <tr><td><code>on:nojs:dnd-receive</code></td><td><code>{ list, item, from, fromList }</code></td><td>Item received from another list</td></tr>
+      <tr><td><code>on:nojs:dnd-remove</code></td><td><code>{ list, item, index }</code></td><td>Item removed (dragged out)</td></tr>
     </tbody>
   </table>
 

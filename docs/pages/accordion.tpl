@@ -49,7 +49,7 @@
   <table class="docs-table">
     <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
     <tbody>
-      <tr><td><code>accordion-change</code></td><td>Yes</td><td><code>{ element, open, index }</code></td><td>Dispatched on the accordion container when a section opens or closes</td></tr>
+      <tr><td><code>nojs:accordion-change</code></td><td>Yes</td><td><code>{ element, open, index }</code></td><td>Dispatched on the accordion container when a section opens or closes</td></tr>
     </tbody>
   </table>
 
