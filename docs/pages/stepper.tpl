@@ -74,6 +74,16 @@
     </tbody>
   </table>
 
+  <h3>Events</h3>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>nojs:stepper-change</code></td><td>Yes</td><td><code>{ current, total }</code></td><td>Dispatched on the stepper whenever the active step changes. Listen with <code>on:nojs:stepper-change</code></td></tr>
+      <tr><td><code>nojs:stepper-complete</code></td><td>Yes</td><td><code>{ current, total }</code></td><td>Dispatched when <code>$stepper.next()</code> is called on the last step (in linear mode, once the last step validates). Listen with <code>on:nojs:stepper-complete</code></td></tr>
+      <tr><td><code>stepper:validation-blocked</code></td><td>Yes</td><td><code>{ step, form }</code></td><td>Dispatched when a <code>stepper-validate</code> step's form is invalid and blocks forward navigation</td></tr>
+    </tbody>
+  </table>
+
   <h3>Accessibility</h3>
   <p>Adds <code>role="group"</code> and <code>aria-label</code> on the container, <code>role="tablist"</code> on the indicator, <code>role="tab"</code> with <code>aria-selected</code> on each indicator item, <code>role="tabpanel"</code> on each step, <code>aria-controls</code>/<code>aria-labelledby</code> linking tabs to panels, and <code>aria-hidden</code>/<code>inert</code> on inactive steps. Arrow keys navigate the indicator in free mode.</p>
 
