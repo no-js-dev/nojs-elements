@@ -2,6 +2,7 @@ import NoJS from '../../NoJS/src/index.js';
 import NoJSElements from '../src/index.js';
 import { _validityMap, _rulePriority, resetValidateState } from '../src/validate/state.js';
 import { _internal } from '../src/_compat.js';
+import { registerValidation } from '../src/validate/index.js';
 
 // ─── Install the plugin once before all tests ────────────────────────
 beforeAll(() => {
@@ -1081,5 +1082,592 @@ describe('model with validate-on', () => {
     for (const f of [model, plain]) blur(f);
     expect(feedback(model)).toEqual(feedback(plain));
     expect(model.value).toBe('');
+  });
+});
+
+// =======================================================================
+//  FORMS WITHOUT validate-on: model choice controls (ELEM-86)
+// =======================================================================
+
+describe('model choice controls in a form without validate-on', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper.querySelector('form');
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+
+  const choiceForm = `
+    <form validate state="{ size: 'a', agree: false, color: 'red', name: '' }">
+      <select name="size" model="size" validate="required">
+        <option value="">-</option><option value="a">A</option><option value="b">B</option>
+      </select>
+      <input name="agree" type="checkbox" model="agree">
+      <input type="radio" name="color" value="red" model="color">
+      <input type="radio" name="color" value="blue" model="color">
+      <input name="name" model="name" validate="required">
+    </form>`;
+
+  test('54 - a picked model select keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const select = form.querySelector('select');
+    const ctx = NoJS.findContext(form);
+
+    select.value = 'b';
+    fire(select, 'input');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    fire(select, 'change');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    expect(ctx.$form.values.size).toBe('b');
+    expect(ctx.$form.fields.size.dirty).toBe(true);
+  });
+
+  test('55 - a clicked model checkbox keeps the check and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(ctx.agree).toBe(true);
+    expect(ctx.$form.values.agree).toBe(true);
+    box.click();
+    expect(box.checked).toBe(false);
+    expect(ctx.agree).toBe(false);
+    expect(ctx.$form.values.agree).toBe(false);
+  });
+
+  test('56 - a clicked model radio keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const red = form.querySelector('[value="red"]');
+    const blue = form.querySelector('[value="blue"]');
+    const ctx = NoJS.findContext(form);
+
+    blue.click();
+    expect(blue.checked).toBe(true);
+    expect(red.checked).toBe(false);
+    expect(ctx.color).toBe('blue');
+    expect(ctx.$form.values.color).toBe('blue');
+  });
+
+  test('57 - an input on an unchecked radio leaves the model alone', async () => {
+    const form = await render(choiceForm);
+    const ctx = NoJS.findContext(form);
+
+    fire(form.querySelector('[value="blue"]'), 'input');
+    expect(ctx.color).toBe('red');
+    expect(form.querySelector('[value="red"]').checked).toBe(true);
+  });
+
+  test('58 - an if-gated model checkbox is left alone, as core leaves it', async () => {
+    const form = await render(`
+      <form validate state="{ agree: false, on: false }">
+        <input name="agree" type="checkbox" model="agree" if="on">
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.checked = true;
+    fire(box, 'input');
+    expect(ctx.agree).toBe(false);
+    expect(ctx.$form.values.agree).toBe(true);
+  });
+
+  test('59 - text fields keep their v1.21.1 timing: one validation per input and per change', async () => {
+    const form = await render(`
+      <form validate error-class="bad" state="{ name: '' }">
+        <input name="name" model="name" validate="required">
+      </form>`);
+    const name = form.querySelector('[name="name"]');
+    const ctx = NoJS.findContext(form);
+    const add = jest.spyOn(name.classList, 'add');
+    const remove = jest.spyOn(name.classList, 'remove');
+    const runs = () => [...add.mock.calls, ...remove.mock.calls].filter(([c]) => c === 'bad').length;
+
+    name.value = 'Ada';
+    fire(name, 'input');
+    expect(runs()).toBe(1);
+    expect(ctx.name).toBe('Ada');
+    expect(ctx.$form.values.name).toBe('Ada');
+    fire(name, 'change');
+    expect(runs()).toBe(2);
+
+    name.value = '';
+    fire(name, 'input');
+    expect(runs()).toBe(3);
+    expect(ctx.$form.errors.name).toBe('Required');
+    expect(name.getAttribute('aria-invalid')).toBe('true');
+    add.mockRestore();
+    remove.mockRestore();
+  });
+
+  test('60 - a checkbox without model still validates on click, as in v1.21.1', async () => {
+    const form = await render(`
+      <form validate>
+        <input name="agree" type="checkbox" validate="required" required>
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(ctx.$form.values.agree).toBe(true);
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('61 - the docs Complete Example: a model checkbox toggles the if-gated address field', async () => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div state="{ showAddress: false }">
+        <form validate>
+          <input name="name" validate="required" />
+          <label><input type="checkbox" name="hasAddress" model="showAddress" /> Add address</label>
+          <div if="showAddress">
+            <input name="street" validate="required" />
+          </div>
+        </form>
+      </div>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    const box = wrapper.querySelector('[name="hasAddress"]');
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(NoJS.findContext(box).showAddress).toBe(true);
+    expect(wrapper.querySelector('[name="street"]')).not.toBeNull();
+  });
+});
+
+// =======================================================================
+//  validate-if exclusion clears stale feedback (ELEM-87)
+// =======================================================================
+
+describe('validate-if exclusion', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+
+  const form = (extra = '') => `
+    <form validate error-class="bad" state="{ check: true }" ${extra}>
+      <input name="code" validate="required" validate-if="check" error="#code-err">
+      <template id="code-err"><span class="code-error" bind="$error"></span></template>
+      <input name="other" validate="required">
+    </form>`;
+
+  test('62 - an excluded field drops aria-invalid, the error-class and the error template', async () => {
+    const wrapper = await render(form());
+    const code = wrapper.querySelector('[name="code"]');
+    const other = wrapper.querySelector('[name="other"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    fire(code, 'focusout');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    expect(code.classList.contains('bad')).toBe(true);
+    expect(wrapper.querySelector('.code-error')).not.toBeNull();
+
+    ctx.check = false;
+    fire(other, 'input');
+    expect(ctx.$form.fields.code.valid).toBe(true);
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    expect(code.classList.contains('bad')).toBe(false);
+    expect(wrapper.querySelector('.code-error')).toBeNull();
+  });
+
+  test('63 - a field-level error-class is dropped too', async () => {
+    const wrapper = await render(`
+      <form validate state="{ check: true }">
+        <input name="code" validate="required" validate-if="check" error-class="red ring">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    expect(code.classList.contains('red')).toBe(true);
+    ctx.check = false;
+    fire(code, 'input');
+    expect(code.classList.contains('red')).toBe(false);
+    expect(code.classList.contains('ring')).toBe(false);
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test.each([['input'], ['blur']])('63b - validate-on="%s": an excluded field typed into gets no aria-invalid', async (on) => {
+    const wrapper = await render(`
+      <form validate validate-on="${on}" error-class="bad" state="{ check: true }">
+        <input name="code" validate="required" validate-if="check">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    fire(code, 'focusout');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    ctx.check = false;
+    code.value = '';
+    fire(code, 'input');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    expect(code.classList.contains('bad')).toBe(false);
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('64 - re-including the field restores its feedback', async () => {
+    const wrapper = await render(form());
+    const code = wrapper.querySelector('[name="code"]');
+    const ctx = NoJS.findContext(code);
+
+    fire(code, 'input');
+    ctx.check = false;
+    fire(code, 'input');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+    ctx.check = true;
+    fire(code, 'input');
+    expect(code.getAttribute('aria-invalid')).toBe('true');
+    expect(code.classList.contains('bad')).toBe(true);
+    expect(wrapper.querySelector('.code-error')).not.toBeNull();
+  });
+
+  test('65 - an excluded field keeps classes it did not get from validation', async () => {
+    const wrapper = await render(`
+      <form validate error-class="bad" state="{ check: false }">
+        <input name="code" class="field" validate="required" validate-if="check">
+      </form>`);
+    const code = wrapper.querySelector('[name="code"]');
+
+    fire(code, 'input');
+    expect(code.className).toBe('field');
+    expect(code.hasAttribute('aria-invalid')).toBe(false);
+  });
+});
+
+// =======================================================================
+//  auto-disable="off" opt-out (ELEM-88)
+// =======================================================================
+
+describe('auto-disable="off"', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+    jest.useRealTimers();
+  });
+
+  function render(html) {
+    jest.useFakeTimers();
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    jest.runAllTimers();
+    return wrapper;
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+  const type = (field, value) => { field.value = value; fire(field, 'input'); };
+
+  test('66 - without it, a submit button with bind-disabled keeps the v1.22.0 automatic state', () => {
+    const wrapper = render(`
+      <form validate state="{ locked: true }">
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" bind-disabled="locked">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    type(wrapper.querySelector('[name="name"]'), 'Bob');
+    expect(btn.disabled).toBe(false);
+  });
+
+  test('67 - a button with auto-disable="off" stays enabled while the form is invalid', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    expect(btn.disabled).toBe(false);
+    type(wrapper.querySelector('[name="name"]'), '');
+    expect(btn.disabled).toBe(false);
+  });
+
+  test('68 - clicking it on an invalid form blocks the submit and reveals every error', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <input name="email" validate="required|email">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const form = wrapper.querySelector('form');
+    const onSubmit = jest.fn();
+    form.addEventListener('submit', onSubmit);
+    const ev = new Event('submit', { bubbles: true, cancelable: true });
+    form.dispatchEvent(ev);
+    const $form = NoJS.findContext(form).$form;
+    expect(ev.defaultPrevented).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect($form.errors).toEqual({ name: 'Required', email: 'Required' });
+    expect(wrapper.querySelector('button').disabled).toBe(false);
+  });
+
+  test('69 - its bind-disabled alone decides: disabled until the form is valid and changed', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" auto-disable="off" bind-disabled="!$form.valid || !$form.dirty">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    const name = wrapper.querySelector('[name="name"]');
+    expect(btn.disabled).toBe(true);
+    type(name, 'Bob');
+    expect(btn.disabled).toBe(false);
+    type(name, '');
+    expect(btn.disabled).toBe(true);
+  });
+
+  test('70 - it applies per button: other submit buttons stay automatic', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="off" data-k="manual">A</button>
+        <button type="submit" data-k="auto">B</button>
+        <input type="submit" auto-disable="off" data-k="input-manual">
+      </form>`);
+    const [manual, auto, inputManual] = ['manual', 'auto', 'input-manual']
+      .map((k) => wrapper.querySelector(`[data-k="${k}"]`));
+    expect(manual.disabled).toBe(false);
+    expect(inputManual.disabled).toBe(false);
+    expect(auto.disabled).toBe(true);
+  });
+
+  test('71 - any other auto-disable value keeps the automatic state', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="on">A</button>
+        <button type="submit" auto-disable="">B</button>
+      </form>`);
+    for (const btn of wrapper.querySelectorAll('button')) expect(btn.disabled).toBe(true);
+  });
+
+  test('72 - it does not stop the submit from setting $form.submitting', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const form = wrapper.querySelector('form');
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(NoJS.findContext(form).$form.submitting).toBe(true);
+    expect(wrapper.querySelector('button').disabled).toBe(false);
+  });
+});
+
+// =======================================================================
+//  Custom validator signatures, as the docs describe them (ELEM-88)
+// =======================================================================
+
+describe('custom validator signatures', () => {
+  const calls = [];
+
+  beforeAll(() => {
+    NoJS.validator('matchPassword', (value, allValues) => {
+      calls.push(['custom', value, allValues]);
+      return value === allValues.password ? null : 'Passwords do not match';
+    });
+    NoJS.validator('sameAs', (value, field, allValues) => {
+      calls.push(['direct', value, field, allValues]);
+      return value === allValues[field] ? null : `Must match ${field}`;
+    });
+    // The validate module reads validators when it registers.
+    registerValidation(NoJS);
+  });
+
+  afterEach(() => {
+    calls.length = 0;
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(rule) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <form validate>
+        <input name="password" value="secret">
+        <input name="confirm" validate="required|${rule}">
+      </form>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const type = (field, value) => {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  test('73 - custom:name calls the validator with (value, allValues)', async () => {
+    const wrapper = await render('custom:matchPassword');
+    const confirm = wrapper.querySelector('[name="confirm"]');
+    const ctx = NoJS.findContext(confirm);
+
+    type(confirm, 'nope');
+    expect(calls.at(-1)).toEqual(['custom', 'nope', { password: 'secret', confirm: 'nope' }]);
+    expect(ctx.$form.errors.confirm).toBe('Passwords do not match');
+    type(confirm, 'secret');
+    expect(ctx.$form.errors.confirm).toBeUndefined();
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('74 - a validator named in the rule gets its arguments before allValues', async () => {
+    const wrapper = await render('sameAs:password');
+    const confirm = wrapper.querySelector('[name="confirm"]');
+    const ctx = NoJS.findContext(confirm);
+
+    type(confirm, 'nope');
+    expect(calls.at(-1)).toEqual(['direct', 'nope', 'password', { password: 'secret', confirm: 'nope' }]);
+    expect(ctx.$form.errors.confirm).toBe('Must match password');
+    type(confirm, 'secret');
+    expect(ctx.$form.valid).toBe(true);
+  });
+});
+
+describe('validators registered after the plugin', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const type = (field, value) => {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  test('75 - a validator registered after install runs as a rule name', async () => {
+    NoJS.validator('lateEven', (value) => (Number(value) % 2 === 0 ? true : 'Must be even'));
+    const wrapper = await render('<form validate><input name="n" validate="lateEven"></form>');
+    const n = wrapper.querySelector('[name="n"]');
+    const ctx = NoJS.findContext(n);
+
+    type(n, '3');
+    expect(ctx.$form.errors.n).toBe('Must be even');
+    type(n, '4');
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('76 - a validator registered after install runs through custom:name', async () => {
+    NoJS.validator('lateMatch', (value, allValues) => (value === allValues.a ? true : 'No match'));
+    const wrapper = await render(`
+      <form validate>
+        <input name="a" value="x">
+        <input name="b" validate="custom:lateMatch">
+      </form>`);
+    const b = wrapper.querySelector('[name="b"]');
+    const ctx = NoJS.findContext(b);
+
+    type(b, 'y');
+    expect(ctx.$form.errors.b).toBe('No match');
+    type(b, 'x');
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('77 - a standalone field runs a validator registered after install', async () => {
+    NoJS.validator('lateNoSpace', (value) => (/\s/.test(value) ? 'No spaces' : true));
+    const wrapper = await render('<div state="{}"><input validate="lateNoSpace"></div>');
+    const input = wrapper.querySelector('input');
+
+    type(input, 'a b');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    type(input, 'ab');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test('78 - re-registering a validator replaces it at the next validation', async () => {
+    NoJS.validator('lateSwap', () => 'first');
+    const wrapper = await render('<form validate><input name="s" validate="lateSwap"></form>');
+    const s = wrapper.querySelector('[name="s"]');
+    const ctx = NoJS.findContext(s);
+
+    type(s, 'v');
+    expect(ctx.$form.errors.s).toBe('first');
+    NoJS.validator('lateSwap', () => 'second');
+    type(s, 'w');
+    expect(ctx.$form.errors.s).toBe('second');
+  });
+
+  test('79 - built-in rule names stay built-in', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    NoJS.validator('required', () => 'overridden');
+    warn.mockRestore();
+    const wrapper = await render('<form validate><input name="r" validate="required"></form>');
+    const r = wrapper.querySelector('[name="r"]');
+    const ctx = NoJS.findContext(r);
+
+    type(r, '');
+    expect(ctx.$form.errors.r).toBe('Required');
+    type(r, 'filled');
+    expect(ctx.$form.valid).toBe(true);
+  });
+});
+
+describe('validate-if exclusion and as=""', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  test('80 - an excluded field resets its as="" variable to the valid state', async () => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <form validate state="{ check: true }">
+        <input name="code" validate="required" validate-if="check" as="codeField">
+        <input name="other">
+      </form>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    const code = wrapper.querySelector('[name="code"]');
+    const other = wrapper.querySelector('[name="other"]');
+    const ctx = NoJS.findContext(code);
+
+    code.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(ctx.codeField.valid).toBe(false);
+    expect(ctx.codeField.error).toBe('Required');
+
+    ctx.check = false;
+    other.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(ctx.codeField.valid).toBe(true);
+    expect(ctx.codeField.error).toBeNull();
+    expect(ctx.codeField).toEqual(ctx.$form.fields.code);
   });
 });

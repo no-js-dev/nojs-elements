@@ -34,6 +34,7 @@ Native browser validation popups are disabled automatically (`novalidate` is set
 | `validate` | boolean attr | *required* | Enables form-level validation and creates `$form` context |
 | `validate-on` | string | `"input change focusout"` | Space-separated list of events that trigger validation (form-wide default) |
 | `error-class` | string | — | CSS class applied to invalid fields (form-wide default, overridden per-field) |
+| `validate-empty` | `"check"` \| `"skip"` | `"check"` | `"skip"`: an empty value passes `min`, `max` and `url` (form-wide default, overridden per-field). See [Empty Values](#empty-values-validate-empty) |
 
 ---
 
@@ -85,8 +86,8 @@ Each named field gets a state object accessible via `$form.fields.<fieldName>`:
           bind="$form.fields.email.error"
           style="color: red"></span>
 
-    <!-- Disable submit while invalid -->
-    <button type="submit" disabled="!$form.valid">Save</button>
+    <!-- Disabled automatically while the form is invalid -->
+    <button type="submit">Save</button>
 
     <!-- Show overall form state -->
     <p if="$form.firstError" bind="'Error: ' + $form.firstError"></p>
@@ -123,6 +124,32 @@ Add to `<input>`, `<textarea>`, or `<select>` to define validation rules. Rules 
 
 In addition, native HTML5 validation attributes (`required`, `minlength`, `maxlength`, `pattern`, `type="email"`, `type="url"`, `min`, `max`, `step`) are also checked via the browser's `ValidityState` API. NoJS-specific validators take priority over native ones when both detect the same rule.
 
+### Empty Values (`validate-empty`)
+
+By default, `min`, `max` and `url` also check an empty field. `min:N` and `max:N` compare the empty value as `0`, so `min:1` fails an empty field. `url` fails because `""` is not a URL. A form can rely on this: `validate="min:1"` without `required` blocks an empty submit.
+
+To make these rules ignore an empty field, set `validate-empty="skip"` on the form or on a field. The field attribute wins over the form attribute.
+
+```html
+<form validate validate-empty="skip">
+  <!-- Optional: empty passes, 1 to 17 fails -->
+  <input name="age" type="number" validate="min:18" />
+  <!-- Mandatory: `required` reports the empty value -->
+  <input name="site" validate="required|url" />
+  <!-- This field keeps the default -->
+  <input name="qty" type="number" validate="min:1" validate-empty="check" />
+</form>
+```
+
+| Value | Behavior |
+|-------|----------|
+| `check` (default) | `min`, `max` and `url` check the empty value, as in v1.21.1 |
+| `skip` | An empty or whitespace-only value passes `min`, `max` and `url`. Only `required` reports it |
+
+`email` already ignores empty values. Custom validators always receive the value, empty or not. `validate-empty` also works on standalone fields.
+
+> **Planned change:** the default is planned to become `skip` in the next major version. To keep the current behavior after that, add `required` to the field or set `validate-empty="check"`.
+
 ### Field Attributes
 
 | Attribute | Type | Default | Description |
@@ -133,8 +160,15 @@ In addition, native HTML5 validation attributes (`required`, `minlength`, `maxle
 | `error` | string \| `"#templateId"` | — | Generic error message or template reference |
 | `error-{rule}` | string \| `"#templateId"` | — | Error message or template for a specific rule (e.g., `error-required="Name is required"`) |
 | `error-class` | string | *(inherits from form)* | CSS class applied when this field is invalid |
+| `validate-empty` | `"check"` \| `"skip"` | *(inherits from form)* | `"skip"`: an empty value passes `min`, `max` and `url` |
 | `as` | string | — | Exposes the field state as a named variable in context (e.g., `as="emailField"` makes `emailField.valid`, `emailField.error` available) |
 | `name` | string | *required* | Field name — used as key in `$form.fields`, `$form.values`, and `$form.errors` |
+
+### Submit Button Attributes
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `auto-disable` | `"off"` | *(automatic)* | `"off"`: the form does not disable this submit button; its own `bind-disabled` (if any) decides. See [Opting Out](#opting-out-auto-disableoff) |
 
 ---
 
@@ -191,7 +225,7 @@ Skip validation for fields based on a reactive expression.
 </div>
 ```
 
-When `validate-if` evaluates to falsy, the field is treated as valid and excluded from `$form.errors`.
+When `validate-if` evaluates to falsy, the field is treated as valid and excluded from `$form.errors`. It also loses the feedback it showed while it was validated: `aria-invalid`, its `error-class` and its error template. They come back when the expression turns truthy again and the field is still invalid.
 
 ---
 
@@ -244,6 +278,9 @@ Reference a `<template>` for structured error rendering.
 Inside error templates, these variables are available:
 - `$error` — the error message string
 - `$rule` — the failing rule name (e.g., `"required"`, `"email"`)
+- `err.message` — the same message as `$error`, so a template written for a [standalone field](#standalone-field-validation) also works in a form
+
+The template renders once per field, after the `<template>` element, when the field's `validate-on` triggers show its error. It is removed when the field becomes valid.
 
 ### Error Class
 
@@ -281,13 +318,16 @@ Use the `as` attribute to expose a field's validation state as a named variable.
 </form>
 ```
 
+A field excluded by `validate-if` sets its `as` variable to the valid state (`valid: true`, `error: null`), like its entry in `$form.fields`.
+
 ---
 
 ## Custom Validators
 
-Register custom validation functions via `NoJS.validator()`. This API remains in NoJS Core and works with the Elements validation module.
+Register custom validation functions via `NoJS.validator()`. This API remains in NoJS Core and works with the Elements validation module. A field reads the registered validators each time it validates, so you can register them before or after the Elements script (or `NoJS.use(NoJSElements)`). Registering the same name again replaces the validator from the next validation on.
 
 ```html
+<script src="https://cdn.no-js.dev/"></script>
 <script>
   NoJS.validator('phone', (value) => {
     if (!value) return null; // let "required" handle empty
@@ -295,8 +335,12 @@ Register custom validation functions via `NoJS.validator()`. This API remains in
     return null; // null = valid
   });
 
-  NoJS.validator('matchField', (value, fieldName, allValues) => {
-    if (value !== allValues[fieldName]) return `Must match ${fieldName}`;
+</script>
+<script src="https://cdn-elements.no-js.dev/"></script>
+<script>
+  // After the Elements script works too
+  NoJS.validator('matchPassword', (value, allValues) => {
+    if (value !== allValues.password) return 'Passwords do not match';
     return null;
   });
 </script>
@@ -304,29 +348,50 @@ Register custom validation functions via `NoJS.validator()`. This API remains in
 <form validate>
   <input name="phone" validate="required|custom:phone" />
   <input name="password" type="password" model="password" />
-  <input name="confirm" type="password" validate="required|custom:matchField:password" />
+  <input name="confirmPassword" type="password" validate="required|custom:matchPassword" />
 </form>
 ```
 
 ### Validator Function Signature
 
+A rule calls a custom validator in one of two ways:
+
 ```javascript
-NoJS.validator(name, (value, ...args, allValues) => {
-  // value   — the field value (string)
-  // args    — arguments after : in the rule (e.g., "min:5" → args = ["5"])
-  // allValues — object of all field values in the form { fieldName: value }
-  //
-  // Return:
-  //   null or true   → valid
-  //   string         → error message
-});
+// validate="custom:name" — no arguments
+NoJS.validator(name, (value, allValues) => { /* ... */ });
+
+// validate="name:arg1:arg2" — the validator's own name, with arguments
+NoJS.validator(name, (value, arg1, arg2, allValues) => { /* ... */ });
+
+// value     — the field value (string)
+// argN      — the arguments after the name, as strings ("sameAs:password" → "password")
+// allValues — object of all field values in the form { fieldName: value }
+//
+// Return:
+//   null or true   → valid
+//   string         → error message
 ```
+
+`custom:name` passes no rule arguments: in `custom:name:arg`, `arg` is ignored. To pass an argument, name the validator directly:
+
+```html
+<script>
+  NoJS.validator('sameAs', (value, field, allValues) => {
+    if (value !== allValues[field]) return `Must match ${field}`;
+    return null;
+  });
+</script>
+
+<input name="confirmPassword" type="password" validate="required|sameAs:password" />
+```
+
+Core expressions cannot read a property named `confirm`, `alert` or `prompt`, so `$form.errors.confirm` is always `undefined`. Give fields other names (for example `confirmPassword`).
 
 ---
 
 ## Auto-Disable Submit Buttons
 
-Submit buttons (`<button>` without `type="button"` and `<input type="submit">`) are automatically disabled when the form is invalid or has pending async validators.
+Submit buttons (`<button>` without `type="button"` and `<input type="submit">`) are automatically disabled while the form is invalid, has pending async validators, or is submitting (`$form.submitting`).
 
 ```html
 <form validate>
@@ -336,10 +401,29 @@ Submit buttons (`<button>` without `type="button"` and `<input type="submit">`) 
 </form>
 ```
 
-To opt out for a specific button, give it an explicit `disabled` expression:
+The automatic state covers a request in flight: `$form.submitting` stays `true` until the form's `post`/`put`/`patch`/`delete` request settles, or until an `on:submit` handler calls `$form.endSubmit()` (see [Submit Handling](#submit-handling)). A separate loading flag is not needed.
+
+The automatic state is written on every validation pass, so it replaces a `bind-disabled` on the same button. A plain `disabled="..."` attribute is never evaluated: the button stays disabled.
+
+### Opting Out (`auto-disable="off"`)
+
+Give a submit button `auto-disable="off"` to manage its disabled state yourself. The form leaves that button alone; other submit buttons keep the automatic state. The form still blocks an invalid submit, marks every field as touched and shows the errors.
 
 ```html
-<button type="submit" disabled="!$form.valid || isLoading">Submit</button>
+<form validate post="/api/profile">
+  <input name="name" model="name" validate="required" />
+
+  <!-- Disabled until the form is valid and changed -->
+  <button type="submit" auto-disable="off"
+          bind-disabled="!$form.valid || !$form.dirty || $form.submitting">Save</button>
+</form>
+
+<form validate post="/api/signup">
+  <input name="email" model="email" validate="required|email" />
+
+  <!-- Always clickable: a click on an invalid form shows every error -->
+  <button type="submit" auto-disable="off">Sign up</button>
+</form>
 ```
 
 ---
@@ -357,7 +441,7 @@ Fields with `validate` can also be used outside a `<form validate>` for simple i
 </div>
 ```
 
-In standalone mode, validation runs on `input` events. The error template receives `err.message` (note: `err`, not `$error`).
+In standalone mode, validation runs on `input` events. The error template receives `err.message` (note: `err`, not `$error`) and renders after the field. A field inside a `<form validate>` is not standalone: the form renders its template (see [Error Templates](#error-templates)).
 
 ---
 
@@ -378,6 +462,14 @@ The `validate` directive blocks the submit while the form is invalid. On every s
   </form>
 </div>
 ```
+
+---
+
+## Server-Rendered Hosts
+
+`validate` also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`). There the validation engine this package ships (`dist/esm/validate-engine.mjs`) runs on the server with the same rules and messages, and the browser only reports field values and native validity. With the CDN core nothing on this page changes.
+
+The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`).
 
 ---
 

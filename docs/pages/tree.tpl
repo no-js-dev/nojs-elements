@@ -41,6 +41,28 @@
     </tbody>
   </table>
 
+  <h3>Drag Mode Attributes</h3>
+  <table class="docs-table">
+    <thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>tree-drag-mode</code></td><td><code>"reparent"</code> | <code>"reorder"</code> | <code>"both"</code></td><td><em>required</em></td><td>Place on the <code>tree</code> root to make every tree item draggable, including items rendered later. <code>reparent</code>: drop anywhere on a node to nest under it. <code>reorder</code>: drop on the top or bottom half to insert before or after it. <code>both</code>: top and bottom 25% reorder, middle 50% reparents. Any other value leaves drag off</td></tr>
+      <tr><td><code>tree-drag-disabled</code></td><td>boolean attr</td><td>—</td><td>Place on a <code>branch</code> to stop it from being dragged. It can still be a drop target</td></tr>
+    </tbody>
+  </table>
+  <p>A node cannot be dropped onto itself or onto one of its descendants. While dragging, the dragged item has <code>.nojs-dragging</code>, a reparent target has <code>.nojs-tree-drag-over</code>, and a reorder position shows a <code>.nojs-tree-drag-indicator</code> line.</p>
+
+  <h3>Events</h3>
+  <p>Dispatched by trees with <code>tree-drag-mode="reparent"</code>, <code>"reorder"</code> or <code>"both"</code>.</p>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>tree:drag-start</code></td><td>Yes</td><td><code>{ node }</code></td><td>Dispatched on the tree item when a drag begins. Listen with <code>on:tree:drag-start</code></td></tr>
+      <tr><td><code>tree:drag-end</code></td><td>Yes</td><td><code>{ node }</code></td><td>Dispatched on the tree item when the drag ends, after a drop or a cancel</td></tr>
+      <tr><td><code>tree:reparent</code></td><td>Yes</td><td><code>{ node, newParent }</code></td><td>Dispatched on the tree root when a node is dropped onto another node</td></tr>
+      <tr><td><code>tree:reorder</code></td><td>Yes</td><td><code>{ node, newIndex }</code></td><td>Dispatched on the tree root when a node is moved before or after a sibling</td></tr>
+    </tbody>
+  </table>
+
   <h3>Keyboard Navigation</h3>
   <table class="docs-table">
     <thead><tr><th>Key</th><th>Action</th></tr></thead>

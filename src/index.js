@@ -1,5 +1,6 @@
 import { registerDnd, cleanupDnd } from "./dnd/index.js";
 import { registerValidation, cleanupValidation } from "./validate/index.js";
+import { rebindFromStub } from "./validate/element.js";
 import { registerTooltipModule, cleanupTooltip } from "./tooltip/index.js";
 import { registerPopover, cleanupPopover } from "./popover/index.js";
 import { registerModal, cleanupModal } from "./modal/index.js";
@@ -19,6 +20,7 @@ import { _internal } from "./_compat.js";
 import { isHostBackend } from "./_host.js";
 import { dndContract } from "./dnd/contract.js";
 import { DND_HOST_DIRECTIVES } from "./dnd/index.js";
+import { ENGINE_API } from "./validate/engine.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
 const SWAPPED = '[validate],[drag],[drop],[drag-list],[drag-multiple]';
@@ -43,6 +45,12 @@ function _rebindSwappedNodes(NoJS) {
     // inside it (an `each` loop inside a [drop] zone stops re-rendering).
     if (el.__nojsElBoundCtx !== undefined && NoJS.findContext &&
         el.__nojsElBoundCtx === NoJS.findContext(el)) continue;
+    // A node bound against core's validate stub whose subtree shares the
+    // stub's context: re-bind the node alone, so the subtree keeps its content.
+    if (el.hasAttribute('validate') && el.__nojsElBoundCtx === undefined) {
+      if (rebindFromStub(el)) continue;
+      _warnLostContent(NoJS, el);
+    }
     const disposeTree = _internal(NoJS, 'disposeTree');
     if (typeof disposeTree === 'function') {
       disposeTree(el);                       // fires stub disposers, resets __declared, clears listeners
@@ -54,6 +62,21 @@ function _rebindSwappedNodes(NoJS) {
     if (ctx) delete ctx.$form;               // drop stub's / orphan's static $form
     NoJS.processTree(el);                     // re-bind with real directive + live context
   }
+}
+
+// Directives that keep their content only in core's memory once rendered.
+const STRUCTURAL = '[if],[else-if],[else],[switch],[each],[foreach],[for]';
+
+// Re-processing a subtree core already rendered cannot bring back what an
+// `if` or loop inside it removed. Name the cause and the fix.
+function _warnLostContent(NoJS, el) {
+  if (!el.querySelector(STRUCTURAL)) return;
+  const warn = _internal(NoJS, 'warn') || console.warn;
+  warn(
+    '[nojs-elements] loaded after core processed this <' + el.tagName.toLowerCase() + ' validate>: ' +
+    'content of an if/each inside it may be lost. Load the Elements script before DOMContentLoaded, ' +
+    'or put `state` on the form or an element above it.'
+  );
 }
 
 // Attribute names of every directive registered by this plugin. Used by the
@@ -82,12 +105,13 @@ const ELEMENT_DIRECTIVE_ATTRS = [
 // On compiled sites each is registered as a stub that warns when used, so a
 // missing element is loud instead of silently inert.
 const HOST_PENDING_DIRECTIVES = [
-  "validate", "drag-list", "drag-multiple",
+  "drag-list", "drag-multiple",
   ...ELEMENT_DIRECTIVE_ATTRS,
 ].filter((d) => !DND_HOST_DIRECTIVES.includes(d));
 
 function _installHost(NoJS, options) {
   registerDnd(NoJS, options);
+  registerValidation(NoJS, options);
   for (const name of HOST_PENDING_DIRECTIVES) {
     NoJS.directive(name, {
       priority: 30,
@@ -105,8 +129,11 @@ const NoJSElements = {
 
   // Attribute contract for the NoJS-Server compiler (ADR-021): typed
   // attributes per directive. Only host-migrated directives are declared.
+  // `validation` names the pure validation engine the server bundles into
+  // its runtime (ADR-028), resolved from this module's directory.
   contract: {
     directives: { ...dndContract },
+    validation: { api: ENGINE_API, engine: "./validate-engine.mjs" },
   },
 
   install(NoJS, options = {}) {

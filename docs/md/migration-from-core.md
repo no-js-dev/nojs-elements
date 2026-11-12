@@ -136,3 +136,5 @@ If Core is below 1.13.0, the DnD and Validation directives are still bundled in 
 ### Does the order of script tags matter?
 
 Yes. NoJS Core must load before NoJS Elements. The Elements plugin calls `NoJS.use()` which requires the Core API to be available. For CDN usage, place the Core script tag first.
+
+The Elements script can also load after Core has processed the page (an `async` script, or one added after `DOMContentLoaded`). Core then binds each `validate` element to its stub first, and Elements re-binds it when it installs. When the form has `state` on it or on an element above it, the form keeps everything inside it, including the content of an `if` or `each`. A form with no `state` on it or above it is processed again, which cannot restore the content an `if` or `each` inside it already removed; Elements logs a console warning naming the form. Load the Elements script with a plain `<script>` tag, or put `state` on the form (`<form validate state="{}">`).

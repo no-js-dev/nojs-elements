@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stepper $stepper API — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+  </style>
+</head>
+<body>
+
+  <!-- stepper.md "$stepper Context API" example -->
+  <div stepper state="{ name: '', submitted: false }" data-test="api-stepper">
+    <div step step-label="Info">
+      <h3>Step <span bind="$stepper.current + 1" data-test="api-current"></span> of <span bind="$stepper.total" data-test="api-total"></span></h3>
+      <input model="name" required data-test="api-name" />
+    </div>
+
+    <div step step-label="Done">
+      <p>All done!</p>
+    </div>
+
+    <!-- Custom navigation using the API -->
+    <button on:click="$stepper.prev()" bind-disabled="$stepper.isFirst" data-test="api-back">Back</button>
+    <button on:click="$stepper.next()" bind-hidden="$stepper.isLast" data-test="api-continue">Continue</button>
+    <button on:click="submitted = true" show="$stepper.isLast" data-test="api-submit">Submit</button>
+    <p show="submitted" data-test="api-submitted">Submitted!</p>
+  </div>
+
+  <!-- No state above: the steps inherit the stepper's own context -->
+  <div stepper stepper-nav="false" data-test="bare-stepper">
+    <div step step-label="Count">
+      <p>Step <span bind="$stepper.current + 1" data-test="bare-current"></span> of <span bind="$stepper.total" data-test="bare-total"></span></p>
+      <button type="button" on:click="$stepper.next()" data-test="bare-next">Next</button>
+    </div>
+    <div step step-label="Terms" step-validate="agree">
+      <label><input type="checkbox" model="agree" data-test="bare-agree" /> I agree</label>
+      <button type="button" on:click="$stepper.next()" data-test="bare-terms-next">Next</button>
+    </div>
+    <div step step-label="Done">
+      <p data-test="bare-done">Done</p>
+    </div>
+  </div>
+
+  <!-- No state above, one <form validate> per gated step -->
+  <div stepper stepper-nav="false" data-test="forms-stepper">
+    <div step stepper-validate>
+      <form validate><input name="first" validate="required" data-test="forms-first" /></form>
+      <button type="button" on:click="$stepper.next()" data-test="forms-next-1">Next</button>
+    </div>
+    <div step stepper-validate>
+      <form validate><input name="second" validate="required" data-test="forms-second" /></form>
+      <button type="button" on:click="$stepper.next()" data-test="forms-next-2">Next</button>
+    </div>
+    <div step><p>End</p></div>
+  </div>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

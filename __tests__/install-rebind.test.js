@@ -124,3 +124,56 @@ describe('Init-hook re-bind: correctly bound dnd nodes are left alone', () => {
     expect(ul.__nojsElBoundCtx).toBe(NoJS.findContext(ul));
   });
 });
+
+describe('Init-hook re-bind: correctly bound validate nodes are left alone', () => {
+  function buildIfForm(withState) {
+    const wrapper = document.createElement('div');
+    if (withState) wrapper.setAttribute('state', '{}');
+    wrapper.innerHTML =
+      '<form validate>' +
+      '<input name="email" validate="required|email">' +
+      '<p if="$form.errors.email"><span class="msg">Enter a valid email</span></p>' +
+      '</form>';
+    document.body.appendChild(wrapper);
+    return wrapper;
+  }
+
+  const type = (field, value) => {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  test.each([['inside a state', true], ['without a state', false]])(
+    '7 - if="$form.errors.x" content still renders after the plugin init hook (%s)',
+    (_label, withState) => {
+      const wrapper = buildIfForm(withState);
+      NoJS.processTree(wrapper);
+      NoJSElements.init(NoJS);
+
+      const input = wrapper.querySelector('input');
+      const p = wrapper.querySelector('p');
+      type(input, 'bad');
+      expect(p.querySelector('.msg')?.textContent).toBe('Enter a valid email');
+      type(input, 'a@b.co');
+      expect(p.querySelector('.msg')).toBeNull();
+      type(input, 'bad again');
+      expect(p.querySelector('.msg')?.textContent).toBe('Enter a valid email');
+    }
+  );
+
+  test('8 - the init hook does not re-initialize a form or field bound against the live context', () => {
+    const wrapper = buildIfForm(true);
+    NoJS.processTree(wrapper);
+    const form = wrapper.querySelector('form');
+    const input = wrapper.querySelector('input');
+    const formDisposers = form.__disposers;
+    const $form = NoJS.findContext(form).$form;
+
+    NoJSElements.init(NoJS);
+
+    expect(form.__disposers).toBe(formDisposers);
+    expect(form.__nojsElBoundCtx).toBe(NoJS.findContext(form));
+    expect(input.__nojsElBoundCtx).toBe(NoJS.findContext(input));
+    expect(NoJS.findContext(form).$form).toBe($form);
+  });
+});

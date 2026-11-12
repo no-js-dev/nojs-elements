@@ -94,7 +94,7 @@ Each direct child with the `step` attribute defines one step panel.
 Inside any `stepper` container, the `$stepper` object is available in expressions:
 
 ```html
-<div stepper>
+<div stepper state="{ name: '', submitted: false }">
   <div step step-label="Info">
     <h3>Step <span bind="$stepper.current + 1"></span> of <span bind="$stepper.total"></span></h3>
     <input model="name" required />
@@ -105,11 +105,14 @@ Inside any `stepper` container, the `$stepper` object is available in expression
   </div>
 
   <!-- Custom navigation using the API -->
-  <button on:click="$stepper.prev()" disabled="$stepper.isFirst">Back</button>
-  <button on:click="$stepper.next()" hidden="$stepper.isLast">Continue</button>
-  <button on:click="submitForm()" show="$stepper.isLast">Submit</button>
+  <button on:click="$stepper.prev()" bind-disabled="$stepper.isFirst">Back</button>
+  <button on:click="$stepper.next()" bind-hidden="$stepper.isLast">Continue</button>
+  <button on:click="submitted = true" show="$stepper.isLast">Submit</button>
+  <p show="submitted">Submitted!</p>
 </div>
 ```
+
+Bind `disabled` and `hidden` with `bind-disabled` and `bind-hidden`: core does not evaluate a plain `disabled="..."` or `hidden="..."` attribute, so the button would stay disabled or hidden. `$stepper` is set on the context of the nearest `state` around the stepper. Without one, the stepper keeps a context of its own, which its steps share; a `<form validate>` inside a step still keeps its own `$form`.
 
 ### API Properties
 
@@ -132,23 +135,29 @@ Inside any `stepper` container, the `$stepper` object is available in expression
 
 ## Events
 
-| Event | `$event.detail` | Description |
-|-------|-----------------|-------------|
-| `step-change` | `{ current, total }` | Dispatched on the stepper element whenever the active step changes |
-| `step-complete` | `{ current, total }` | Dispatched when `$stepper.next()` is called on the last step (i.e., the stepper is "finished") |
+| Event | Bubbles | `$event.detail` | Description |
+|-------|---------|-----------------|-------------|
+| `nojs:stepper-change` | Yes | `{ current, total }` | Dispatched on the stepper element whenever the active step changes |
+| `nojs:stepper-complete` | Yes | `{ current, total }` | Dispatched when `$stepper.next()` is called on the last step (the built-in Next button reads "Finish" there). In linear mode the last step must validate first |
+
+Listen with `on:` followed by the full event name, on the stepper or on an element above it:
 
 ```html
-<div stepper on:step-change="console.log('Step', $event.detail.current + 1)">
+<div stepper on:nojs:stepper-change="console.log('Step', $event.detail.current + 1)">
   <div step>Step 1</div>
   <div step>Step 2</div>
 </div>
 
 <!-- Listen for stepper completion -->
-<div stepper on:step-complete="console.log('All', $event.detail.total, 'steps done')">
+<div stepper on:nojs:stepper-complete="console.log('All', $event.detail.total, 'steps done')">
   <div step>Step 1</div>
   <div step>Step 2</div>
 </div>
 ```
+
+While it sets up, the stepper also dispatches a `nojs:stepper-change` for the starting step that does not bubble. It fires before `on:` listeners on the stepper are attached, so `on:nojs:stepper-change` sees only the changes that follow.
+
+> Before v1.15.0 these events were named `step-change` and `step-complete`. v1.15.0 renamed the accordion, drag-and-drop and stepper events to the `nojs:<element>-<action>` form, and the old names are no longer dispatched: replace `on:step-change` with `on:nojs:stepper-change` and `on:step-complete` with `on:nojs:stepper-complete`.
 
 ---
 
@@ -321,7 +330,7 @@ When a step contains a `<form validate>` element, you can add `stepper-validate`
 
 | Class | When applied |
 |-------|-------------|
-| `.nojs-step-invalid` | Applied to the step panel when validation blocks navigation (fields are touched and errors become visible) |
+| `.nojs-step-invalid` | Applied to the step's progress indicator item when validation blocks navigation (the form's fields are touched, so their errors become visible); removed when the step passes |
 
 ### Combining with `step-validate`
 

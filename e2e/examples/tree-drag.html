@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tree drag and drop — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+    [tree] li { padding: 8px 0; }
+  </style>
+</head>
+<body>
+
+  <!-- tree.md "Drag & Drop" examples: static <li branch> markup, roles set by the tree directives -->
+
+  <section state="{ log: [] }">
+    <h2>Static, reparent</h2>
+    <ul tree tree-drag-mode="reparent" data-test="static-reparent"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li branch id="sr-a">
+        Folder A
+        <ul subtree>
+          <li id="sr-a1">File 1</li>
+          <li id="sr-a2">File 2</li>
+        </ul>
+      </li>
+      <li branch id="sr-b">Folder B</li>
+      <li branch id="sr-c">Folder C</li>
+    </ul>
+    <p data-test="static-reparent-log" bind="log.join(' ')"></p>
+  </section>
+
+  <section state="{ log: [] }">
+    <h2>Static, reorder</h2>
+    <ul tree tree-drag-mode="reorder" data-test="static-reorder"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li branch id="so-1">Item 1 <ul subtree><li id="so-1a">Child</li></ul></li>
+      <li branch id="so-2">Item 2 <ul subtree><li id="so-2a">Child</li></ul></li>
+      <li branch id="so-3">Item 3 <ul subtree><li id="so-3a">Child</li></ul></li>
+    </ul>
+    <p data-test="static-reorder-log" bind="log.join(' ')"></p>
+  </section>
+
+  <section state="{ log: [] }">
+    <h2>Static, both</h2>
+    <ul tree tree-drag-mode="both" data-test="static-both"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li branch id="sb-docs">
+        Documents
+        <ul subtree>
+          <li id="sb-readme">README.md</li>
+        </ul>
+      </li>
+      <li branch id="sb-archive">Archive</li>
+      <li branch tree-drag-disabled id="sb-system">System</li>
+      <li branch id="sb-user">User Files</li>
+    </ul>
+    <p data-test="static-both-log" bind="log.join(' ')"></p>
+  </section>
+
+  <!-- Items that already carry role="treeitem" before the tree directives run -->
+  <section state="{ log: [] }">
+    <h2>Static with role, both</h2>
+    <ul tree tree-drag-mode="both" data-test="role-both"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li branch role="treeitem" id="rb-1">One</li>
+      <li branch role="treeitem" id="rb-2">Two</li>
+      <li branch role="treeitem" id="rb-3">Three</li>
+    </ul>
+    <p data-test="role-both-log" bind="log.join(' ')"></p>
+  </section>
+
+  <!-- Dynamic items rendered by each, plus items added after load -->
+
+  <section state="{ log: [], nodes: [{ id: 'dr-a', name: 'A' }, { id: 'dr-b', name: 'B' }, { id: 'dr-c', name: 'C' }] }">
+    <h2>Dynamic, reparent</h2>
+    <button type="button" data-test="dynamic-reparent-add" on:click="nodes = [...nodes, { id: 'dr-d', name: 'D' }]">Add</button>
+    <ul tree tree-drag-mode="reparent" data-test="dynamic-reparent"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li each="n in nodes" key="n.id" branch bind-id="n.id"><span bind="n.name"></span></li>
+    </ul>
+    <p data-test="dynamic-reparent-log" bind="log.join(' ')"></p>
+  </section>
+
+  <section state="{ log: [], nodes: [{ id: 'do-a', name: 'A' }, { id: 'do-b', name: 'B' }, { id: 'do-c', name: 'C' }] }">
+    <h2>Dynamic, reorder</h2>
+    <button type="button" data-test="dynamic-reorder-add" on:click="nodes = [...nodes, { id: 'do-d', name: 'D' }]">Add</button>
+    <ul tree tree-drag-mode="reorder" data-test="dynamic-reorder"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li each="n in nodes" key="n.id" branch bind-id="n.id"><span bind="n.name"></span></li>
+    </ul>
+    <p data-test="dynamic-reorder-log" bind="log.join(' ')"></p>
+  </section>
+
+  <section state="{ log: [], nodes: [{ id: 'db-a', name: 'A' }, { id: 'db-b', name: 'B' }, { id: 'db-c', name: 'C' }] }">
+    <h2>Dynamic, both</h2>
+    <button type="button" data-test="dynamic-both-add" on:click="nodes = [...nodes, { id: 'db-d', name: 'D' }]">Add</button>
+    <ul tree tree-drag-mode="both" data-test="dynamic-both"
+        on:tree:drag-start="log = [...log, 'start:' + $event.detail.node.id]"
+        on:tree:drag-end="log = [...log, 'end:' + $event.detail.node.id]"
+        on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]"
+        on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]">
+      <li each="n in nodes" key="n.id" branch bind-id="n.id"><span bind="n.name"></span></li>
+    </ul>
+    <p data-test="dynamic-both-log" bind="log.join(' ')"></p>
+  </section>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

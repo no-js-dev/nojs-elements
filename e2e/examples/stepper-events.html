@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stepper events — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- stepper.md "Events" examples, with the event names the stepper dispatches -->
+  <section state="{ changes: [], completed: 0, total: 0, legacy: 0 }">
+    <div stepper stepper-nav="false" data-test="events-stepper"
+         on:nojs:stepper-change="changes = [...changes, $event.detail.current + 1]"
+         on:nojs:stepper-complete="completed = completed + 1; total = $event.detail.total"
+         on:step-change="legacy = legacy + 1"
+         on:step-complete="legacy = legacy + 1">
+      <div step step-label="One">
+        <button type="button" on:click="$stepper.next()" data-test="events-next-1">Next</button>
+      </div>
+      <div step step-label="Two">
+        <button type="button" on:click="$stepper.prev()" data-test="events-back">Back</button>
+        <button type="button" on:click="$stepper.next()" data-test="events-finish">Finish</button>
+      </div>
+    </div>
+    <p data-test="events-changes" bind="changes.join(',')"></p>
+    <p data-test="events-completed" bind="completed"></p>
+    <p data-test="events-total" bind="total"></p>
+    <p data-test="events-legacy" bind="legacy"></p>
+  </section>
+
+  <!-- A listener on an ancestor sees changes made by the user, not the initial render -->
+  <section state="{ bubbled: [] }" on:nojs:stepper-change="bubbled = [...bubbled, $event.detail.current]">
+    <div stepper stepper-nav="false">
+      <div step><button type="button" on:click="$stepper.next()" data-test="bubble-next">Next</button></div>
+      <div step><p>Two</p></div>
+    </div>
+    <p data-test="bubble-log" bind="bubbled.join(',')"></p>
+  </section>
+
+  <!-- Linear mode: completion waits for the last step to validate -->
+  <section state="{ done: false }">
+    <div stepper stepper-nav="false" on:nojs:stepper-complete="done = true">
+      <div step>
+        <input required data-test="linear-name" />
+        <button type="button" on:click="$stepper.next()" data-test="linear-finish">Finish</button>
+      </div>
+    </div>
+    <p data-test="linear-done" bind="done ? 'done' : 'pending'"></p>
+  </section>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

@@ -638,20 +638,28 @@ function _initDrop(el, backend) {
     }
   };
 
+  // WebKit only drops on an element whose dragenter or dragover was
+  // cancelled, and a release on the first pointer position inside the zone
+  // fires no dragover at all: an accepting zone cancels every dragenter.
   const dragenterHandler = (e) => {
     if (!_dndState.dragging) return;
     if (disabledExpr && backend.disabled()) return;
 
+    const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+    let maxOk = true;
+    if (maxExpr) {
+      const max = backend.max();
+      const childCount = _countVisibleChildren(el);
+      if (typeof max === "number" && childCount >= max) maxOk = false;
+    }
+
+    if (typeOk && maxOk) {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = dropEffect;
+    }
+
     _enterDepth++;
     if (_enterDepth === 1) {
-      const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-      let maxOk = true;
-      if (maxExpr) {
-        const max = backend.max();
-        const childCount = _countVisibleChildren(el);
-        if (typeof max === "number" && childCount >= max) maxOk = false;
-      }
-
       if (typeOk && maxOk) {
         dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
         el.dispatchEvent(
@@ -1024,20 +1032,26 @@ export function registerDragList(NoJS) {
         }
       };
 
+      // An accepting list cancels every dragenter, as the drop zone does.
       const dragenterHandler = (e) => {
         if (!_dndState.dragging) return;
         if (disabledDropExpr && NoJS.evaluate(disabledDropExpr, ctx)) return;
 
+        const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+        let maxOk = true;
+        if (maxExpr) {
+          const max = NoJS.evaluate(maxExpr, ctx);
+          const list = NoJS.resolve(listPath, ctx);
+          if (typeof max === "number" && Array.isArray(list) && list.length >= max) maxOk = false;
+        }
+
+        if (typeOk && maxOk) {
+          e.preventDefault();
+          if (e.dataTransfer) e.dataTransfer.dropEffect = copyMode ? "copy" : "move";
+        }
+
         _enterDepth++;
         if (_enterDepth === 1) {
-          const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-          let maxOk = true;
-          if (maxExpr) {
-            const max = NoJS.evaluate(maxExpr, ctx);
-            const list = NoJS.resolve(listPath, ctx);
-            if (typeof max === "number" && Array.isArray(list) && list.length >= max) maxOk = false;
-          }
-
           if (typeOk && maxOk) {
             dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
             el.dispatchEvent(

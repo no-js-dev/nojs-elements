@@ -1,5 +1,5 @@
 const esbuild = require("esbuild");
-const { readFileSync } = require("fs");
+const { readFileSync, writeFileSync } = require("fs");
 
 const pkg = JSON.parse(readFileSync("./package.json", "utf8"));
 
@@ -49,10 +49,19 @@ async function build() {
     sourcemap: true,
   });
 
+  // ── Validation engine (NoJS-Server contract `validation`) ──────────
+  // The pure engine as a standalone ES module, unminified, next to the
+  // CJS and ESM bundles the server loads the plugin from.
+  const engine = `${banner}\n${readFileSync("src/validate/engine.js", "utf8")}`;
+  for (const dir of ["dist/esm", "dist/cjs"]) {
+    writeFileSync(`${dir}/validate-engine.mjs`, engine);
+  }
+
   console.log("✓ Build complete!");
   console.log("  dist/iife/nojs-elements.js — CDN / <script> tag");
   console.log("  dist/esm/nojs-elements.js  — ES module (import)");
   console.log("  dist/cjs/nojs-elements.js  — CommonJS (require)");
+  console.log("  dist/{esm,cjs}/validate-engine.mjs — validation engine (server)");
 }
 
 build().catch((err) => {

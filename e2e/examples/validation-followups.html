@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validation follow-ups — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Validators registered after the Elements script -->
+  <section>
+    <form validate>
+      <input name="qty" validate="even" data-test="late-qty" />
+      <span if="$form.errors.qty" bind="$form.errors.qty" data-test="late-qty-error"></span>
+      <input name="password" value="secret" data-test="late-password" />
+      <input name="repeat" validate="custom:matchPassword" data-test="late-repeat" />
+      <span if="$form.errors.repeat" bind="$form.errors.repeat" data-test="late-repeat-error"></span>
+    </form>
+  </section>
+
+  <!-- Inline content of an if= inside a form on the initial page -->
+  <section>
+    <form validate>
+      <input name="email" type="email" validate="required|email" data-test="if-email" />
+      <div if="$form.errors.email" data-test="if-box">
+        <p class="error" data-test="if-message">Enter a valid email address</p>
+      </div>
+    </form>
+  </section>
+
+  <!-- as="" of a field excluded with validate-if -->
+  <section>
+    <form validate state="{ hasCompany: true }">
+      <label><input type="checkbox" model="hasCompany" data-test="as-toggle" /> I have a company</label>
+      <input name="company" validate="required" validate-if="hasCompany" as="companyField" data-test="as-company" />
+      <span bind="companyField.valid ? 'valid' : 'invalid'" data-test="as-state"></span>
+    </form>
+  </section>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+  <script>
+    NoJS.validator('even', (value) => (Number(value) % 2 === 0 ? true : 'Must be even'));
+    NoJS.validator('matchPassword', (value, allValues) =>
+      value === allValues.password ? true : 'Passwords do not match');
+  </script>
+</body>
+</html>

@@ -14,7 +14,7 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 
 ## Forms
 
-- [Validation](https://elements.no-js.dev/validation): `validate` directive on `<form>` with `$form` context (`valid`, `dirty`, `touched`, `submitting`, `errors`, `values`, `fields`, `reset()`); built-in pipe rules (`required`, `email`, `min`, `max`, `url`, `custom`), native ValidityState passthrough (`minlength`, `maxlength`, `pattern`), custom validators via `NoJS.validator()`, per-field `validate-on` triggers, `validate-if` conditional rules, `error-class` styling
+- [Validation](https://elements.no-js.dev/validation): `validate` directive on `<form>` with `$form` context (`valid`, `dirty`, `touched`, `submitting`, `errors`, `values`, `fields`, `reset()`); built-in pipe rules (`required`, `email`, `min`, `max`, `url`, `custom`), native ValidityState passthrough (`minlength`, `maxlength`, `pattern`), custom validators via `NoJS.validator()`, per-field `validate-on` triggers, `validate-if` conditional rules, `validate-empty="skip"` opt-in for optional fields, `error-class` styling, automatic submit-button disabling with a per-button `auto-disable="off"` opt-out
 
 ## Interaction Elements
 

@@ -615,3 +615,92 @@ describe('Stepper Cleanup', () => {
     expect(parent.__ctx.$stepper).toBeUndefined();
   });
 });
+
+// =======================================================================
+//  STEPPER WITHOUT A STATE
+// =======================================================================
+
+describe('Stepper without a state above it', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    document.querySelectorAll('style[data-nojs-stepper]').forEach(s => s.remove());
+  });
+
+  function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    return wrapper;
+  }
+
+  const current = (stepper) =>
+    [...stepper.querySelectorAll('[step]')].findIndex((s) => s.getAttribute('aria-current') === 'step');
+
+  test('42 -- children read $stepper and drive it', () => {
+    const wrapper = render(`
+      <div stepper stepper-nav="false">
+        <div step><span class="pos" bind="$stepper.current + 1"></span>/<span class="total" bind="$stepper.total"></span>
+          <button type="button" class="next" on:click="$stepper.next()">Next</button></div>
+        <div step><button type="button" class="prev" on:click="$stepper.prev()">Back</button></div>
+      </div>`);
+    const stepper = wrapper.querySelector('[stepper]');
+
+    expect(wrapper.querySelector('.pos').textContent).toBe('1');
+    expect(wrapper.querySelector('.total').textContent).toBe('2');
+    wrapper.querySelector('.next').click();
+    expect(current(stepper)).toBe(1);
+    wrapper.querySelector('.prev').click();
+    expect(current(stepper)).toBe(0);
+  });
+
+  test('43 -- step-validate reads values the steps write', () => {
+    const wrapper = render(`
+      <div stepper>
+        <div step step-validate="agree"><input type="checkbox" model="agree"></div>
+        <div step>Done</div>
+      </div>`);
+    const stepper = wrapper.querySelector('[stepper]');
+    const next = stepper.querySelector('.nojs-stepper-next');
+
+    next.click();
+    expect(current(stepper)).toBe(0);
+    const box = stepper.querySelector('input');
+    box.checked = true;
+    box.dispatchEvent(new Event('change', { bubbles: true }));
+    next.click();
+    expect(current(stepper)).toBe(1);
+  });
+
+  test('44 -- each <form validate> keeps its own $form and stepper-validate gate', () => {
+    const wrapper = render(`
+      <div stepper>
+        <div step stepper-validate><form validate><input name="a" validate="required"></form></div>
+        <div step stepper-validate><form validate><input name="b" validate="required"></form></div>
+        <div step>End</div>
+      </div>`);
+    const stepper = wrapper.querySelector('[stepper]');
+    const next = stepper.querySelector('.nojs-stepper-next');
+    const [formA, formB] = stepper.querySelectorAll('form');
+    const a = formA.querySelector('input');
+
+    a.value = 'x';
+    a.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(NoJS.findContext(formA).$form.valid).toBe(true);
+    expect(NoJS.findContext(formA)).not.toBe(NoJS.findContext(formB));
+    expect(NoJS.findContext(formB).$form.valid).toBe(false);
+    expect(NoJS.findContext(formB).$stepper).toBeDefined();
+
+    next.click();
+    expect(current(stepper)).toBe(1);
+    next.click();
+    expect(current(stepper)).toBe(1);
+  });
+
+  test('45 -- a stepper under a state keeps using that state', () => {
+    const { parent, el } = setupStepper(2);
+    expect(NoJS.findContext(el)).toBe(parent.__ctx);
+    expect(el.__ctx).toBeUndefined();
+    expect(parent.__ctx.$stepper.total).toBe(2);
+  });
+});

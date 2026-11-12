@@ -1,11 +1,24 @@
 // ═══════════════════════════════════════════════════════════════════════
 //  DIRECTIVE: validate  (priority 30)
 //  Extracted from NoJS Core — full form + field-level validation.
-//  HELPERS: _validateField, _getValidityErrors, _resolveErrorMessage
+//  Semantics live in ./engine.js; this module reads the DOM and applies
+//  the engine's results to it.
 // ═══════════════════════════════════════════════════════════════════════
 
-import { _validityMap, _rulePriority } from "./state.js";
-import { _internal } from "../_compat.js";
+import {
+  VALIDITY_FLAGS,
+  applyEvent,
+  canSubmit,
+  emptyInteraction,
+  evaluateForm,
+  submitEnabled,
+  validateValue,
+} from "./engine.js";
+import { applyAutoDisable } from "./buttons.js";
+import { _internal, _markBound, _ownsContext } from "../_compat.js";
+
+// focusout listener triggers that only mark a field touched.
+const TOUCH_ONLY = Object.freeze(["focusout"]);
 
 // ── Disposer helper (Elements pattern) ───────────────────────────────
 function addDisposer(el, fn) {
@@ -14,7 +27,7 @@ function addDisposer(el, fn) {
 }
 
 // ── Kept at module scope so helpers can reference them after init ─────
-let _validators;
+let _NoJS;
 let _evaluate;
 let _createContext;
 let _findContext;
@@ -24,6 +37,7 @@ let _disposeChildren;
 let _disposeTree;
 let _warn;
 let _execStatement;
+let _validateInit = null;
 
 // ── Reset the __declared marker so processTree re-processes a subtree ──
 // Mirrors core's dom._clearDeclared (not exposed on internals). On a fresh
@@ -34,106 +48,77 @@ function _clearDeclared(el) {
   while (walker.nextNode()) walker.currentNode.__declared = false;
 }
 
-// ── Helper: get field input type ─────────────────────────────────────
-function _getFieldType(field) {
-  return (field.getAttribute("type") || "text").toLowerCase();
+// ── Validator registry, read when a field validates ──────────────────
+// Core hands out a copy of its registry on every `internals` access, so a
+// copy kept from install misses validators registered after the Elements
+// script. Reading it per validation picks them up.
+function _getValidators() {
+  return _internal(_NoJS, "validators") || {};
 }
 
-// ── Get all failing rules from ValidityState + NoJS validators ───────
-function _getValidityErrors(field, allValues) {
-  const errors = [];
-  const seenRules = new Set();
+// ── validate-empty="skip" (field, else its form) ─────────────────────
+function _skipsEmpty(field) {
+  const mode = field.hasAttribute("validate-empty")
+    ? field.getAttribute("validate-empty")
+    : field.closest("form[validate]")?.getAttribute("validate-empty");
+  return mode === "skip";
+}
 
-  // First, check NoJS-specific validators from validate="" attribute
-  // (these take priority over native ValidityState messages)
-  const rules = field.getAttribute("validate");
-  if (rules) {
-    const ruleList = rules.split("|").map((r) => r.trim());
-    for (const rule of ruleList) {
-      const [name, ...args] = rule.split(":");
-      const fn = _validators[name];
-      if (fn) {
-        const result = fn(field.value, ...args, allValues);
-        if (result !== true && result) {
-          errors.push({ rule: name, message: result });
-          seenRules.add(name);
-        }
-      } else {
-        // Built-in NoJS validators (backward compat + NoJS-only)
-        const value = field.value;
-        let msg = null;
-        switch (name) {
-          case "required":
-            if (value == null || String(value).trim() === "") msg = "Required";
-            break;
-          case "email":
-            if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) msg = "Invalid email";
-            break;
-          case "url":
-            try { new URL(value); } catch { msg = "Invalid URL"; }
-            break;
-          case "min":
-            if (Number(value) < Number(args[0])) msg = `Minimum value is ${args[0]}`;
-            break;
-          case "max":
-            if (Number(value) > Number(args[0])) msg = `Maximum value is ${args[0]}`;
-            break;
-          case "custom":
-            if (args[0] && _validators[args[0]]) {
-              const result = _validators[args[0]](value, allValues);
-              if (result !== true && result) msg = result;
-            }
-            break;
-        }
-        if (msg) {
-          errors.push({ rule: name, message: msg });
-          seenRules.add(name);
-        }
-      }
-    }
+// ═══════════════════════════════════════════════════════════════════════
+//  Facts for the engine (engine.js owns the semantics; this backend only
+//  reads attributes, values and the native ValidityState from the DOM)
+// ═══════════════════════════════════════════════════════════════════════
+
+// Every `error-<rule>` attribute, keyed by the (lowercase) rule name.
+function _errorMessages(field) {
+  const messages = {};
+  for (const { name, value } of field.attributes) {
+    if (name.startsWith("error-")) messages[name.slice(6)] = value;
   }
-
-  // Then, check native ValidityState (skip rules already covered by NoJS validators)
-  const validity = field.validity;
-  if (validity && !validity.valid) {
-    for (const [prop, ruleName] of _validityMap) {
-      if (validity[prop]) {
-        const name = ruleName || _getFieldType(field);
-        if (!seenRules.has(name)) {
-          errors.push({ rule: name, message: field.validationMessage });
-          seenRules.add(name);
-        }
-      }
-    }
-  }
-
-  return errors;
+  return messages;
 }
 
-// ── Resolve error message: error-{rule} attr → error attr → default ──
-function _resolveErrorMessage(field, ruleName, defaultMsg) {
-  const perRule = field.getAttribute(`error-${ruleName}`);
-  if (perRule) return perRule;
-  const generic = field.getAttribute("error");
-  if (generic && !generic.startsWith("#")) return generic;
-  return defaultMsg;
-}
-
-// ── Pick the highest-priority error from a list ──────────────────────
-function _pickError(errors, field) {
-  if (!errors.length) return null;
-
-  // Sort by priority
-  const sorted = [...errors].sort((a, b) => {
-    const ai = _rulePriority.indexOf(a.rule);
-    const bi = _rulePriority.indexOf(b.rule);
-    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
-  });
-
-  const top = sorted[0];
+function _fieldSpec(field) {
   return {
-    rule: top.rule,
-    message: _resolveErrorMessage(field, top.rule, top.message),
+    name: field.name,
+    type: (field.getAttribute("type") || "text").toLowerCase(),
+    kind: field.type === "checkbox" || field.type === "radio" ? field.type : null,
+    rules: field.getAttribute("validate"),
+    error: field.getAttribute("error"),
+    messages: _errorMessages(field),
+    validateOn: field.getAttribute("validate-on"),
+    validateEmpty: field.getAttribute("validate-empty"),
+    errorClass: field.getAttribute("error-class"),
+    as: field.getAttribute("as"),
+  };
+}
+
+// Form specification over the named controls, in DOM order.
+// `errorClass` and `perField` are the values the form captured at init.
+function _formSpec(form, controls, errorClass, perField) {
+  return {
+    validateOn: form.getAttribute("validate-on"),
+    validateEmpty: form.getAttribute("validate-empty"),
+    errorClass,
+    perField,
+    fields: controls.map(_fieldSpec),
+  };
+}
+
+// Failing native ValidityState members and the browser's message.
+function _nativeFacts(field) {
+  const validity = field.validity;
+  if (!validity || validity.valid) return null;
+  return { flags: VALIDITY_FLAGS.filter((flag) => validity[flag]), message: field.validationMessage };
+}
+
+// Read lazily, when the engine asks, as the directive always read them.
+function _fieldFacts(field, ctx) {
+  return {
+    get value() { return field.value; },
+    get checked() { return field.checked; },
+    get native() { return _nativeFacts(field); },
+    validateIf: () => _shouldValidate(field, ctx),
   };
 }
 
@@ -180,7 +165,12 @@ function _renderErrorTemplate(selector, errorMsg, ruleName, anchorEl, ctx) {
   wrapper.style.display = "contents";
   wrapper.setAttribute("aria-live", "polite");
   wrapper.__errorTemplateFor = anchorEl;
-  const childCtx = _createContext({ $error: errorMsg, $rule: ruleName }, ctx);
+  // `err` keeps v1.21.1 templates that read the standalone field's
+  // `err.message` working inside a form.
+  const childCtx = _createContext(
+    { $error: errorMsg, $rule: ruleName, err: { message: errorMsg } },
+    ctx
+  );
   wrapper.__ctx = childCtx;
   wrapper.appendChild(clone);
 
@@ -245,44 +235,6 @@ function _syncChoiceModel(field, fn) {
   };
 }
 
-// ── Backward-compat: old _validateField for field-level validation ───
-function _validateField(value, rules, allValues) {
-  const ruleList = rules.split("|").map((r) => r.trim());
-  for (const rule of ruleList) {
-    const [name, ...args] = rule.split(":");
-    const fn = _validators[name];
-    if (fn) {
-      const result = fn(value, ...args, allValues);
-      if (result !== true && result) return result;
-    } else {
-      switch (name) {
-        case "required":
-          if (value == null || String(value).trim() === "") return "Required";
-          break;
-        case "email":
-          if (value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Invalid email";
-          break;
-        case "url":
-          try { new URL(value); } catch { return "Invalid URL"; }
-          break;
-        case "min":
-          if (Number(value) < Number(args[0])) return `Minimum value is ${args[0]}`;
-          break;
-        case "max":
-          if (Number(value) > Number(args[0])) return `Maximum value is ${args[0]}`;
-          break;
-        case "custom":
-          if (args[0] && _validators[args[0]]) {
-            const result = _validators[args[0]](value, allValues);
-            if (result !== true && result) return result;
-          }
-          break;
-      }
-    }
-  }
-  return null;
-}
-
 // ── Bind a form-level context so descendants share $form ─────────────
 // Create/cache a context ON the form element so nested [bind="$form.*"]
 // nodes inherit it. When an ancestor already owns a context (e.g. a
@@ -295,12 +247,68 @@ function _validateField(value, rules, allValues) {
 // `[bind="$form.*"]` nodes.
 function _bindFormContext(formEl) {
   if (formEl.__ctx) return formEl.__ctx;
+  let parent = null;
   for (let a = formEl.parentElement; a; a = a.parentElement) {
-    if (a.__ctx) return _findContext(formEl); // inherit ancestor ctx, don't shadow
+    if (!a.__ctx) continue;
+    if (!_ownsContext(a)) return _findContext(formEl); // inherit ancestor ctx, don't shadow
+    // A container's own context (a stepper without `state`): inherit it,
+    // but keep a $form of its own, as each such form had before.
+    parent = a.__ctx;
+    break;
   }
-  const ctx = _createContext({}, null);
+  const ctx = _createContext({}, parent);
   formEl.__ctx = ctx;
   return ctx;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+//  Re-bind a node core bound against its validate stub
+// ═══════════════════════════════════════════════════════════════════════
+
+// The one disposer core's stub registers: `() => form.removeEventListener(
+// "submit", handler)`. Matches the source and the minified build.
+const STUB_SUBMIT_DISPOSER =
+  /^\(\)\s*=>\s*[\w$]+\.removeEventListener\(\s*(["'])submit\1\s*,\s*[\w$]+\s*\)$/;
+
+// The stub's $form.fields returns one frozen default for any key.
+function _isStubForm($form) {
+  const fields = $form && $form.fields;
+  if (!fields) return false;
+  const probe = fields["__nojsStubProbe"];
+  return !!probe && Object.isFrozen(probe);
+}
+
+// Elements loaded after core processed the page: core bound this node against
+// its stub. When the node's subtree shares the context the stub wrote to (a
+// `state` on the node or above it), drop the stub's submit listener and run
+// the real directive on this node only. Its subtree stays bound, so an `if` or
+// `each` inside keeps its content and `state` keeps its values. Returns false
+// when the caller must re-process the subtree instead.
+export function rebindFromStub(el) {
+  if (!_validateInit || el.__nojsElBoundCtx !== undefined) return false;
+  let owner = el;
+  while (owner && !owner.__ctx) owner = owner.parentElement;
+  if (!owner || (owner !== el && _ownsContext(owner))) return false;
+
+  if (el.tagName === "FORM" || el.closest("form")) {
+    const disposers = el.__disposers || [];
+    let i = disposers.length - 1;
+    while (i >= 0 && !STUB_SUBMIT_DISPOSER.test(Function.prototype.toString.call(disposers[i]).trim())) i--;
+    if (i < 0) return false;
+    disposers.splice(i, 1)[0]();
+  }
+
+  if (el.tagName !== "FORM" && !el.closest("form[validate]")) {
+    const ctx = _findContext(el);
+    if (_isStubForm(ctx.$form)) delete ctx.$form;
+  }
+
+  try {
+    _validateInit(el, "validate", el.getAttribute("validate"));
+  } catch (e) {
+    _warn(`directive "validate" init error on <${el.tagName.toLowerCase()}>:`, e);
+  }
+  return true;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -309,7 +317,7 @@ function _bindFormContext(formEl) {
 
 export function registerValidate(NoJS) {
   // Bind NoJS APIs to module-scoped references for helpers (guarded for old cores)
-  _validators = _internal(NoJS, 'validators') || {};
+  _NoJS = NoJS;
   _evaluate = NoJS.evaluate;
   _createContext = NoJS.createContext;
   _findContext = NoJS.findContext;
@@ -330,7 +338,7 @@ export function registerValidate(NoJS) {
     _warn('[nojs-elements] core too old (<1.13.0): cannot remove "validate" stub; update NoJS core to 1.13.0+.');
   }
 
-  NoJS.directive("validate", {
+  const validateDirective = {
     priority: 30,
     init(el, name, rules) {
       // ═════════════════════════════════════════════════════
@@ -339,13 +347,18 @@ export function registerValidate(NoJS) {
       if (el.tagName === "FORM") {
         // Bind/cache a form-level context so descendants share $form.
         const ctx = _bindFormContext(el);
+        _markBound(el, ctx);
         // Prevent native browser validation popups
         el.setAttribute("novalidate", "");
 
         const errorClassAttr = el.getAttribute("error-class");
-        const touchedFields = new Set();
-        const dirtyFields = new Set();
-        const pendingValidators = new Map();
+        // Listener mode, fixed at init: per-field when the form or any of
+        // its controls declares validate-on, else legacy form-level.
+        const hasValidateOn = el.hasAttribute("validate-on");
+        const hasFieldValidateOn = [...getFields()].some(f => f.hasAttribute("validate-on"));
+        const perField = hasValidateOn || hasFieldValidateOn;
+        // Interaction facts (touched / dirty / submitting); engine-owned shape.
+        let interaction = emptyInteraction();
 
         const formCtx = {
           valid: false,
@@ -359,16 +372,16 @@ export function registerValidate(NoJS) {
           errorCount: 0,
           fields: {},
           reset: () => {
+            interaction = applyEvent(spec(), interaction, { trigger: "reset" });
             formCtx.dirty = false;
             formCtx.touched = false;
             formCtx.pending = false;
             formCtx.submitting = false;
-            touchedFields.clear();
-            dirtyFields.clear();
             el.reset();
             checkValidity();
           },
           endSubmit: () => {
+            interaction = applyEvent(spec(), interaction, { trigger: "endSubmit" });
             formCtx.submitting = false;
             checkValidity();
           },
@@ -397,140 +410,44 @@ export function registerValidate(NoJS) {
           return el.querySelectorAll("input, textarea, select");
         }
 
+        function namedFields() {
+          return [...getFields()].filter((field) => field.name);
+        }
+
+        function spec(controls = namedFields()) {
+          return _formSpec(el, controls, errorClassAttr, perField);
+        }
+
+        // Record one event in the interaction state.
+        function record(trigger, name, triggers) {
+          interaction = applyEvent(spec(), interaction, { trigger, field: name, triggers });
+        }
+
         // ── Main validation check ──────────────────────────
+        // The engine computes $form; this backend applies the per-field
+        // display (aria-invalid, error classes, error templates, `as`) as
+        // each field is computed, so a later field's validate-if sees the
+        // aliases of the fields before it.
         function checkValidity() {
-          const errors = {};
-          const values = {};
-          const fields = {};
-          let valid = true;
-          let firstError = null;
-          let errorCount = 0;
-          let hasPending = false;
+          const controls = namedFields();
+          const { form } = evaluateForm(
+            spec(controls),
+            controls.map((field) => _fieldFacts(field, ctx)),
+            interaction,
+            _getValidators,
+            { onField: (i, item) => applyFieldDisplay(controls[i], item) }
+          );
 
-          for (const field of getFields()) {
-            if (!field.name) continue;
-
-            // Collect value
-            if (field.type === "checkbox") {
-              values[field.name] = field.checked;
-            } else if (field.type === "radio") {
-              if (field.checked) values[field.name] = field.value;
-              else if (!(field.name in values)) values[field.name] = "";
-            } else {
-              values[field.name] = field.value;
-            }
-          }
-
-          for (const field of getFields()) {
-            if (!field.name) continue;
-
-            const fieldTouched = touchedFields.has(field.name);
-            const fieldDirty = dirtyFields.has(field.name);
-
-            // Check validate-if
-            if (!_shouldValidate(field, ctx)) {
-              // Field excluded from validation
-              fields[field.name] = {
-                valid: true, dirty: fieldDirty, touched: fieldTouched,
-                error: null, value: values[field.name],
-              };
-              continue;
-            }
-
-            // Get all errors for this field
-            const fieldErrors = _getValidityErrors(field, values);
-            const topError = _pickError(fieldErrors, field);
-
-            const fieldValid = !topError;
-
-            // Gate error DISPLAY on the field's validate-on triggers. Dirty (typing)
-            // alone must not surface an error for a focusout/submit-only field — that
-            // would defeat validate-on="focusout". When the only display trigger is
-            // focusout/blur/submit, require touched; when "input" is a trigger, dirty
-            // qualifies; with no validate-on, either interaction shows the error.
-            const _triggers = _getValidationTriggers(field, el);
-            const _showsOnInput = _triggers.includes("input");
-            const _showsOnTouch =
-              _triggers.includes("blur") ||
-              _triggers.includes("focusout") ||
-              _triggers.includes("submit");
-            let fieldInteracted;
-            if (!field.hasAttribute("validate-on") && !el.hasAttribute("validate-on")) {
-              fieldInteracted = fieldTouched || fieldDirty;       // legacy / default
-            } else {
-              fieldInteracted =
-                (_showsOnInput && fieldDirty) || (_showsOnTouch && fieldTouched);
-            }
-
-            // $form.valid reflects real state (keeps submit disabled)
-            if (!fieldValid) valid = false;
-
-            // $form.errors only shows errors for interacted fields
-            if (!fieldValid && fieldInteracted) {
-              errors[field.name] = topError.message;
-              errorCount++;
-              if (!firstError) firstError = topError.message;
-            }
-
-            // Per-field context ($field)
-            fields[field.name] = {
-              valid: fieldValid,
-              dirty: fieldDirty,
-              touched: fieldTouched,
-              error: topError ? topError.message : null,
-              value: values[field.name],
-            };
-
-            // ARIA: set aria-invalid for screen readers (WCAG 4.1.2)
-            if (!fieldValid && fieldInteracted) {
-              field.setAttribute("aria-invalid", "true");
-            } else {
-              field.removeAttribute("aria-invalid");
-            }
-
-            // error-class handling
-            const fieldErrorClass = field.getAttribute("error-class") || errorClassAttr;
-            if (fieldErrorClass) {
-              const classes = fieldErrorClass.split(/\s+/);
-              if (!fieldValid && fieldInteracted) {
-                field.classList.add(...classes);
-              } else {
-                field.classList.remove(...classes);
-              }
-            }
-
-            // error template references (error="#tpl" or error-{rule}="#tpl")
-            if (topError && fieldInteracted) {
-              const perRuleVal = field.getAttribute(`error-${topError.rule}`);
-              const genericVal = field.getAttribute("error");
-              const tplRef = (perRuleVal && perRuleVal.startsWith("#") ? perRuleVal : null) ||
-                             (genericVal && genericVal.startsWith("#") ? genericVal : null);
-              if (tplRef) {
-                _renderErrorTemplate(tplRef, topError.message, topError.rule, field, ctx);
-              } else {
-                _clearErrorTemplate(field);
-              }
-            } else {
-              _clearErrorTemplate(field);
-            }
-
-            // $field via as="" attribute
-            const asAttr = field.getAttribute("as");
-            if (asAttr) {
-              ctx.$set(asAttr, fields[field.name]);
-            }
-          }
-
-          // Check for pending async validators
-          if (pendingValidators.size > 0) hasPending = true;
-
-          formCtx.valid = valid;
-          formCtx.errors = errors;
-          formCtx.values = values;
-          formCtx.fields = fields;
-          formCtx.firstError = firstError;
-          formCtx.errorCount = errorCount;
-          formCtx.pending = hasPending;
+          formCtx.valid = form.valid;
+          formCtx.dirty = form.dirty;
+          formCtx.touched = form.touched;
+          formCtx.submitting = form.submitting;
+          formCtx.errors = form.errors;
+          formCtx.values = form.values;
+          formCtx.fields = form.fields;
+          formCtx.firstError = form.firstError;
+          formCtx.errorCount = form.errorCount;
+          formCtx.pending = form.pending;
           ctx.$set("$form", { ...formCtx });
           _notifyFormSubtree();
 
@@ -538,22 +455,40 @@ export function registerValidate(NoJS) {
           _updateSubmitButtons(el);
         }
 
+        function applyFieldDisplay(field, item) {
+          // ARIA: set aria-invalid for screen readers (WCAG 4.1.2)
+          if (item.shown) {
+            field.setAttribute("aria-invalid", "true");
+          } else {
+            field.removeAttribute("aria-invalid");
+          }
+
+          // error-class handling (a field excluded by validate-if drops it)
+          if (item.errorClass) {
+            const classes = item.errorClass.split(/\s+/);
+            if (item.shown) {
+              field.classList.add(...classes);
+            } else {
+              field.classList.remove(...classes);
+            }
+          }
+
+          // error template references (error="#tpl" or error-{rule}="#tpl")
+          if (item.template) {
+            _renderErrorTemplate(item.template, item.error.message, item.error.rule, field, ctx);
+          } else {
+            _clearErrorTemplate(field);
+          }
+
+          // $field via as="" attribute
+          if (item.as) {
+            ctx.$set(item.as, item.entry);
+          }
+        }
+
         // ── Auto-disable submit buttons ────────────────────
         function _updateSubmitButtons(form) {
-          const isEnabled = formCtx.valid && !formCtx.pending && !formCtx.submitting;
-          const buttons = form.querySelectorAll(
-            'button:not([type="button"]), input[type="submit"]'
-          );
-          for (const btn of buttons) {
-            // Skip if user has explicit disabled expression
-            if (btn.hasAttribute("disabled") && btn.getAttribute("disabled") !== "") {
-              const val = btn.getAttribute("disabled");
-              // Only skip if it's a custom expression (not empty or "disabled")
-              if (val !== "disabled" && val !== "true" && val !== "false") continue;
-            }
-            btn.disabled = !isEnabled;
-            btn.__autoDisabled = true;
-          }
+          applyAutoDisable(form, submitEnabled(formCtx));
         }
 
         // ── Event binding with validate-on support ─────────
@@ -582,38 +517,25 @@ export function registerValidate(NoJS) {
             if (modelEvent) modelListeners.push([field, "input", fn]);
           };
 
-          const handler = () => {
-            dirtyFields.add(field.name);
-            formCtx.dirty = true;
+          // Every input re-validates; validate-on only gates the display
+          // (error classes, templates), which the engine applies.
+          listenValue(() => {
+            record("input", field.name, triggers);
             checkValidity();
-          };
-
+          });
+          // focusout touches the field; with `blur` it then counts as an
+          // input too (two checks, in that order).
           const touchHandler = () => {
-            touchedFields.add(field.name);
-            formCtx.touched = true;
+            record("focusout", field.name, TOUCH_ONLY);
             checkValidity();
           };
-
-          if (triggers.includes("input")) {
-            listenValue(handler);
-          } else {
-            // Always track dirty and re-validate on input for data accuracy
-            // (validate-on only affects visual feedback like error-class/templates)
-            const silentInputHandler = () => {
-              dirtyFields.add(field.name);
-              formCtx.dirty = true;
-              checkValidity();
-            };
-            listenValue(silentInputHandler);
-          }
-          if (triggers.includes("blur") || triggers.includes("focusout")) {
-            const blurFocusoutHandler = () => {
+          if (triggers.includes("blur")) {
+            listenField(field, "focusout", () => {
               touchHandler();
-              if (triggers.includes("blur")) handler();
-            };
-            listenField(field, "focusout", blurFocusoutHandler);
+              record("input", field.name, triggers);
+              checkValidity();
+            });
           } else {
-            // Always track touched on focusout
             listenField(field, "focusout", touchHandler);
           }
           if (triggers.includes("submit")) {
@@ -621,29 +543,27 @@ export function registerValidate(NoJS) {
           }
         }
 
-        // Default events if no validate-on (backward compat)
-        const hasValidateOn = el.hasAttribute("validate-on");
-        const hasFieldValidateOn = [...getFields()].some(f => f.hasAttribute("validate-on"));
-
-        if (!hasValidateOn && !hasFieldValidateOn) {
+        if (!perField) {
           // Legacy behavior: form-level input, change, and focusout
           const inputHandler = (e) => {
-            const target = e.target;
-            if (target && target.name) {
-              dirtyFields.add(target.name);
-            }
-            formCtx.dirty = true;
+            record(e.type === "change" ? "change" : "input", e.target && e.target.name);
             checkValidity();
           };
-          el.addEventListener("input", inputHandler);
-          addDisposer(el, () => el.removeEventListener("input", inputHandler));
+          // A select/checkbox/radio `model` syncs on "change", after this
+          // "input": sync it first so the re-render keeps the user's pick.
+          const choiceInputHandler = (e) => {
+            if (e.target && _getModelEvent(e.target) === "change") {
+              _syncChoiceModel(e.target, () => inputHandler(e))();
+            } else {
+              inputHandler(e);
+            }
+          };
+          el.addEventListener("input", choiceInputHandler);
+          addDisposer(el, () => el.removeEventListener("input", choiceInputHandler));
           el.addEventListener("change", inputHandler);
           addDisposer(el, () => el.removeEventListener("change", inputHandler));
           const focusoutHandler = (e) => {
-            if (e.target && e.target.name) {
-              touchedFields.add(e.target.name);
-            }
-            formCtx.touched = true;
+            record("focusout", e.target && e.target.name);
             checkValidity();
           };
           el.addEventListener("focusout", focusoutHandler);
@@ -675,19 +595,17 @@ export function registerValidate(NoJS) {
 
         const submitHandler = (e) => {
           // Mark all fields as touched on submit
-          for (const field of getFields()) {
-            if (field.name) touchedFields.add(field.name);
-          }
-          formCtx.touched = true;
+          record("submit");
           checkValidity();
 
-          if (!formCtx.valid || formCtx.pending) {
+          if (!canSubmit(formCtx)) {
             e.preventDefault();
             e.stopImmediatePropagation();
             return;
           }
 
           // Set submitting before fetch vs native submit branch
+          record("submitting");
           formCtx.submitting = true;
           _updateSubmitButtons(el);
           ctx.$set("$form", { ...formCtx });
@@ -698,6 +616,7 @@ export function registerValidate(NoJS) {
         el.addEventListener("submit", submitHandler, true);
         addDisposer(el, () => el.removeEventListener("submit", submitHandler, true));
         el.__nojsResetSubmitting = () => {
+          record("endSubmit");
           formCtx.submitting = false;
           checkValidity();
         };
@@ -714,15 +633,25 @@ export function registerValidate(NoJS) {
       //  FIELD-LEVEL VALIDATION (standalone, outside form)
       // ═════════════════════════════════════════════════════
       const ctx = _findContext(el);
+      _markBound(el, ctx);
       if (
         rules &&
         (el.tagName === "INPUT" ||
           el.tagName === "TEXTAREA" ||
           el.tagName === "SELECT")
       ) {
-        const errorTpl = el.getAttribute("error");
+        // Inside <form validate> the form path renders the error template
+        // (once, honouring validate-on). This handler keeps only its
+        // v1.21.1 aria-invalid update there.
+        const inForm = !!el.closest("form[validate]");
+        const errorTpl = inForm ? null : el.getAttribute("error");
         const fieldInputHandler = () => {
-          const err = _validateField(el.value, rules, {});
+          // A field its form excludes with validate-if shows no error.
+          if (inForm && !_shouldValidate(el, _findContext(el))) {
+            el.removeAttribute("aria-invalid");
+            return;
+          }
+          const err = validateValue(el.value, rules, {}, _skipsEmpty(el), _getValidators);
           // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
           if (err) {
             el.setAttribute("aria-invalid", "true");
@@ -762,5 +691,7 @@ export function registerValidate(NoJS) {
         addDisposer(el, () => el.removeEventListener("input", fieldInputHandler));
       }
     },
-  });
+  };
+  _validateInit = validateDirective.init;
+  NoJS.directive("validate", validateDirective);
 }

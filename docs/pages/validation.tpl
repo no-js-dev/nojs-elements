@@ -85,6 +85,7 @@
       <tr><td><code>validate</code></td><td>boolean attr</td><td><em>required</em></td><td>Enables form-level validation and creates <code>$form</code> context</td></tr>
       <tr><td><code>validate-on</code></td><td>string</td><td><code>"input focusout"</code></td><td>Space-separated events that trigger validation (form-wide default)</td></tr>
       <tr><td><code>error-class</code></td><td>string</td><td>&mdash;</td><td>CSS class applied to invalid fields (form-wide default)</td></tr>
+      <tr><td><code>validate-empty</code></td><td><code>"check"</code> | <code>"skip"</code></td><td><code>"check"</code></td><td><code>"skip"</code>: an empty value passes <code>min</code>, <code>max</code> and <code>url</code> (form-wide default)</td></tr>
     </tbody>
   </table>
 
@@ -98,8 +99,17 @@
       <tr><td><code>error</code></td><td>string | <code>"#templateId"</code></td><td>&mdash;</td><td>Generic error message or template reference</td></tr>
       <tr><td><code>error-{rule}</code></td><td>string | <code>"#templateId"</code></td><td>&mdash;</td><td>Error message for a specific rule</td></tr>
       <tr><td><code>error-class</code></td><td>string</td><td><em>inherits</em></td><td>CSS class applied when this field is invalid</td></tr>
+      <tr><td><code>validate-empty</code></td><td><code>"check"</code> | <code>"skip"</code></td><td><em>inherits</em></td><td><code>"skip"</code>: an empty value passes <code>min</code>, <code>max</code> and <code>url</code></td></tr>
       <tr><td><code>as</code></td><td>string</td><td>&mdash;</td><td>Expose field state as a named variable in context</td></tr>
       <tr><td><code>name</code></td><td>string</td><td><em>required</em></td><td>Field name, used as key in <code>$form.fields</code>, <code>$form.values</code>, <code>$form.errors</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Submit Button Attributes</h3>
+  <table class="docs-table">
+    <thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>auto-disable</code></td><td><code>"off"</code></td><td><em>automatic</em></td><td><code>"off"</code>: the form does not disable this submit button; its own <code>bind-disabled</code> (if any) decides. The form still blocks an invalid submit and shows every error</td></tr>
     </tbody>
   </table>
 
@@ -115,6 +125,7 @@
       <tr><td><code>custom</code></td><td><code>custom:name</code></td><td>Calls a validator registered via <code>NoJS.validator()</code></td></tr>
     </tbody>
   </table>
+  <p>By default <code>min</code>, <code>max</code> and <code>url</code> also check an empty field (<code>min:1</code> fails it, as in v1.21.1). Set <code>validate-empty="skip"</code> on the form or a field to let an empty value pass them and leave emptiness to <code>required</code>. The default is planned to become <code>skip</code> in the next major version.</p>
 
   <h3><code>$form</code> Context API</h3>
   <table class="docs-table">
@@ -134,7 +145,7 @@
   </table>
 
   <h3>Accessibility</h3>
-  <p>Native browser validation popups are disabled (<code>novalidate</code> is set). Submit buttons are auto-disabled when the form is invalid. The <code>error-class</code> provides visual feedback for assistive technologies.</p>
+  <p>Native browser validation popups are disabled (<code>novalidate</code> is set). Submit buttons are auto-disabled while the form is invalid, pending or submitting; this replaces a <code>bind-disabled</code> on the same button. Add <code>auto-disable="off"</code> to a submit button to manage its disabled state yourself (for example <code>bind-disabled="!$form.valid || !$form.dirty"</code>). The <code>error-class</code> provides visual feedback for assistive technologies.</p>
 
 </section>
 

@@ -142,3 +142,84 @@ test.describe('Stepper', () => {
     await expect(steps.nth(2)).toBeHidden();
   });
 });
+
+test.describe('Stepper $stepper API in bound attributes', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/e2e/examples/stepper-api.html');
+  });
+
+  test('bind-disabled and bind-hidden follow $stepper.isFirst and $stepper.isLast', async ({ page }) => {
+    const back = page.getByTestId('api-back');
+    const cont = page.getByTestId('api-continue');
+    const submit = page.getByTestId('api-submit');
+
+    await expect(page.getByTestId('api-current')).toHaveText('1');
+    await expect(page.getByTestId('api-total')).toHaveText('2');
+    await expect(back).toBeDisabled();
+    await expect(cont).toBeVisible();
+    await expect(submit).toBeHidden();
+
+    await page.getByTestId('api-name').fill('Ada');
+    await cont.click();
+    await expect(page.getByTestId('api-current')).toHaveText('2');
+    await expect(back).toBeEnabled();
+    await expect(cont).toBeHidden();
+    await expect(submit).toBeVisible();
+
+    await back.click();
+    await expect(page.getByTestId('api-current')).toHaveText('1');
+    await expect(back).toBeDisabled();
+    await expect(cont).toBeVisible();
+    await expect(submit).toBeHidden();
+
+    await cont.click();
+    await expect(page.getByTestId('api-submitted')).toBeHidden();
+    await submit.click();
+    await expect(page.getByTestId('api-submitted')).toBeVisible();
+  });
+});
+
+test.describe('Stepper without a state above it', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/e2e/examples/stepper-api.html');
+  });
+
+  const activeStep = (page, stepper: string) =>
+    page.getByTestId(stepper).locator('[step][aria-current="step"]');
+
+  test('the steps read and drive $stepper', async ({ page }) => {
+    await expect(page.getByTestId('bare-current')).toHaveText('1');
+    await expect(page.getByTestId('bare-total')).toHaveText('3');
+
+    await page.getByTestId('bare-next').click();
+    await expect(activeStep(page, 'bare-stepper')).toHaveAttribute('step-label', 'Terms');
+  });
+
+  test('step-validate reads the value a step writes', async ({ page }) => {
+    await page.getByTestId('bare-next').click();
+    await page.getByTestId('bare-terms-next').click();
+    await expect(activeStep(page, 'bare-stepper')).toHaveAttribute('step-label', 'Terms');
+
+    await page.getByTestId('bare-agree').check();
+    await page.getByTestId('bare-terms-next').click();
+    await expect(page.getByTestId('bare-done')).toBeVisible();
+  });
+
+  test('each step form keeps its own stepper-validate gate', async ({ page }) => {
+    const steps = page.getByTestId('forms-stepper').locator('[step]');
+
+    await page.getByTestId('forms-next-1').click();
+    await expect(steps.nth(0)).toHaveAttribute('aria-current', 'step');
+
+    await page.getByTestId('forms-first').fill('a');
+    await page.getByTestId('forms-next-1').click();
+    await expect(steps.nth(1)).toHaveAttribute('aria-current', 'step');
+
+    await page.getByTestId('forms-next-2').click();
+    await expect(steps.nth(1)).toHaveAttribute('aria-current', 'step');
+
+    await page.getByTestId('forms-second').fill('b');
+    await page.getByTestId('forms-next-2').click();
+    await expect(steps.nth(2)).toHaveAttribute('aria-current', 'step');
+  });
+});
