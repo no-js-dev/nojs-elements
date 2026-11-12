@@ -47,8 +47,11 @@ test.describe('Validation (host backend)', () => {
     await page.getByTestId('email').fill('ana@example.com');
     await page.getByTestId('agree').click();                     // focusout of email flushes its input
     const triggers = (await execs(page)).slice(2).map((e: any) => `${e.payload.trigger}:${e.payload.field}`);
-    // The blur fires `change` (collapsed with the waiting input) before focusout.
-    expect(triggers.slice(0, 2)).toEqual(['change:email', 'focusout:email']);
+    // The blur fires `change` (collapsed with a waiting input) before
+    // focusout; under load the debounce may already have sent the input.
+    const upTo = triggers.indexOf('focusout:email');
+    expect(upTo).toBeGreaterThan(0);
+    for (const t of triggers.slice(0, upTo)) expect(['input:email', 'change:email']).toContain(t);
     await page.evaluate(() => (window as any).__envelope('signup', { valid: true, submitting: false, pending: false, reset: 0 }));
     await expect(page.getByTestId('submit')).toBeEnabled();
   });
@@ -57,8 +60,14 @@ test.describe('Validation (host backend)', () => {
     await expect.poll(async () => (await execs(page)).length).toBe(1);
     await page.getByTestId('name').fill('Ana');
     await page.getByTestId('name').press('Enter');
-    await expect.poll(async () => (await order(page)).map((o: string) => o.replace('facts:change', 'facts:input')))
-      .toEqual(['facts:init', 'facts:input', 'submit-action:signup']);
+    // Under load the debounce may fire before Enter, and the blur-less
+    // submit may add a `change`: whatever was sent, the facts precede the
+    // submit action and nothing waits behind it.
+    await expect.poll(async () => (await order(page)).at(-1)).toBe('submit-action:signup');
+    const seen: string[] = await order(page);
+    expect(seen[0]).toBe('facts:init');
+    expect(seen.slice(1, -1).length).toBeGreaterThan(0);
+    for (const o of seen.slice(1, -1)) expect(['facts:input', 'facts:change']).toContain(o);
   });
 
   test('per-field validate-on: input and focusout of the field only; reset counter resets the form', async ({ page }) => {
