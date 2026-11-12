@@ -2,6 +2,7 @@ import NoJS from '../../NoJS/src/index.js';
 import NoJSElements from '../src/index.js';
 import { _validityMap, _rulePriority, resetValidateState } from '../src/validate/state.js';
 import { _internal } from '../src/_compat.js';
+import { registerValidation } from '../src/validate/index.js';
 
 // ─── Install the plugin once before all tests ────────────────────────
 beforeAll(() => {
@@ -1479,5 +1480,75 @@ describe('auto-disable="off"', () => {
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     expect(NoJS.findContext(form).$form.submitting).toBe(true);
     expect(wrapper.querySelector('button').disabled).toBe(false);
+  });
+});
+
+// =======================================================================
+//  Custom validator signatures, as the docs describe them (ELEM-88)
+// =======================================================================
+
+describe('custom validator signatures', () => {
+  const calls = [];
+
+  beforeAll(() => {
+    NoJS.validator('matchPassword', (value, allValues) => {
+      calls.push(['custom', value, allValues]);
+      return value === allValues.password ? null : 'Passwords do not match';
+    });
+    NoJS.validator('sameAs', (value, field, allValues) => {
+      calls.push(['direct', value, field, allValues]);
+      return value === allValues[field] ? null : `Must match ${field}`;
+    });
+    // The validate module reads validators when it registers.
+    registerValidation(NoJS);
+  });
+
+  afterEach(() => {
+    calls.length = 0;
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(rule) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <form validate>
+        <input name="password" value="secret">
+        <input name="confirm" validate="required|${rule}">
+      </form>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const type = (field, value) => {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  test('73 - custom:name calls the validator with (value, allValues)', async () => {
+    const wrapper = await render('custom:matchPassword');
+    const confirm = wrapper.querySelector('[name="confirm"]');
+    const ctx = NoJS.findContext(confirm);
+
+    type(confirm, 'nope');
+    expect(calls.at(-1)).toEqual(['custom', 'nope', { password: 'secret', confirm: 'nope' }]);
+    expect(ctx.$form.errors.confirm).toBe('Passwords do not match');
+    type(confirm, 'secret');
+    expect(ctx.$form.errors.confirm).toBeUndefined();
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('74 - a validator named in the rule gets its arguments before allValues', async () => {
+    const wrapper = await render('sameAs:password');
+    const confirm = wrapper.querySelector('[name="confirm"]');
+    const ctx = NoJS.findContext(confirm);
+
+    type(confirm, 'nope');
+    expect(calls.at(-1)).toEqual(['direct', 'nope', 'password', { password: 'secret', confirm: 'nope' }]);
+    expect(ctx.$form.errors.confirm).toBe('Must match password');
+    type(confirm, 'secret');
+    expect(ctx.$form.valid).toBe(true);
   });
 });
