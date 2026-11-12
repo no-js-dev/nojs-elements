@@ -455,11 +455,16 @@ export function registerValidate(NoJS) {
 
             // Check validate-if
             if (!_shouldValidate(field, ctx)) {
-              // Field excluded from validation
+              // Field excluded from validation: drop the feedback it showed
+              // while it was validated.
               fields[field.name] = {
                 valid: true, dirty: fieldDirty, touched: fieldTouched,
                 error: null, value: values[field.name],
               };
+              field.removeAttribute("aria-invalid");
+              const excludedErrorClass = field.getAttribute("error-class") || errorClassAttr;
+              if (excludedErrorClass) field.classList.remove(...excludedErrorClass.split(/\s+/));
+              _clearErrorTemplate(field);
               continue;
             }
 
@@ -571,6 +576,8 @@ export function registerValidate(NoJS) {
             'button:not([type="button"]), input[type="submit"]'
           );
           for (const btn of buttons) {
+            // auto-disable="off": the button keeps its own disabled state
+            if (btn.getAttribute("auto-disable") === "off") continue;
             // Skip if user has explicit disabled expression
             if (btn.hasAttribute("disabled") && btn.getAttribute("disabled") !== "") {
               const val = btn.getAttribute("disabled");
@@ -661,8 +668,17 @@ export function registerValidate(NoJS) {
             formCtx.dirty = true;
             checkValidity();
           };
-          el.addEventListener("input", inputHandler);
-          addDisposer(el, () => el.removeEventListener("input", inputHandler));
+          // A select/checkbox/radio `model` syncs on "change", after this
+          // "input": sync it first so the re-render keeps the user's pick.
+          const choiceInputHandler = (e) => {
+            if (e.target && _getModelEvent(e.target) === "change") {
+              _syncChoiceModel(e.target, () => inputHandler(e))();
+            } else {
+              inputHandler(e);
+            }
+          };
+          el.addEventListener("input", choiceInputHandler);
+          addDisposer(el, () => el.removeEventListener("input", choiceInputHandler));
           el.addEventListener("change", inputHandler);
           addDisposer(el, () => el.removeEventListener("change", inputHandler));
           const focusoutHandler = (e) => {
@@ -749,8 +765,14 @@ export function registerValidate(NoJS) {
         // Inside <form validate> the form path renders the error template
         // (once, honouring validate-on). This handler keeps only its
         // v1.21.1 aria-invalid update there.
-        const errorTpl = el.closest("form[validate]") ? null : el.getAttribute("error");
+        const inForm = !!el.closest("form[validate]");
+        const errorTpl = inForm ? null : el.getAttribute("error");
         const fieldInputHandler = () => {
+          // A field its form excludes with validate-if shows no error.
+          if (inForm && !_shouldValidate(el, _findContext(el))) {
+            el.removeAttribute("aria-invalid");
+            return;
+          }
           const err = _validateField(el.value, rules, {}, _skipsEmpty(el));
           // ARIA: aria-invalid for screen readers (WCAG 4.1.2)
           if (err) {

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validation forms — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; }
+    .test-label { font-weight: 600; margin: 0 0 0.75rem; color: #555; }
+    label { display: block; margin-bottom: 0.5rem; }
+    .bad, .border-red-500 { outline: 2px solid #b00020; }
+    .text-red-500 { color: #b00020; }
+  </style>
+</head>
+<body>
+
+  <!-- ======== Scenario 1: model choice controls, no validate-on ======== -->
+  <section>
+    <p class="test-label">Test 1: select, checkbox and radio with model in a form without validate-on</p>
+    <form validate state="{ size: 'a', agree: false, color: 'red', name: '' }" data-test="choice-form">
+      <label>Size
+        <select name="size" model="size" validate="required" data-test="choice-size">
+          <option value="">-</option>
+          <option value="a">A</option>
+          <option value="b">B</option>
+        </select>
+      </label>
+      <label><input type="checkbox" name="agree" model="agree" data-test="choice-agree"> Agree</label>
+      <label><input type="radio" name="color" value="red" model="color" data-test="choice-red"> Red</label>
+      <label><input type="radio" name="color" value="blue" model="color" data-test="choice-blue"> Blue</label>
+      <label>Name <input name="name" model="name" validate="required" error-class="bad" data-test="choice-name"></label>
+      <p>State: <span bind="size + '/' + agree + '/' + color + '/' + name" data-test="choice-echo"></span></p>
+      <p>Validated: <span bind="$form.values.size + '/' + $form.values.agree + '/' + $form.values.color + '/' + $form.values.name" data-test="choice-validated"></span></p>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 2: the docs Complete Example ======== -->
+  <section>
+    <p class="test-label">Test 2: validation.md Complete Example</p>
+    <div state="{ showAddress: false }">
+      <form validate error-class="border-red-500" post="/api/register" data-test="complete-form">
+        <h3>Account</h3>
+        <div>
+          <label>Name</label>
+          <input name="name" model="name" validate="required"
+                 error-required="Please enter your name" data-test="complete-name" />
+          <span if="$form.fields.name?.touched && $form.fields.name?.error"
+                bind="$form.fields.name.error" class="text-red-500"></span>
+        </div>
+        <div>
+          <label>Email</label>
+          <input name="email" model="email" type="email" validate="required|email"
+                 error-required="Email is required"
+                 error-email="Please enter a valid email" data-test="complete-email" />
+          <span if="$form.fields.email?.touched && $form.fields.email?.error"
+                bind="$form.fields.email.error" class="text-red-500"></span>
+        </div>
+        <div>
+          <label>Age</label>
+          <input name="age" model="age" type="number" validate="required|min:18|max:120" data-test="complete-age" />
+          <span if="$form.fields.age?.touched && $form.fields.age?.error"
+                bind="$form.fields.age.error" class="text-red-500"></span>
+        </div>
+
+        <h3>Shipping</h3>
+        <label>
+          <input type="checkbox" model="showAddress" name="showAddress" data-test="complete-ship" />
+          Add shipping address
+        </label>
+        <div show="showAddress" data-test="complete-address">
+          <input name="street" model="street" validate="required"
+                 validate-if="showAddress" placeholder="Street" data-test="complete-street" />
+          <input name="city" model="city" validate="required"
+                 validate-if="showAddress" placeholder="City" data-test="complete-city" />
+        </div>
+
+        <div>
+          <p if="$form.firstError" bind="$form.firstError" class="text-red-500"></p>
+          <button type="submit" data-test="complete-submit">Register</button>
+          <button type="button" on:click="$form.reset()">Reset</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ======== Scenario 3: validate-if exclusion clears stale feedback ======== -->
+  <section>
+    <p class="test-label">Test 3: a field excluded by validate-if drops aria-invalid, error-class and error template</p>
+    <div state="{ hasCode: true }">
+      <form validate error-class="bad" data-test="if-form">
+        <label><input type="checkbox" name="hasCode" model="hasCode" data-test="if-toggle"> Has code</label>
+        <input name="code" validate="required" validate-if="hasCode" error="#if-code-err" data-test="if-code">
+        <template id="if-code-err"><span class="text-red-500" bind="$error" data-test="if-code-error"></span></template>
+        <button type="submit" data-test="if-submit">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ======== Scenario 4: submit buttons as the docs show them ======== -->
+  <section>
+    <p class="test-label">Test 4: automatic submit disabling and auto-disable="off"</p>
+    <form validate on:submit.prevent="sent = sent + 1; $form.endSubmit()" state="{ sent: 0, title: 'Draft' }" data-test="btn-form">
+      <input name="title" model="title" validate="required" data-test="btn-title">
+      <span bind="$form.errors.title || ''" data-test="btn-error"></span>
+      <button type="submit" data-test="btn-auto">Save</button>
+      <button type="submit" auto-disable="off" bind-disabled="!$form.valid || !$form.dirty" data-test="btn-changed">Save changes</button>
+      <button type="submit" auto-disable="off" data-test="btn-always">Check</button>
+      <p>Sent: <span bind="sent" data-test="btn-sent"></span></p>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 5: custom validators ======== -->
+  <section>
+    <p class="test-label">Test 5: custom:name gets (value, allValues); name:arg gets (value, arg, allValues)</p>
+    <form validate data-test="match-form">
+      <input name="password" type="password" model="password" data-test="match-password" />
+      <input name="confirmPassword" type="password" validate="required|custom:matchPassword" data-test="match-confirm" />
+      <span bind="$form.errors.confirmPassword || ''" data-test="match-error"></span>
+      <input name="again" type="password" validate="required|sameAs:password" data-test="match-again" />
+      <span bind="$form.errors.again || ''" data-test="match-again-error"></span>
+    </form>
+  </section>
+
+  <!-- ======== Scenario 6: validation.md "Opting Out" examples ======== -->
+  <section>
+    <p class="test-label">Test 6: validation.md auto-disable="off" examples with post</p>
+    <div state="{ name: 'Ada', email: '' }">
+      <form validate post="/api/profile" data-test="optout-profile">
+        <input name="name" model="name" validate="required" data-test="optout-name" />
+
+        <!-- Disabled until the form is valid and changed -->
+        <button type="submit" auto-disable="off"
+                bind-disabled="!$form.valid || !$form.dirty || $form.submitting" data-test="optout-save">Save</button>
+      </form>
+
+      <form validate post="/api/signup" data-test="optout-signup">
+        <input name="email" model="email" validate="required|email" data-test="optout-email" />
+        <span bind="$form.errors.email || ''" data-test="optout-email-error"></span>
+
+        <!-- Always clickable: a click on an invalid form shows every error -->
+        <button type="submit" auto-disable="off" data-test="optout-signup-btn">Sign up</button>
+      </form>
+    </div>
+  </section>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script>
+    NoJS.validator('matchPassword', (value, allValues) => {
+      if (value !== allValues.password) return 'Passwords do not match';
+      return null;
+    });
+    NoJS.validator('sameAs', (value, field, allValues) => {
+      if (value !== allValues[field]) return `Must match ${field}`;
+      return null;
+    });
+  </script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

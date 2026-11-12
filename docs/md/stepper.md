@@ -94,7 +94,7 @@ Each direct child with the `step` attribute defines one step panel.
 Inside any `stepper` container, the `$stepper` object is available in expressions:
 
 ```html
-<div stepper>
+<div stepper state="{ name: '', submitted: false }">
   <div step step-label="Info">
     <h3>Step <span bind="$stepper.current + 1"></span> of <span bind="$stepper.total"></span></h3>
     <input model="name" required />
@@ -105,11 +105,14 @@ Inside any `stepper` container, the `$stepper` object is available in expression
   </div>
 
   <!-- Custom navigation using the API -->
-  <button on:click="$stepper.prev()" disabled="$stepper.isFirst">Back</button>
-  <button on:click="$stepper.next()" hidden="$stepper.isLast">Continue</button>
-  <button on:click="submitForm()" show="$stepper.isLast">Submit</button>
+  <button on:click="$stepper.prev()" bind-disabled="$stepper.isFirst">Back</button>
+  <button on:click="$stepper.next()" bind-hidden="$stepper.isLast">Continue</button>
+  <button on:click="submitted = true" show="$stepper.isLast">Submit</button>
+  <p show="submitted">Submitted!</p>
 </div>
 ```
+
+Bind `disabled` and `hidden` with `bind-disabled` and `bind-hidden`: core does not evaluate a plain `disabled="..."` or `hidden="..."` attribute, so the button would stay disabled or hidden. `$stepper` is set on the stepper's context, so the stepper (or an ancestor) needs a `state`.
 
 ### API Properties
 

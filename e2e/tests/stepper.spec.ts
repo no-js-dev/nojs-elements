@@ -142,3 +142,39 @@ test.describe('Stepper', () => {
     await expect(steps.nth(2)).toBeHidden();
   });
 });
+
+test.describe('Stepper $stepper API in bound attributes', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/e2e/examples/stepper-api.html');
+  });
+
+  test('bind-disabled and bind-hidden follow $stepper.isFirst and $stepper.isLast', async ({ page }) => {
+    const back = page.getByTestId('api-back');
+    const cont = page.getByTestId('api-continue');
+    const submit = page.getByTestId('api-submit');
+
+    await expect(page.getByTestId('api-current')).toHaveText('1');
+    await expect(page.getByTestId('api-total')).toHaveText('2');
+    await expect(back).toBeDisabled();
+    await expect(cont).toBeVisible();
+    await expect(submit).toBeHidden();
+
+    await page.getByTestId('api-name').fill('Ada');
+    await cont.click();
+    await expect(page.getByTestId('api-current')).toHaveText('2');
+    await expect(back).toBeEnabled();
+    await expect(cont).toBeHidden();
+    await expect(submit).toBeVisible();
+
+    await back.click();
+    await expect(page.getByTestId('api-current')).toHaveText('1');
+    await expect(back).toBeDisabled();
+    await expect(cont).toBeVisible();
+    await expect(submit).toBeHidden();
+
+    await cont.click();
+    await expect(page.getByTestId('api-submitted')).toBeHidden();
+    await submit.click();
+    await expect(page.getByTestId('api-submitted')).toBeVisible();
+  });
+});

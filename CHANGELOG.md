@@ -9,14 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- validate: opt-in `auto-disable="off"` on a submit button turns off the automatic disabling for that button, so its own `bind-disabled` decides (for example `bind-disabled="!$form.valid || !$form.dirty"`), or it stays clickable and a click on an invalid form shows every error. The form still blocks an invalid submit. Without the attribute, submit buttons keep the v1.22.0 automatic state
 - validate: opt-in `validate-empty="skip"` on a form or field (the field wins) lets an empty or whitespace-only value pass `min`, `max` and `url`, so an optional field is not rejected while empty; `required` still reports it. The default (`validate-empty="check"`) keeps the v1.21.1 behavior, where `min:1` fails an empty field and `url` fails `""`. The default is planned to become `skip` in the next major version ([`5915bca`](https://github.com/no-js-dev/nojs-elements/commit/5915bca))
 
 ### Fixed
 
+- validate: in a `<form validate>` without `validate-on`, a select, checkbox or radio with `model` keeps the user's pick. The form validated on `input`, before `model` synced on `change`, and the re-render reverted the pick (the Complete Example's `model="showAddress"` checkbox never checked). Text fields keep their validation timing
+- validate: a field excluded by `validate-if` drops the `aria-invalid`, `error-class` and error template it showed while it was validated
 - validate: a field with an error template inside `<form validate>` renders the template once, after the `<template>`, following `validate-on`. The standalone-field handler also ran there on every keystroke and inserted a second copy after the field with only `err` in scope (`$rule + ': ' + $error` showed "undefined: undefined"). That handler still sets `aria-invalid` as in v1.21.1, and form templates now also get `err.message`, so a template that reads it keeps working ([`3bbc878`](https://github.com/no-js-dev/nojs-elements/commit/3bbc878))
 
 ### Documentation
 
+- Validation: examples no longer use a plain `disabled="..."` attribute, which core never evaluates (the button stayed disabled); the auto-disable section documents what the automatic state covers, that it replaces a `bind-disabled` on the same button, and the new `auto-disable="off"` opt-out. The custom-validator example uses the real `(value, allValues)` signature of `custom:name` (the `matchField` example threw), shows `name:arg` for validators that take arguments, says to register validators before the Elements script, and avoids a field named `confirm`, which core expressions cannot read
+- Stepper: the `$stepper` example uses `bind-disabled` / `bind-hidden` instead of plain `disabled` / `hidden` attributes (the buttons stayed disabled and hidden), adds the `state` that `$stepper` needs, and replaces the undefined `submitForm()` call
 - Validation: new "Empty Values (`validate-empty`)" section; error templates list `err.message` and render once per field; the standalone section says a field inside `<form validate>` uses the form's template rendering
 
 ## [1.22.0](https://github.com/no-js-dev/nojs-elements/compare/v1.21.1...v1.22.0) — 2026-11-10

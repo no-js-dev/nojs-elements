@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stepper $stepper API — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+  </style>
+</head>
+<body>
+
+  <!-- stepper.md "$stepper Context API" example -->
+  <div stepper state="{ name: '', submitted: false }" data-test="api-stepper">
+    <div step step-label="Info">
+      <h3>Step <span bind="$stepper.current + 1" data-test="api-current"></span> of <span bind="$stepper.total" data-test="api-total"></span></h3>
+      <input model="name" required data-test="api-name" />
+    </div>
+
+    <div step step-label="Done">
+      <p>All done!</p>
+    </div>
+
+    <!-- Custom navigation using the API -->
+    <button on:click="$stepper.prev()" bind-disabled="$stepper.isFirst" data-test="api-back">Back</button>
+    <button on:click="$stepper.next()" bind-hidden="$stepper.isLast" data-test="api-continue">Continue</button>
+    <button on:click="submitted = true" show="$stepper.isLast" data-test="api-submit">Submit</button>
+    <p show="submitted" data-test="api-submitted">Submitted!</p>
+  </div>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

@@ -27,7 +27,7 @@ NoJS Elements auto-installs itself when loaded via `<script>` tag — no `NoJS.u
 | Element | Directives | Description |
 |---------|-----------|-------------|
 | [Drag & Drop](docs/md/drag-and-drop.md) | `drag`, `drop`, `drag-list`, `drag-multiple` | Declarative drag-and-drop with sortable lists and multi-select |
-| [Form Validation](docs/md/validation.md) | `validate`, `validate-on`, `validate-if`, `validate-empty`, `error-*`, `$form` | Declarative form validation with per-rule errors, async support, and `$form` context |
+| [Form Validation](docs/md/validation.md) | `validate`, `validate-on`, `validate-if`, `validate-empty`, `error-*`, `auto-disable`, `$form` | Declarative form validation with per-rule errors, async support, and `$form` context |
 | [Tooltip](docs/md/tooltip.md) | `tooltip` | Positioned tooltips with configurable delay and placement |
 | [Popover](docs/md/popover.md) | `popover`, `popover-trigger`, `popover-dismiss` | Rich content popovers with trigger and dismiss controls |
 | [Modal](docs/md/modal.md) | `modal`, `modal-open`, `modal-close` | Accessible dialog modals with focus trap and backdrop |

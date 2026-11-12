@@ -105,6 +105,14 @@
     </tbody>
   </table>
 
+  <h3>Submit Button Attributes</h3>
+  <table class="docs-table">
+    <thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>auto-disable</code></td><td><code>"off"</code></td><td><em>automatic</em></td><td><code>"off"</code>: the form does not disable this submit button; its own <code>bind-disabled</code> (if any) decides. The form still blocks an invalid submit and shows every error</td></tr>
+    </tbody>
+  </table>
+
   <h3>Built-in Validators</h3>
   <table class="docs-table">
     <thead><tr><th>Rule</th><th>Arguments</th><th>Description</th></tr></thead>
@@ -137,7 +145,7 @@
   </table>
 
   <h3>Accessibility</h3>
-  <p>Native browser validation popups are disabled (<code>novalidate</code> is set). Submit buttons are auto-disabled when the form is invalid. The <code>error-class</code> provides visual feedback for assistive technologies.</p>
+  <p>Native browser validation popups are disabled (<code>novalidate</code> is set). Submit buttons are auto-disabled while the form is invalid, pending or submitting; this replaces a <code>bind-disabled</code> on the same button. Add <code>auto-disable="off"</code> to a submit button to manage its disabled state yourself (for example <code>bind-disabled="!$form.valid || !$form.dirty"</code>). The <code>error-class</code> provides visual feedback for assistive technologies.</p>
 
 </section>
 
