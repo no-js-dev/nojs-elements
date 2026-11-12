@@ -576,6 +576,8 @@ export function registerValidate(NoJS) {
             'button:not([type="button"]), input[type="submit"]'
           );
           for (const btn of buttons) {
+            // auto-disable="off": the button keeps its own disabled state
+            if (btn.getAttribute("auto-disable") === "off") continue;
             // Skip if user has explicit disabled expression
             if (btn.hasAttribute("disabled") && btn.getAttribute("disabled") !== "") {
               const val = btn.getAttribute("disabled");

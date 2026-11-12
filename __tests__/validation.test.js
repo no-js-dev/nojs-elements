@@ -1361,3 +1361,123 @@ describe('validate-if exclusion', () => {
     expect(code.hasAttribute('aria-invalid')).toBe(false);
   });
 });
+
+// =======================================================================
+//  auto-disable="off" opt-out (ELEM-88)
+// =======================================================================
+
+describe('auto-disable="off"', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+    jest.useRealTimers();
+  });
+
+  function render(html) {
+    jest.useFakeTimers();
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    jest.runAllTimers();
+    return wrapper;
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+  const type = (field, value) => { field.value = value; fire(field, 'input'); };
+
+  test('66 - without it, a submit button with bind-disabled keeps the v1.22.0 automatic state', () => {
+    const wrapper = render(`
+      <form validate state="{ locked: true }">
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" bind-disabled="locked">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    type(wrapper.querySelector('[name="name"]'), 'Bob');
+    expect(btn.disabled).toBe(false);
+  });
+
+  test('67 - a button with auto-disable="off" stays enabled while the form is invalid', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    expect(btn.disabled).toBe(false);
+    type(wrapper.querySelector('[name="name"]'), '');
+    expect(btn.disabled).toBe(false);
+  });
+
+  test('68 - clicking it on an invalid form blocks the submit and reveals every error', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <input name="email" validate="required|email">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const form = wrapper.querySelector('form');
+    const onSubmit = jest.fn();
+    form.addEventListener('submit', onSubmit);
+    const ev = new Event('submit', { bubbles: true, cancelable: true });
+    form.dispatchEvent(ev);
+    const $form = NoJS.findContext(form).$form;
+    expect(ev.defaultPrevented).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect($form.errors).toEqual({ name: 'Required', email: 'Required' });
+    expect(wrapper.querySelector('button').disabled).toBe(false);
+  });
+
+  test('69 - its bind-disabled alone decides: disabled until the form is valid and changed', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" auto-disable="off" bind-disabled="!$form.valid || !$form.dirty">Save</button>
+      </form>`);
+    const btn = wrapper.querySelector('button');
+    const name = wrapper.querySelector('[name="name"]');
+    expect(btn.disabled).toBe(true);
+    type(name, 'Bob');
+    expect(btn.disabled).toBe(false);
+    type(name, '');
+    expect(btn.disabled).toBe(true);
+  });
+
+  test('70 - it applies per button: other submit buttons stay automatic', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="off" data-k="manual">A</button>
+        <button type="submit" data-k="auto">B</button>
+        <input type="submit" auto-disable="off" data-k="input-manual">
+      </form>`);
+    const [manual, auto, inputManual] = ['manual', 'auto', 'input-manual']
+      .map((k) => wrapper.querySelector(`[data-k="${k}"]`));
+    expect(manual.disabled).toBe(false);
+    expect(inputManual.disabled).toBe(false);
+    expect(auto.disabled).toBe(true);
+  });
+
+  test('71 - any other auto-disable value keeps the automatic state', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required">
+        <button type="submit" auto-disable="on">A</button>
+        <button type="submit" auto-disable="">B</button>
+      </form>`);
+    for (const btn of wrapper.querySelectorAll('button')) expect(btn.disabled).toBe(true);
+  });
+
+  test('72 - it does not stop the submit from setting $form.submitting', () => {
+    const wrapper = render(`
+      <form validate>
+        <input name="name" validate="required" value="Ada">
+        <button type="submit" auto-disable="off">Save</button>
+      </form>`);
+    const form = wrapper.querySelector('form');
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    expect(NoJS.findContext(form).$form.submitting).toBe(true);
+    expect(wrapper.querySelector('button').disabled).toBe(false);
+  });
+});
