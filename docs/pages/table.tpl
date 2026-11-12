@@ -68,6 +68,18 @@
     </tbody>
   </table>
 
+  <h3>Row Reorder Attributes</h3>
+  <p>Drag-and-drop row reordering. With <code>each</code>-bound rows the backing array is reordered and <code>each</code> re-renders the rows; static rows are moved in the DOM.</p>
+  <table class="docs-table">
+    <thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>table-reorder</code></td><td>boolean attr</td><td><em>required</em></td><td>Place on <code>&lt;table&gt;</code> to make every <code>&lt;tbody&gt;</code> row draggable. Drop on the top or bottom half of a row to insert before or after it</td></tr>
+      <tr><td><code>table-reorder-handle</code></td><td>CSS selector</td><td>—</td><td>Restricts dragging to a child element of each row (e.g., <code>".grip"</code>)</td></tr>
+      <tr><td><code>table-reorder-drag-class</code></td><td>string</td><td><code>"nojs-row-dragging"</code></td><td>CSS class applied to the row being dragged</td></tr>
+      <tr><td><code>table-reorder-over-class</code></td><td>string</td><td><code>"nojs-row-drag-over"</code></td><td>CSS class removed from every row when the drag ends. The drop position is shown with <code>.nojs-reorder-insert-before</code> and <code>.nojs-reorder-insert-after</code> on the hovered row</td></tr>
+    </tbody>
+  </table>
+
   <h3>Events</h3>
   <table class="docs-table">
     <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
@@ -77,7 +89,7 @@
   </table>
 
   <h3>Accessibility</h3>
-  <p>Adds <code>aria-sort="none"</code> on each sortable <code>&lt;th&gt;</code>, updating to <code>aria-sort="ascending"</code> or <code>aria-sort="descending"</code> as the user sorts. Sortable headers receive <code>cursor: pointer</code> and <code>user-select: none</code>. Only one column can be sorted at a time.</p>
+  <p>Adds <code>aria-sort="none"</code> on each sortable <code>&lt;th&gt;</code>, updating to <code>aria-sort="ascending"</code> or <code>aria-sort="descending"</code> as the user sorts. Sortable headers receive <code>cursor: pointer</code> and <code>user-select: none</code>. Only one column can be sorted at a time. With <code>table-reorder</code>, each body row gets <code>draggable="true"</code> and <code>aria-roledescription="draggable row"</code>.</p>
 
 </section>
 
