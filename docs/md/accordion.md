@@ -95,7 +95,9 @@ Focus moves between `<summary>` elements within the accordion container:
 
 | Event | Bubbles | Detail | Description |
 |-------|---------|--------|-------------|
-| `accordion-change` | Yes | `{ element, open, index }` | Dispatched on the accordion container when a section opens or closes |
+| `nojs:accordion-change` | Yes | `{ element, open, index }` | Dispatched on the accordion container when a section opens or closes |
+
+> Before v1.15.0 this event was named `accordion-change`. The old name is no longer dispatched: replace `on:accordion-change` with `on:nojs:accordion-change`.
 
 ### Event Detail
 
@@ -106,7 +108,7 @@ Focus moves between `<summary>` elements within the accordion container:
 | `index` | number | Zero-based index of the `<details>` among its direct siblings |
 
 ```html
-<div accordion on:accordion-change="console.log($event.detail)">
+<div accordion on:nojs:accordion-change="console.log($event.detail)">
   <details>
     <summary>Section A</summary>
     <p>Content A</p>
@@ -255,7 +257,7 @@ With NoJS:
 - Single/multi mode enforcement
 - Smooth animated transitions
 - Keyboard navigation between summaries
-- `accordion-change` events
+- `nojs:accordion-change` events
 
 ---
 
@@ -267,7 +269,7 @@ With NoJS:
 
 | Event | Detail | Description |
 |-------|--------|-------------|
-| `accordion-change` | `{ element, open, index }` | Fired when a section opens or closes |
+| `nojs:accordion-change` | `{ element, open, index }` | Fired when a section opens or closes |
 
 | CSS Custom Property | Default | Description |
 |---------------------|---------|-------------|

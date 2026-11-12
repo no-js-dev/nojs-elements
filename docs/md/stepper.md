@@ -157,7 +157,7 @@ Listen with `on:` followed by the full event name, on the stepper or on an eleme
 
 While it sets up, the stepper also dispatches a `nojs:stepper-change` for the starting step that does not bubble. It fires before `on:` listeners on the stepper are attached, so `on:nojs:stepper-change` sees only the changes that follow.
 
-> Before v1.15.0 these events were named `step-change` and `step-complete`. v1.15.0 renamed every NoJS Elements event to the `nojs:<element>-<action>` form, and the old names are no longer dispatched: replace `on:step-change` with `on:nojs:stepper-change` and `on:step-complete` with `on:nojs:stepper-complete`.
+> Before v1.15.0 these events were named `step-change` and `step-complete`. v1.15.0 renamed the accordion, drag-and-drop and stepper events to the `nojs:<element>-<action>` form, and the old names are no longer dispatched: replace `on:step-change` with `on:nojs:stepper-change` and `on:step-complete` with `on:nojs:stepper-complete`.
 
 ---
 
