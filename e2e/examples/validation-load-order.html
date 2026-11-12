@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Validation load order — NoJS Elements E2E</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+
+  <!-- No state anywhere above the form -->
+  <section>
+    <form validate>
+      <input name="email" type="email" validate="required|email" data-test="bare-email" />
+      <span bind="$form.errorCount" data-test="bare-count"></span>
+      <div if="$form.errors.email" data-test="bare-box">
+        <p data-test="bare-message">Enter a valid email address</p>
+      </div>
+    </form>
+  </section>
+
+  <!-- state on an ancestor -->
+  <section state="{ sent: false }">
+    <form validate on:submit.prevent="sent = true">
+      <input name="email" type="email" validate="required|email" data-test="outer-email" />
+      <div if="$form.errors.email" data-test="outer-box">
+        <p data-test="outer-message">Enter a valid email address</p>
+      </div>
+      <button type="submit" data-test="outer-submit">Send</button>
+    </form>
+    <p show="sent" data-test="outer-sent">Sent</p>
+  </section>
+
+  <!-- state on the form itself -->
+  <section>
+    <form validate state="{ sent: false }" on:submit.prevent="sent = true">
+      <input name="email" type="email" validate="required|email" data-test="own-email" />
+      <div if="$form.errors.email" data-test="own-box">
+        <p data-test="own-message">Enter a valid email address</p>
+      </div>
+      <button type="submit" data-test="own-submit">Send</button>
+      <p show="sent" data-test="own-sent">Sent</p>
+    </form>
+  </section>
+
+  <p data-test="ready" hidden>ready</p>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script>
+    // ?order=late injects the Elements script after core has initialized the
+    // page; ?order=async adds it as an async script. Default: a plain script
+    // tag right after core.
+    (function () {
+      var order = new URLSearchParams(location.search).get('order') || 'sync';
+      var src = '../../dist/iife/nojs-elements.js';
+      function ready() {
+        var poll = setInterval(function () {
+          if (window.NoJSElements && document.querySelectorAll('form[novalidate]').length === 3) {
+            clearInterval(poll);
+            document.querySelector('[data-test="ready"]').hidden = false;
+          }
+        }, 20);
+      }
+      if (order === 'sync') {
+        document.write('<script src="' + src + '"><\/script>');
+        ready();
+      } else if (order === 'async') {
+        var s = document.createElement('script');
+        s.src = src;
+        s.async = true;
+        document.head.appendChild(s);
+        ready();
+      } else {
+        window.addEventListener('load', function () {
+          NoJS.init().then(function () {
+            var s = document.createElement('script');
+            s.src = src;
+            document.head.appendChild(s);
+            ready();
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -24,6 +24,7 @@ let _disposeChildren;
 let _disposeTree;
 let _warn;
 let _execStatement;
+let _validateInit = null;
 
 // ── Reset the __declared marker so processTree re-processes a subtree ──
 // Mirrors core's dom._clearDeclared (not exposed on internals). On a fresh
@@ -346,6 +347,56 @@ function _bindFormContext(formEl) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+//  Re-bind a node core bound against its validate stub
+// ═══════════════════════════════════════════════════════════════════════
+
+// The one disposer core's stub registers: `() => form.removeEventListener(
+// "submit", handler)`. Matches the source and the minified build.
+const STUB_SUBMIT_DISPOSER =
+  /^\(\)\s*=>\s*[\w$]+\.removeEventListener\(\s*(["'])submit\1\s*,\s*[\w$]+\s*\)$/;
+
+// The stub's $form.fields returns one frozen default for any key.
+function _isStubForm($form) {
+  const fields = $form && $form.fields;
+  if (!fields) return false;
+  const probe = fields["__nojsStubProbe"];
+  return !!probe && Object.isFrozen(probe);
+}
+
+// Elements loaded after core processed the page: core bound this node against
+// its stub. When the node's subtree shares the context the stub wrote to (a
+// `state` on the node or above it), drop the stub's submit listener and run
+// the real directive on this node only. Its subtree stays bound, so an `if` or
+// `each` inside keeps its content and `state` keeps its values. Returns false
+// when the caller must re-process the subtree instead.
+export function rebindFromStub(el) {
+  if (!_validateInit || el.__nojsElBoundCtx !== undefined) return false;
+  let owner = el;
+  while (owner && !owner.__ctx) owner = owner.parentElement;
+  if (!owner || (owner !== el && _ownsContext(owner))) return false;
+
+  if (el.tagName === "FORM" || el.closest("form")) {
+    const disposers = el.__disposers || [];
+    let i = disposers.length - 1;
+    while (i >= 0 && !STUB_SUBMIT_DISPOSER.test(Function.prototype.toString.call(disposers[i]).trim())) i--;
+    if (i < 0) return false;
+    disposers.splice(i, 1)[0]();
+  }
+
+  if (el.tagName !== "FORM" && !el.closest("form[validate]")) {
+    const ctx = _findContext(el);
+    if (_isStubForm(ctx.$form)) delete ctx.$form;
+  }
+
+  try {
+    _validateInit(el, "validate", el.getAttribute("validate"));
+  } catch (e) {
+    _warn(`directive "validate" init error on <${el.tagName.toLowerCase()}>:`, e);
+  }
+  return true;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 //  Registration
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -372,7 +423,7 @@ export function registerValidate(NoJS) {
     _warn('[nojs-elements] core too old (<1.13.0): cannot remove "validate" stub; update NoJS core to 1.13.0+.');
   }
 
-  NoJS.directive("validate", {
+  const validateDirective = {
     priority: 30,
     init(el, name, rules) {
       // ═════════════════════════════════════════════════════
@@ -833,5 +884,7 @@ export function registerValidate(NoJS) {
         addDisposer(el, () => el.removeEventListener("input", fieldInputHandler));
       }
     },
-  });
+  };
+  _validateInit = validateDirective.init;
+  NoJS.directive("validate", validateDirective);
 }
