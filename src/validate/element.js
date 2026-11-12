@@ -661,8 +661,17 @@ export function registerValidate(NoJS) {
             formCtx.dirty = true;
             checkValidity();
           };
-          el.addEventListener("input", inputHandler);
-          addDisposer(el, () => el.removeEventListener("input", inputHandler));
+          // A select/checkbox/radio `model` syncs on "change", after this
+          // "input": sync it first so the re-render keeps the user's pick.
+          const choiceInputHandler = (e) => {
+            if (e.target && _getModelEvent(e.target) === "change") {
+              _syncChoiceModel(e.target, () => inputHandler(e))();
+            } else {
+              inputHandler(e);
+            }
+          };
+          el.addEventListener("input", choiceInputHandler);
+          addDisposer(el, () => el.removeEventListener("input", choiceInputHandler));
           el.addEventListener("change", inputHandler);
           addDisposer(el, () => el.removeEventListener("change", inputHandler));
           const focusoutHandler = (e) => {

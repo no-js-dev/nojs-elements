@@ -1083,3 +1083,168 @@ describe('model with validate-on', () => {
     expect(model.value).toBe('');
   });
 });
+
+// =======================================================================
+//  FORMS WITHOUT validate-on: model choice controls (ELEM-86)
+// =======================================================================
+
+describe('model choice controls in a form without validate-on', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper.querySelector('form');
+  }
+
+  const fire = (field, type) => field.dispatchEvent(new Event(type, { bubbles: true }));
+
+  const choiceForm = `
+    <form validate state="{ size: 'a', agree: false, color: 'red', name: '' }">
+      <select name="size" model="size" validate="required">
+        <option value="">-</option><option value="a">A</option><option value="b">B</option>
+      </select>
+      <input name="agree" type="checkbox" model="agree">
+      <input type="radio" name="color" value="red" model="color">
+      <input type="radio" name="color" value="blue" model="color">
+      <input name="name" model="name" validate="required">
+    </form>`;
+
+  test('54 - a picked model select keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const select = form.querySelector('select');
+    const ctx = NoJS.findContext(form);
+
+    select.value = 'b';
+    fire(select, 'input');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    fire(select, 'change');
+    expect(select.value).toBe('b');
+    expect(ctx.size).toBe('b');
+    expect(ctx.$form.values.size).toBe('b');
+    expect(ctx.$form.fields.size.dirty).toBe(true);
+  });
+
+  test('55 - a clicked model checkbox keeps the check and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(ctx.agree).toBe(true);
+    expect(ctx.$form.values.agree).toBe(true);
+    box.click();
+    expect(box.checked).toBe(false);
+    expect(ctx.agree).toBe(false);
+    expect(ctx.$form.values.agree).toBe(false);
+  });
+
+  test('56 - a clicked model radio keeps the pick and syncs the model', async () => {
+    const form = await render(choiceForm);
+    const red = form.querySelector('[value="red"]');
+    const blue = form.querySelector('[value="blue"]');
+    const ctx = NoJS.findContext(form);
+
+    blue.click();
+    expect(blue.checked).toBe(true);
+    expect(red.checked).toBe(false);
+    expect(ctx.color).toBe('blue');
+    expect(ctx.$form.values.color).toBe('blue');
+  });
+
+  test('57 - an input on an unchecked radio leaves the model alone', async () => {
+    const form = await render(choiceForm);
+    const ctx = NoJS.findContext(form);
+
+    fire(form.querySelector('[value="blue"]'), 'input');
+    expect(ctx.color).toBe('red');
+    expect(form.querySelector('[value="red"]').checked).toBe(true);
+  });
+
+  test('58 - an if-gated model checkbox is left alone, as core leaves it', async () => {
+    const form = await render(`
+      <form validate state="{ agree: false, on: false }">
+        <input name="agree" type="checkbox" model="agree" if="on">
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.checked = true;
+    fire(box, 'input');
+    expect(ctx.agree).toBe(false);
+    expect(ctx.$form.values.agree).toBe(true);
+  });
+
+  test('59 - text fields keep their v1.21.1 timing: one validation per input and per change', async () => {
+    const form = await render(`
+      <form validate error-class="bad" state="{ name: '' }">
+        <input name="name" model="name" validate="required">
+      </form>`);
+    const name = form.querySelector('[name="name"]');
+    const ctx = NoJS.findContext(form);
+    const add = jest.spyOn(name.classList, 'add');
+    const remove = jest.spyOn(name.classList, 'remove');
+    const runs = () => [...add.mock.calls, ...remove.mock.calls].filter(([c]) => c === 'bad').length;
+
+    name.value = 'Ada';
+    fire(name, 'input');
+    expect(runs()).toBe(1);
+    expect(ctx.name).toBe('Ada');
+    expect(ctx.$form.values.name).toBe('Ada');
+    fire(name, 'change');
+    expect(runs()).toBe(2);
+
+    name.value = '';
+    fire(name, 'input');
+    expect(runs()).toBe(3);
+    expect(ctx.$form.errors.name).toBe('Required');
+    expect(name.getAttribute('aria-invalid')).toBe('true');
+    add.mockRestore();
+    remove.mockRestore();
+  });
+
+  test('60 - a checkbox without model still validates on click, as in v1.21.1', async () => {
+    const form = await render(`
+      <form validate>
+        <input name="agree" type="checkbox" validate="required" required>
+      </form>`);
+    const box = form.querySelector('[name="agree"]');
+    const ctx = NoJS.findContext(form);
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(ctx.$form.values.agree).toBe(true);
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('61 - the docs Complete Example: a model checkbox toggles the if-gated address field', async () => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <div state="{ showAddress: false }">
+        <form validate>
+          <input name="name" validate="required" />
+          <label><input type="checkbox" name="hasAddress" model="showAddress" /> Add address</label>
+          <div if="showAddress">
+            <input name="street" validate="required" />
+          </div>
+        </form>
+      </div>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    const box = wrapper.querySelector('[name="hasAddress"]');
+
+    box.click();
+    expect(box.checked).toBe(true);
+    expect(NoJS.findContext(box).showAddress).toBe(true);
+    expect(wrapper.querySelector('[name="street"]')).not.toBeNull();
+  });
+});
