@@ -112,7 +112,7 @@ Inside any `stepper` container, the `$stepper` object is available in expression
 </div>
 ```
 
-Bind `disabled` and `hidden` with `bind-disabled` and `bind-hidden`: core does not evaluate a plain `disabled="..."` or `hidden="..."` attribute, so the button would stay disabled or hidden. `$stepper` is set on the stepper's context, so the stepper (or an ancestor) needs a `state`.
+Bind `disabled` and `hidden` with `bind-disabled` and `bind-hidden`: core does not evaluate a plain `disabled="..."` or `hidden="..."` attribute, so the button would stay disabled or hidden. `$stepper` is set on the context of the nearest `state` around the stepper. Without one, the stepper keeps a context of its own, which its steps share; a `<form validate>` inside a step still keeps its own `$form`.
 
 ### API Properties
 

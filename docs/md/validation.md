@@ -318,11 +318,13 @@ Use the `as` attribute to expose a field's validation state as a named variable.
 </form>
 ```
 
+A field excluded by `validate-if` sets its `as` variable to the valid state (`valid: true`, `error: null`), like its entry in `$form.fields`.
+
 ---
 
 ## Custom Validators
 
-Register custom validation functions via `NoJS.validator()`. This API remains in NoJS Core and works with the Elements validation module. Register them before the Elements script loads (or before `NoJS.use(NoJSElements)`): the validation module reads the registered validators when it installs, so a validator registered later is not called.
+Register custom validation functions via `NoJS.validator()`. This API remains in NoJS Core and works with the Elements validation module. A field reads the registered validators each time it validates, so you can register them before or after the Elements script (or `NoJS.use(NoJSElements)`). Registering the same name again replaces the validator from the next validation on.
 
 ```html
 <script src="https://cdn.no-js.dev/"></script>
@@ -333,12 +335,15 @@ Register custom validation functions via `NoJS.validator()`. This API remains in
     return null; // null = valid
   });
 
+</script>
+<script src="https://cdn-elements.no-js.dev/"></script>
+<script>
+  // After the Elements script works too
   NoJS.validator('matchPassword', (value, allValues) => {
     if (value !== allValues.password) return 'Passwords do not match';
     return null;
   });
 </script>
-<script src="https://cdn-elements.no-js.dev/"></script>
 
 <form validate>
   <input name="phone" validate="required|custom:phone" />
