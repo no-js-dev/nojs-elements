@@ -42,7 +42,7 @@
     "prepare": "node scripts/version.mjs install"
   },
   "devDependencies": {
-    "@babel/core": "^8.0.7",
+    "@babel/core": "^8.1.0",
     "@babel/preset-env": "^8.0.7",
     "@playwright/test": "^1.64.0",
     "@testing-library/jest-dom": "^7.0.1",
