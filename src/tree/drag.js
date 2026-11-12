@@ -351,6 +351,10 @@ export function registerTreeDragMode(NoJS) {
       // ── dragend (delegated) ───────────────────────────────────────
       const dragendHandler = (e) => {
         const item = _findTreeItem(e.target);
+        // The drop handler clears the drag state before dragend fires, so a
+        // completed drop is recognised by the class set in dragstart.
+        const node = _treeDragState.dragging?.el
+          || (item?.classList.contains("nojs-dragging") ? item : null);
         if (item) {
           item.classList.remove("nojs-dragging");
         }
@@ -359,11 +363,11 @@ export function registerTreeDragMode(NoJS) {
         _removeIndicator();
         _enterDepth = 0;
 
-        if (_treeDragState.dragging) {
-          _treeDragState.dragging.el.dispatchEvent(
+        if (node) {
+          node.dispatchEvent(
             new CustomEvent("tree:drag-end", {
               bubbles: true,
-              detail: { node: _treeDragState.dragging.el },
+              detail: { node },
             })
           );
         }
@@ -394,9 +398,17 @@ export function registerTreeDragMode(NoJS) {
       // Make all existing treeitems draggable
       _makeTreeItemsDraggable(el);
 
-      // Observe for dynamically added treeitems
+      // Observe for dynamically added treeitems, and for items that get
+      // role="treeitem" after this directive ran: with static markup the
+      // branch and subtree directives (priority 16) set the role later.
       const observer = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
+          if (mutation.type === "attributes") {
+            if (mutation.target.getAttribute("role") === "treeitem") {
+              _applyDraggable(mutation.target);
+            }
+            continue;
+          }
           for (const node of mutation.addedNodes) {
             if (node.nodeType !== 1) continue;
             if (node.getAttribute("role") === "treeitem") {
@@ -410,7 +422,7 @@ export function registerTreeDragMode(NoJS) {
           }
         }
       });
-      observer.observe(el, { childList: true, subtree: true });
+      observer.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["role"] });
       addDisposer(el, () => observer.disconnect());
     },
   });
