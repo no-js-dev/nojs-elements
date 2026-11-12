@@ -105,6 +105,19 @@
     </tbody>
   </table>
 
+  <h3>Drag &amp; Drop Events</h3>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th><code>$event.detail</code></th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>on:nojs:dnd-start</code></td><td>Yes</td><td><code>{ item, index, el }</code></td><td>Fired on the <code>[drag]</code> element when a drag begins</td></tr>
+      <tr><td><code>on:nojs:dnd-end</code></td><td>Yes</td><td><code>{ item, index, dropped }</code></td><td>Fired on the <code>[drag]</code> element when the drag ends. <code>dropped</code> is <code>true</code> if the item was dropped</td></tr>
+      <tr><td><code>on:nojs:dnd-enter</code></td><td>No</td><td><code>{ item, type }</code></td><td>Fired on the <code>[drop]</code> zone when a valid draggable enters it</td></tr>
+      <tr><td><code>on:nojs:dnd-leave</code></td><td>No</td><td><code>{ item }</code></td><td>Fired on the <code>[drop]</code> zone when the draggable leaves</td></tr>
+      <tr><td><code>on:nojs:dnd-over</code></td><td>No</td><td><code>{ item, index }</code></td><td>Fired on a sortable <code>[drop]</code> zone as the item moves over it. <code>index</code> is the current insertion position</td></tr>
+      <tr><td><code>on:nojs:dnd-drop</code></td><td>No</td><td><code>{ item, index, source, target, effect }</code></td><td>Fired on the <code>[drop]</code> zone after the drop expression runs. <code>source</code> and <code>target</code> are <code>{ list, index, el }</code></td></tr>
+    </tbody>
+  </table>
+
   <h3>Drag-List Attributes</h3>
   <table class="docs-table">
     <thead><tr><th>Attribute</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>

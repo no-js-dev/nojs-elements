@@ -68,6 +68,14 @@
     </tbody>
   </table>
 
+  <h3>Events</h3>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>table:reorder</code></td><td>Yes</td><td><code>{ from, to, item }</code></td><td>Dispatched on a <code>table-reorder</code> table after a row is moved. <code>from</code> and <code>to</code> are array indices, <code>item</code> is the moved data object. Listen with <code>on:table:reorder</code></td></tr>
+    </tbody>
+  </table>
+
   <h3>Accessibility</h3>
   <p>Adds <code>aria-sort="none"</code> on each sortable <code>&lt;th&gt;</code>, updating to <code>aria-sort="ascending"</code> or <code>aria-sort="descending"</code> as the user sorts. Sortable headers receive <code>cursor: pointer</code> and <code>user-select: none</code>. Only one column can be sorted at a time.</p>
 

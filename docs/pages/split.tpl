@@ -75,6 +75,15 @@
     </tbody>
   </table>
 
+  <h3>Events</h3>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>split-resize</code></td><td>Yes</td><td><code>{ prevPane, nextPane }</code></td><td>Dispatched on the split container when a gutter drag ends. Listen with <code>on:split-resize</code></td></tr>
+      <tr><td><code>split-collapse</code></td><td>Yes</td><td><code>{ pane, collapsed }</code></td><td>Dispatched on the split container when a double-click on a gutter collapses or expands a <code>pane-collapsible</code> pane. Listen with <code>on:split-collapse</code></td></tr>
+    </tbody>
+  </table>
+
   <h3>Accessibility</h3>
   <p>Adds <code>role="separator"</code>, <code>aria-orientation</code>, <code>aria-valuenow</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>, and <code>aria-label="Resize"</code> on each gutter. Gutters are focusable (<code>tabindex="0"</code>) and support keyboard navigation: <code>Arrow</code> keys resize by 10px, <code>Home</code>/<code>End</code> collapse or expand to limits.</p>
 
