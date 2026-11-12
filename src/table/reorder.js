@@ -145,7 +145,10 @@ export function registerTableReorder(NoJS) {
             dragClass.split(/\s+/).filter(Boolean).forEach((c) => row.classList.add(c));
           };
 
-          // ── dragover ──────────────────────────────────────────────
+          // ── dragover / dragenter ──────────────────────────────────
+          // Also bound to dragenter: WebKit only drops on an element whose
+          // dragenter or dragover was cancelled, and a release on the first
+          // pointer position inside a row fires no dragover at all.
           const dragoverHandler = (e) => {
             if (_dragSourceRow == null) return;
             e.preventDefault();
@@ -253,6 +256,7 @@ export function registerTableReorder(NoJS) {
 
           row.addEventListener("dragstart", dragstartHandler);
           row.addEventListener("dragover", dragoverHandler);
+          row.addEventListener("dragenter", dragoverHandler);
           row.addEventListener("dragleave", dragleaveHandler);
           row.addEventListener("drop", dropHandler);
           row.addEventListener("dragend", dragendHandler);
@@ -260,6 +264,7 @@ export function registerTableReorder(NoJS) {
           addDisposer(row, () => {
             row.removeEventListener("dragstart", dragstartHandler);
             row.removeEventListener("dragover", dragoverHandler);
+            row.removeEventListener("dragenter", dragoverHandler);
             row.removeEventListener("dragleave", dragleaveHandler);
             row.removeEventListener("drop", dropHandler);
             row.removeEventListener("dragend", dragendHandler);
@@ -293,7 +298,8 @@ export function registerTableReorder(NoJS) {
         }
       }
 
-      // Also handle drops on the tbody itself (for dropping at the end)
+      // Also handle drops on the tbody itself (for dropping at the end).
+      // Bound to dragover and dragenter, like the rows.
       const tbodyDragoverHandler = (e) => {
         if (_dragSourceRow == null) return;
         e.preventDefault();
@@ -343,6 +349,7 @@ export function registerTableReorder(NoJS) {
       };
 
       tbody.addEventListener("dragover", tbodyDragoverHandler);
+      tbody.addEventListener("dragenter", tbodyDragoverHandler);
       tbody.addEventListener("drop", tbodyDropHandler);
 
       // Observe tbody for new rows (reactive re-renders add new <tr> elements)
@@ -358,6 +365,7 @@ export function registerTableReorder(NoJS) {
       addDisposer(el, () => {
         observer.disconnect();
         tbody.removeEventListener("dragover", tbodyDragoverHandler);
+        tbody.removeEventListener("dragenter", tbodyDragoverHandler);
         tbody.removeEventListener("drop", tbodyDropHandler);
         _cleanup();
       });

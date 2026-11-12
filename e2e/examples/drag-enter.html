@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Drop on enter — NoJS Elements E2E</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: sans-serif; margin: 2rem; color: #333; }
+    section { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; }
+    .test-label { font-weight: 600; margin: 0 0 0.75rem; color: #555; }
+    .columns { display: flex; gap: 1rem; }
+    .column { flex: 1; }
+    .zone { min-height: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; display: flex; flex-direction: column; gap: 4px; }
+    .item { padding: 0.5rem; background: #f5f5f5; border: 1px solid #ddd; border-radius: 3px; cursor: grab; }
+    [tree] li { padding: 8px 0; }
+    td { padding: 8px 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- A release on the first pointer position inside a valid target drops there in every engine -->
+
+  <section data-test="tree-section">
+    <p class="test-label">tree-drag-mode="reorder"</p>
+    <div state="{ log: [] }">
+      <ul tree tree-drag-mode="reorder" data-test="tree"
+          on:tree:reorder="log = [...log, 'reorder:' + $event.detail.node.id + '@' + $event.detail.newIndex]"
+          on:tree:reparent="log = [...log, 'reparent:' + $event.detail.node.id + '>' + $event.detail.newParent.id]">
+        <li branch="expanded" id="t-1">Item 1 <ul subtree><li id="t-1a">Child 1a</li></ul></li>
+        <li branch id="t-2">Item 2</li>
+        <li branch id="t-3">Item 3</li>
+      </ul>
+      <p data-test="tree-log" bind="log.join(' ')"></p>
+    </div>
+  </section>
+
+  <section data-test="table-section">
+    <p class="test-label">table-reorder</p>
+    <div state="{ rows: [{ id: 1, name: 'Row 1' }, { id: 2, name: 'Row 2' }, { id: 3, name: 'Row 3' }], log: [] }">
+      <table table-reorder data-test="table"
+             on:table:reorder="log = [...log, 'reorder:' + $event.detail.from + '>' + $event.detail.to]">
+        <tbody>
+          <tr each="row in rows" key="row.id" bind-id="'r-' + row.id"><td bind="row.name"></td></tr>
+        </tbody>
+      </table>
+      <p data-test="table-log" bind="log.join(' ')"></p>
+    </div>
+  </section>
+
+  <section data-test="drop-section">
+    <p class="test-label">drag / drop</p>
+    <div state="{ accepted: [], rejected: [] }">
+      <div class="columns">
+        <div class="column">
+          <div class="item" id="d-task" drag="'task'" drag-type="task">Task</div>
+        </div>
+        <div class="column">
+          <div class="zone" id="drop-task" data-test="drop-task" drop="accepted = [...accepted, $drag]" drop-accept="task">Accepts task</div>
+        </div>
+        <div class="column">
+          <div class="zone" id="drop-file" data-test="drop-file" drop="rejected = [...rejected, $drag]" drop-accept="file">Accepts file</div>
+        </div>
+      </div>
+      <p data-test="drop-accepted" bind="accepted.join(',')"></p>
+      <p data-test="drop-rejected" bind="rejected.join(',')"></p>
+    </div>
+  </section>
+
+  <section data-test="list-section">
+    <p class="test-label">drag-list</p>
+    <div state="{ source: [{ id: 1, name: 'Alpha' }], target: [], files: [] }">
+      <div class="columns">
+        <div class="column">
+          <div class="zone" id="list-source" data-test="list-source"
+               drag-list="source" template="item-tpl" drag-list-key="id"
+               drag-type="task" drop-accept="task" drop-sort="vertical" drag-list-remove></div>
+        </div>
+        <div class="column">
+          <div class="zone" id="list-target" data-test="list-target"
+               drag-list="target" template="item-tpl" drag-list-key="id"
+               drag-type="task" drop-accept="task" drop-sort="vertical" drag-list-remove></div>
+        </div>
+        <div class="column">
+          <div class="zone" id="list-files" data-test="list-files"
+               drag-list="files" template="item-tpl" drag-list-key="id"
+               drag-type="file" drop-accept="file" drop-sort="vertical" drag-list-remove></div>
+        </div>
+      </div>
+      <p data-test="list-counts" bind="source.length + ',' + target.length + ',' + files.length"></p>
+    </div>
+  </section>
+
+  <template id="item-tpl">
+    <div class="item" bind="item.name"></div>
+  </template>
+
+  <script src="../../NoJS/dist/iife/no.js"></script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+</body>
+</html>

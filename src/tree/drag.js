@@ -183,6 +183,10 @@ export function registerTreeDragMode(NoJS) {
       };
 
       // ── dragover (delegated) ──────────────────────────────────────
+      // Accepts the drop on a valid target and tracks the drop position.
+      // Shared with dragenter: WebKit only drops on an element whose
+      // dragenter or dragover was cancelled, and a release on the first
+      // pointer position inside a target fires no dragover at all.
       const dragoverHandler = (e) => {
         if (!_treeDragState.dragging) return;
         if (_treeDragState.dragging.treeRoot !== el) return;
@@ -222,6 +226,7 @@ export function registerTreeDragMode(NoJS) {
         if (!_treeDragState.dragging) return;
         if (_treeDragState.dragging.treeRoot !== el) return;
         _enterDepth++;
+        dragoverHandler(e);
       };
 
       // ── dragleave (delegated) ─────────────────────────────────────
