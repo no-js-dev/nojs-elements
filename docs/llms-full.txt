@@ -2191,7 +2191,7 @@ The tree drag system prevents invalid operations:
 
 ### Interaction with Dynamic Trees
 
-When using `each` to render tree items dynamically, the drag system automatically detects new tree items via a `MutationObserver` and makes them draggable. No manual re-initialization is needed.
+Every tree item is made draggable, whether it is written in the HTML or rendered later. Static `<li branch>` items and subtree leaves become draggable when the tree directives give them `role="treeitem"`, and items that `each` renders or that are added after load are detected by a `MutationObserver`. No manual re-initialization is needed.
 
 ---
 

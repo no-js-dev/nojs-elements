@@ -143,17 +143,14 @@ describe('Element docs name the dispatched events', () => {
     const own = dispatched[element];
 
     test.each([
-      [md, () => read(md)],
-      ['docs/llms-full.txt § ' + llms, () => llmsSection(llms)],
-    ])('%s documents exactly the dispatched events', (file, text) => {
-      const names = mdTableEvents(text());
+      [md, () => mdTableEvents(read(md))],
+      ['docs/llms-full.txt § ' + llms, () => mdTableEvents(llmsSection(llms))],
+      [tpl, () => tplTableEvents(read(tpl))],
+    ])('%s documents exactly the dispatched events', (file, tableEvents) => {
+      const names = tableEvents();
       expectAllDispatched(file, names, own);
       const missing = [...own].filter((n) => !names.includes(n));
       expect([file, missing]).toEqual([file, []]);
-    });
-
-    test(`${tpl} names only dispatched events`, () => {
-      expectAllDispatched(tpl, tplTableEvents(read(tpl)), own);
     });
   });
 

@@ -41,6 +41,18 @@
     </tbody>
   </table>
 
+  <h3>Events</h3>
+  <p>Dispatched by trees with <code>tree-drag-mode="reparent"</code>, <code>"reorder"</code> or <code>"both"</code>.</p>
+  <table class="docs-table">
+    <thead><tr><th>Event</th><th>Bubbles</th><th>Detail</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>tree:drag-start</code></td><td>Yes</td><td><code>{ node }</code></td><td>Dispatched on the tree item when a drag begins. Listen with <code>on:tree:drag-start</code></td></tr>
+      <tr><td><code>tree:drag-end</code></td><td>Yes</td><td><code>{ node }</code></td><td>Dispatched on the tree item when the drag ends, after a drop or a cancel</td></tr>
+      <tr><td><code>tree:reparent</code></td><td>Yes</td><td><code>{ node, newParent }</code></td><td>Dispatched on the tree root when a node is dropped onto another node</td></tr>
+      <tr><td><code>tree:reorder</code></td><td>Yes</td><td><code>{ node, newIndex }</code></td><td>Dispatched on the tree root when a node is moved before or after a sibling</td></tr>
+    </tbody>
+  </table>
+
   <h3>Keyboard Navigation</h3>
   <table class="docs-table">
     <thead><tr><th>Key</th><th>Action</th></tr></thead>

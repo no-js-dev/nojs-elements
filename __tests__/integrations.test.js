@@ -303,6 +303,118 @@ describe('Tree + DnD: tree-drag-mode directive', () => {
   });
 });
 
+describe('Tree + DnD: static markup and drag lifecycle', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  // Markup as documented: no role attributes, the tree directives add them.
+  function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.setAttribute('state', '{}');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    return wrapper.querySelector('[tree]');
+  }
+
+  const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  const STATIC_TREE = (mode) =>
+    `<ul tree tree-drag-mode="${mode}">` +
+    '<li branch id="a">A<ul subtree><li id="a1">A1</li><li id="a2">A2</li></ul></li>' +
+    '<li branch id="b">B</li>' +
+    '<li branch tree-drag-disabled id="c">C</li>' +
+    '</ul>';
+
+  test.each(['reparent', 'reorder', 'both'])('mode="%s": static branches and leaves become draggable', async (mode) => {
+    const tree = render(STATIC_TREE(mode));
+    await flush();
+    const items = [...tree.querySelectorAll('[role="treeitem"]')];
+    expect(items.map((i) => i.id)).toEqual(['a', 'a1', 'a2', 'b', 'c']);
+    expect(items.map((i) => [i.id, i.draggable])).toEqual([
+      ['a', true], ['a1', true], ['a2', true], ['b', true], ['c', false],
+    ]);
+  });
+
+  test('a static branch with a dragstart dispatches tree:drag-start', async () => {
+    const tree = render(STATIC_TREE('both'));
+    await flush();
+    const b = tree.querySelector('#b');
+    const handler = jest.fn();
+    tree.addEventListener('tree:drag-start', handler);
+    b.dispatchEvent(new Event('dragstart', { bubbles: true }));
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler.mock.calls[0][0].detail.node).toBe(b);
+  });
+
+  test('invalid mode leaves static items not draggable', async () => {
+    const tree = render(STATIC_TREE('sideways'));
+    await flush();
+    for (const item of tree.querySelectorAll('[role="treeitem"]')) {
+      expect(item.draggable).toBe(false);
+    }
+  });
+
+  test('items added after init are still draggable', async () => {
+    const tree = render(STATIC_TREE('both'));
+    await flush();
+    const li = document.createElement('li');
+    li.setAttribute('role', 'treeitem');
+    tree.appendChild(li);
+    await flush();
+    expect(li.draggable).toBe(true);
+  });
+
+  test('a role set on an element outside the tree is ignored', async () => {
+    render(STATIC_TREE('both'));
+    await flush();
+    const outside = document.createElement('li');
+    document.body.appendChild(outside);
+    outside.setAttribute('role', 'treeitem');
+    await flush();
+    expect(outside.draggable).toBe(false);
+  });
+
+  test('after dispose, a later role="treeitem" does not make an item draggable', async () => {
+    const tree = render(STATIC_TREE('both'));
+    await flush();
+    tree.__disposers.forEach((fn) => fn());
+    const li = document.createElement('li');
+    tree.appendChild(li);
+    li.setAttribute('role', 'treeitem');
+    await flush();
+    expect(li.draggable).toBe(false);
+  });
+
+  test('tree:drag-end fires after a drop as well as after a cancelled drag', async () => {
+    const tree = render(STATIC_TREE('reorder'));
+    await flush();
+    const a = tree.querySelector('#a');
+    const b = tree.querySelector('#b');
+    const log = [];
+    for (const name of ['tree:drag-start', 'tree:reorder', 'tree:drag-end']) {
+      tree.addEventListener(name, (e) => log.push(`${name}:${e.detail.node.id}`));
+    }
+
+    a.dispatchEvent(new Event('dragstart', { bubbles: true }));
+    b.dispatchEvent(new MouseEvent('dragover', { bubbles: true, cancelable: true, clientY: 0 }));
+    b.dispatchEvent(new Event('drop', { bubbles: true, cancelable: true }));
+    a.dispatchEvent(new Event('dragend', { bubbles: true }));
+    expect(log).toEqual(['tree:drag-start:a', 'tree:reorder:a', 'tree:drag-end:a']);
+    expect(a.classList.contains('nojs-dragging')).toBe(false);
+
+    log.length = 0;
+    b.dispatchEvent(new Event('dragstart', { bubbles: true }));
+    b.dispatchEvent(new Event('dragend', { bubbles: true }));
+    expect(log).toEqual(['tree:drag-start:b', 'tree:drag-end:b']);
+
+    log.length = 0;
+    a.dispatchEvent(new Event('dragend', { bubbles: true }));
+    expect(log).toEqual([]);
+  });
+});
+
 // =======================================================================
 //  STEPPER + VALIDATION INTEGRATION
 // =======================================================================
