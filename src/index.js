@@ -20,6 +20,7 @@ import { _internal } from "./_compat.js";
 import { isHostBackend } from "./_host.js";
 import { dndContract } from "./dnd/contract.js";
 import { DND_HOST_DIRECTIVES } from "./dnd/index.js";
+import { ENGINE_API } from "./validate/engine.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
 const SWAPPED = '[validate],[drag],[drop],[drag-list],[drag-multiple]';
@@ -104,12 +105,13 @@ const ELEMENT_DIRECTIVE_ATTRS = [
 // On compiled sites each is registered as a stub that warns when used, so a
 // missing element is loud instead of silently inert.
 const HOST_PENDING_DIRECTIVES = [
-  "validate", "drag-list", "drag-multiple",
+  "drag-list", "drag-multiple",
   ...ELEMENT_DIRECTIVE_ATTRS,
 ].filter((d) => !DND_HOST_DIRECTIVES.includes(d));
 
 function _installHost(NoJS, options) {
   registerDnd(NoJS, options);
+  registerValidation(NoJS, options);
   for (const name of HOST_PENDING_DIRECTIVES) {
     NoJS.directive(name, {
       priority: 30,
@@ -127,8 +129,11 @@ const NoJSElements = {
 
   // Attribute contract for the NoJS-Server compiler (ADR-021): typed
   // attributes per directive. Only host-migrated directives are declared.
+  // `validation` names the pure validation engine the server bundles into
+  // its runtime (ADR-028), resolved from this module's directory.
   contract: {
     directives: { ...dndContract },
+    validation: { api: ENGINE_API, engine: "./validate-engine.mjs" },
   },
 
   install(NoJS, options = {}) {
