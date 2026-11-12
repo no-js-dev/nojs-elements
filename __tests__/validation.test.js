@@ -1552,3 +1552,122 @@ describe('custom validator signatures', () => {
     expect(ctx.$form.valid).toBe(true);
   });
 });
+
+describe('validators registered after the plugin', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  async function render(html) {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = html;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    return wrapper;
+  }
+
+  const type = (field, value) => {
+    field.value = value;
+    field.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+
+  test('75 - a validator registered after install runs as a rule name', async () => {
+    NoJS.validator('lateEven', (value) => (Number(value) % 2 === 0 ? true : 'Must be even'));
+    const wrapper = await render('<form validate><input name="n" validate="lateEven"></form>');
+    const n = wrapper.querySelector('[name="n"]');
+    const ctx = NoJS.findContext(n);
+
+    type(n, '3');
+    expect(ctx.$form.errors.n).toBe('Must be even');
+    type(n, '4');
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('76 - a validator registered after install runs through custom:name', async () => {
+    NoJS.validator('lateMatch', (value, allValues) => (value === allValues.a ? true : 'No match'));
+    const wrapper = await render(`
+      <form validate>
+        <input name="a" value="x">
+        <input name="b" validate="custom:lateMatch">
+      </form>`);
+    const b = wrapper.querySelector('[name="b"]');
+    const ctx = NoJS.findContext(b);
+
+    type(b, 'y');
+    expect(ctx.$form.errors.b).toBe('No match');
+    type(b, 'x');
+    expect(ctx.$form.valid).toBe(true);
+  });
+
+  test('77 - a standalone field runs a validator registered after install', async () => {
+    NoJS.validator('lateNoSpace', (value) => (/\s/.test(value) ? 'No spaces' : true));
+    const wrapper = await render('<div state="{}"><input validate="lateNoSpace"></div>');
+    const input = wrapper.querySelector('input');
+
+    type(input, 'a b');
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    type(input, 'ab');
+    expect(input.hasAttribute('aria-invalid')).toBe(false);
+  });
+
+  test('78 - re-registering a validator replaces it at the next validation', async () => {
+    NoJS.validator('lateSwap', () => 'first');
+    const wrapper = await render('<form validate><input name="s" validate="lateSwap"></form>');
+    const s = wrapper.querySelector('[name="s"]');
+    const ctx = NoJS.findContext(s);
+
+    type(s, 'v');
+    expect(ctx.$form.errors.s).toBe('first');
+    NoJS.validator('lateSwap', () => 'second');
+    type(s, 'w');
+    expect(ctx.$form.errors.s).toBe('second');
+  });
+
+  test('79 - built-in rule names stay built-in', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    NoJS.validator('required', () => 'overridden');
+    warn.mockRestore();
+    const wrapper = await render('<form validate><input name="r" validate="required"></form>');
+    const r = wrapper.querySelector('[name="r"]');
+    const ctx = NoJS.findContext(r);
+
+    type(r, '');
+    expect(ctx.$form.errors.r).toBe('Required');
+    type(r, 'filled');
+    expect(ctx.$form.valid).toBe(true);
+  });
+});
+
+describe('validate-if exclusion and as=""', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    resetValidateState();
+  });
+
+  test('80 - an excluded field resets its as="" variable to the valid state', async () => {
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = `
+      <form validate state="{ check: true }">
+        <input name="code" validate="required" validate-if="check" as="codeField">
+        <input name="other">
+      </form>`;
+    document.body.appendChild(wrapper);
+    NoJS.processTree(wrapper);
+    await Promise.resolve();
+    const code = wrapper.querySelector('[name="code"]');
+    const other = wrapper.querySelector('[name="other"]');
+    const ctx = NoJS.findContext(code);
+
+    code.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(ctx.codeField.valid).toBe(false);
+    expect(ctx.codeField.error).toBe('Required');
+
+    ctx.check = false;
+    other.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(ctx.codeField.valid).toBe(true);
+    expect(ctx.codeField.error).toBeNull();
+    expect(ctx.codeField).toEqual(ctx.$form.fields.code);
+  });
+});

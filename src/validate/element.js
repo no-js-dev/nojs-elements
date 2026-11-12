@@ -5,7 +5,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 import { _validityMap, _rulePriority } from "./state.js";
-import { _internal } from "../_compat.js";
+import { _internal, _markBound, _ownsContext } from "../_compat.js";
 
 // ── Disposer helper (Elements pattern) ───────────────────────────────
 function addDisposer(el, fn) {
@@ -14,7 +14,7 @@ function addDisposer(el, fn) {
 }
 
 // ── Kept at module scope so helpers can reference them after init ─────
-let _validators;
+let _NoJS;
 let _evaluate;
 let _createContext;
 let _findContext;
@@ -32,6 +32,14 @@ let _execStatement;
 function _clearDeclared(el) {
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_ELEMENT);
   while (walker.nextNode()) walker.currentNode.__declared = false;
+}
+
+// ── Validator registry, read when a field validates ──────────────────
+// Core hands out a copy of its registry on every `internals` access, so a
+// copy kept from install misses validators registered after the Elements
+// script. Reading it per validation picks them up.
+function _getValidators() {
+  return _internal(_NoJS, "validators") || {};
 }
 
 // ── Helper: get field input type ─────────────────────────────────────
@@ -61,6 +69,7 @@ function _getValidityErrors(field, allValues) {
   const errors = [];
   const seenRules = new Set();
   const skipEmpty = _isEmptyValue(field.value) && _skipsEmpty(field);
+  const validators = _getValidators();
 
   // First, check NoJS-specific validators from validate="" attribute
   // (these take priority over native ValidityState messages)
@@ -69,7 +78,7 @@ function _getValidityErrors(field, allValues) {
     const ruleList = rules.split("|").map((r) => r.trim());
     for (const rule of ruleList) {
       const [name, ...args] = rule.split(":");
-      const fn = _validators[name];
+      const fn = validators[name];
       if (fn) {
         const result = fn(field.value, ...args, allValues);
         if (result !== true && result) {
@@ -98,8 +107,8 @@ function _getValidityErrors(field, allValues) {
             if (Number(value) > Number(args[0])) msg = `Maximum value is ${args[0]}`;
             break;
           case "custom":
-            if (args[0] && _validators[args[0]]) {
-              const result = _validators[args[0]](value, allValues);
+            if (args[0] && validators[args[0]]) {
+              const result = validators[args[0]](value, allValues);
               if (result !== true && result) msg = result;
             }
             break;
@@ -272,10 +281,11 @@ function _syncChoiceModel(field, fn) {
 // ── Backward-compat: old _validateField for field-level validation ───
 function _validateField(value, rules, allValues, skipsEmpty = false) {
   const skipEmpty = skipsEmpty && _isEmptyValue(value);
+  const validators = _getValidators();
   const ruleList = rules.split("|").map((r) => r.trim());
   for (const rule of ruleList) {
     const [name, ...args] = rule.split(":");
-    const fn = _validators[name];
+    const fn = validators[name];
     if (fn) {
       const result = fn(value, ...args, allValues);
       if (result !== true && result) return result;
@@ -298,8 +308,8 @@ function _validateField(value, rules, allValues, skipsEmpty = false) {
           if (Number(value) > Number(args[0])) return `Maximum value is ${args[0]}`;
           break;
         case "custom":
-          if (args[0] && _validators[args[0]]) {
-            const result = _validators[args[0]](value, allValues);
+          if (args[0] && validators[args[0]]) {
+            const result = validators[args[0]](value, allValues);
             if (result !== true && result) return result;
           }
           break;
@@ -321,10 +331,16 @@ function _validateField(value, rules, allValues, skipsEmpty = false) {
 // `[bind="$form.*"]` nodes.
 function _bindFormContext(formEl) {
   if (formEl.__ctx) return formEl.__ctx;
+  let parent = null;
   for (let a = formEl.parentElement; a; a = a.parentElement) {
-    if (a.__ctx) return _findContext(formEl); // inherit ancestor ctx, don't shadow
+    if (!a.__ctx) continue;
+    if (!_ownsContext(a)) return _findContext(formEl); // inherit ancestor ctx, don't shadow
+    // A container's own context (a stepper without `state`): inherit it,
+    // but keep a $form of its own, as each such form had before.
+    parent = a.__ctx;
+    break;
   }
-  const ctx = _createContext({}, null);
+  const ctx = _createContext({}, parent);
   formEl.__ctx = ctx;
   return ctx;
 }
@@ -335,7 +351,7 @@ function _bindFormContext(formEl) {
 
 export function registerValidate(NoJS) {
   // Bind NoJS APIs to module-scoped references for helpers (guarded for old cores)
-  _validators = _internal(NoJS, 'validators') || {};
+  _NoJS = NoJS;
   _evaluate = NoJS.evaluate;
   _createContext = NoJS.createContext;
   _findContext = NoJS.findContext;
@@ -365,6 +381,7 @@ export function registerValidate(NoJS) {
       if (el.tagName === "FORM") {
         // Bind/cache a form-level context so descendants share $form.
         const ctx = _bindFormContext(el);
+        _markBound(el, ctx);
         // Prevent native browser validation popups
         el.setAttribute("novalidate", "");
 
@@ -465,6 +482,8 @@ export function registerValidate(NoJS) {
               const excludedErrorClass = field.getAttribute("error-class") || errorClassAttr;
               if (excludedErrorClass) field.classList.remove(...excludedErrorClass.split(/\s+/));
               _clearErrorTemplate(field);
+              const excludedAs = field.getAttribute("as");
+              if (excludedAs) ctx.$set(excludedAs, fields[field.name]);
               continue;
             }
 
@@ -756,6 +775,7 @@ export function registerValidate(NoJS) {
       //  FIELD-LEVEL VALIDATION (standalone, outside form)
       // ═════════════════════════════════════════════════════
       const ctx = _findContext(el);
+      _markBound(el, ctx);
       if (
         rules &&
         (el.tagName === "INPUT" ||

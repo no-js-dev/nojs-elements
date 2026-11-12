@@ -1,4 +1,5 @@
 import { _stepperRegistry } from "./state.js";
+import { _markOwnContext } from "../_compat.js";
 import { _injectStepperStyles } from "./styles.js";
 import {
   checkStepValidationGate,
@@ -11,13 +12,27 @@ function addDisposer(el, fn) {
   el.__disposers.push(fn);
 }
 
+// ── Context that carries $stepper ──
+// Under a `state` (or any element with a context) the stepper uses that
+// context. Without one, core gives each element a separate throwaway
+// context, so $stepper never reached the steps: the stepper then keeps a
+// context of its own, which the steps inherit.
+function _stepperContext(NoJS, el) {
+  for (let a = el; a; a = a.parentElement) {
+    if (a.__ctx) return NoJS.findContext(el);
+  }
+  const ctx = NoJS.createContext({}, null);
+  el.__ctx = ctx;
+  _markOwnContext(el);
+  return ctx;
+}
+
 // ─── Stepper container directive ────────────────────────────────────
 export function registerStepper(NoJS) {
   NoJS.directive("stepper", {
     priority: 14,
     init(el, name, expr) {
       _injectStepperStyles();
-      const ctx = NoJS.findContext(el);
 
       // ── Collect [step] children ──
       const steps = Array.from(el.querySelectorAll("[step]"));
@@ -25,6 +40,8 @@ export function registerStepper(NoJS) {
         console.warn("[stepper] No [step] children found.");
         return;
       }
+
+      const ctx = _stepperContext(NoJS, el);
 
       // ── Read attributes ──
       const initialStep = expr ? parseInt(expr, 10) || 0 : 0;
