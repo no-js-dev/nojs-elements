@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Validation host backend — NoJS Elements E2E</title>
+  <style>body { font: 14px/1.4 sans-serif; margin: 16px; } input { display: block; margin: 4px 0; }</style>
+</head>
+<body>
+  <!-- A NoJS-Server compiled page, with a stand-in for the integrator's
+       plugin host: it records host.exec calls and lets the test apply an
+       "envelope" (what the integrator's morph does to the form). -->
+  <form id="signup" validate data-test="form"
+        data-nj-validate="vk-signup"
+        data-nj-form-state='{"valid":false,"submitting":false,"pending":false,"reset":0}'
+        data-nj-validate-init>
+    <input name="name" required minlength="3" data-test="name">
+    <input name="email" type="email" data-test="email">
+    <input name="agree" type="checkbox" data-test="agree">
+    <button type="submit" data-test="submit">Sign up</button>
+  </form>
+
+  <form id="perfield" validate data-test="form2"
+        data-nj-validate="vk-perfield"
+        data-nj-form-state='{"valid":true,"submitting":false,"pending":false,"reset":0}'>
+    <input name="code" validate-on="focusout" data-test="code">
+    <button type="submit" data-test="submit2">Send</button>
+  </form>
+
+  <input name="q" validate="required" data-nj-validate="vk-q" data-test="standalone">
+
+  <script>
+    (function () {
+      var defs = new Map();
+      var watchers = [];
+      window.__execs = [];
+      window.__warns = [];
+      window.__order = [];
+      var host = {
+        value: function (el, attr) {
+          var raw = el.getAttribute(attr);
+          if (raw == null || raw === '') return null;
+          try { return JSON.parse(raw); } catch (e) { return null; }
+        },
+        exec: function (key, payload) {
+          window.__execs.push({ key: key, payload: JSON.parse(JSON.stringify(payload)) });
+          window.__order.push('facts:' + payload.trigger);
+        },
+        watch: function (el, attr, cb) {
+          var entry = { el: el, attr: attr, cb: cb, last: el.getAttribute(attr) };
+          watchers.push(entry);
+          return function () {};
+        },
+        onDispose: function () {},
+        disposeTree: function () {},
+        validators: new Map(),
+        warn: function (msg) { window.__warns.push(msg); },
+      };
+      window.NoJS = {
+        hostApi: 1,
+        use: function (plugin) { plugin.install(window.NoJS); },
+        directive: function (name, def) { defs.set(name, def); },
+        filter: function () {}, validator: function () {}, global: function () {}, config: function () {},
+      };
+      // The integrator's delegated submit listener (document, capture phase).
+      document.addEventListener('submit', function (e) {
+        e.preventDefault();
+        window.__order.push('submit-action:' + e.target.id);
+      }, true);
+      // What an action envelope does to a preserved form: the morph drops
+      // attributes the server did not render, then watchers run.
+      window.__envelope = function (formId, state) {
+        var form = document.getElementById(formId);
+        form.removeAttribute('data-nj-validate-pending');
+        form.querySelectorAll('button').forEach(function (b) { b.removeAttribute('disabled'); });
+        if (state) form.setAttribute('data-nj-form-state', JSON.stringify(state));
+        watchers.forEach(function (w) {
+          var v = w.el.getAttribute(w.attr);
+          if (v !== w.last) { var prev = w.last; w.last = v; w.cb(v, prev); }
+        });
+      };
+      window.__boot = function () {
+        document.querySelectorAll('[validate]').forEach(function (el) {
+          defs.get('validate').init(el, host);
+        });
+      };
+    })();
+  </script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+  <script>window.__boot();</script>
+</body>
+</html>

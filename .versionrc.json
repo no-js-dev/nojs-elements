@@ -7,7 +7,9 @@
     { "file": "docs/404.html", "pattern": "version: '{v}' }\">" },
     { "file": "dist/iife/nojs-elements.js", "pattern": " * NoJS Elements v{v} — ", "generated": true },
     { "file": "dist/esm/nojs-elements.js", "pattern": " * NoJS Elements v{v} — ", "generated": true },
-    { "file": "dist/cjs/nojs-elements.js", "pattern": " * NoJS Elements v{v} — ", "generated": true }
+    { "file": "dist/cjs/nojs-elements.js", "pattern": " * NoJS Elements v{v} — ", "generated": true },
+    { "file": "dist/esm/validate-engine.mjs", "pattern": " * NoJS Elements v{v} — ", "generated": true },
+    { "file": "dist/cjs/validate-engine.mjs", "pattern": " * NoJS Elements v{v} — ", "generated": true }
   ],
   "build": "npm run build",
   "hooks": { "dir": ".githooks" },
