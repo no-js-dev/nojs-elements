@@ -138,14 +138,16 @@ export function registerSort(NoJS) {
       const sortType = el.getAttribute("sort-type") || "string";
       const sortDefault = el.getAttribute("sort-default"); // 'asc' | 'desc' | null
 
+      // A column header of a table only. `sort` is also core's loop
+      // companion (`each="t in items" sort="t.title"`): on any other element
+      // the attribute belongs to the loop and the header must not be marked.
+      const table = el.tagName === "TH" ? el.closest("table") : null;
+      if (!table) return;
+
       // Mark th as sortable
       el.setAttribute("data-sortable", "");
       el.setAttribute("aria-sort", "none");
       if (!el.getAttribute("tabindex")) el.setAttribute("tabindex", "0");
-
-      // Find parent table
-      const table = el.closest("table");
-      if (!table) return;
 
       // Initialize table state if needed
       if (!_tableState.sorts.has(table)) {

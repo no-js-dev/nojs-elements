@@ -385,6 +385,15 @@ describe('table', () => {
   }
   const names = (t) => [...t.querySelectorAll('tbody td')].map((td) => td.textContent);
 
+  test('marks only table headers: a compiled loop row with sort stays unmarked', () => {
+    document.body.innerHTML = '<ul><li sort="t.title">a</li></ul><table><tbody><tr sort="x"><td>1</td></tr></tbody></table>';
+    h.initAll();
+    for (const el of document.querySelectorAll('[sort]')) {
+      expect(el.hasAttribute('aria-sort')).toBe(false);
+      expect(el.hasAttribute('tabindex')).toBe(false);
+    }
+  });
+
   test('sorts the rendered rows (no client state)', () => {
     const t = table();
     h.initAll();
