@@ -8,6 +8,9 @@
 // delivers the JSON value, which the host backend reads with host.value.
 
 export const uiContract = {
+  // `sort` is also a core loop companion: declaring the directive keeps the
+  // attribute on a table header, where core leaves it for this plugin.
+  sort: { attrs: { sort: "literal", "sort-type": "literal", "sort-default": "literal" } },
   tooltip: { attrs: { "tooltip-disabled": "expression" } },
   "tab-disabled": { attrs: { "tab-disabled": "expression" } },
   skeleton: { attrs: { skeleton: "expression" } },

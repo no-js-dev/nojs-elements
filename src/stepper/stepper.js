@@ -88,8 +88,10 @@ export function registerStepper(NoJS) {
           item.appendChild(labelSpan);
           item.setAttribute("aria-label", label);
 
-          // Tab id for tabpanel association
-          const tabId = `nojs-stepper-tab-${_tabIdCounter++}`;
+          // Tab id for tabpanel association. A host re-init reuses the ids
+          // the first init gave (core initializes a stepper once).
+          const kept = be.host && el.__nojsStepperTabIds ? el.__nojsStepperTabIds[i] : undefined;
+          const tabId = kept || `nojs-stepper-tab-${_tabIdCounter++}`;
           item.id = tabId;
 
           if (mode === "free") {
@@ -367,6 +369,8 @@ export function registerStepper(NoJS) {
         indicatorEl,
         navEl,
       });
+
+      if (be.host) el.__nojsStepperTabIds = indicatorItems.map((item) => item.id);
 
       // ── Initial render ──
       _updateView(true);

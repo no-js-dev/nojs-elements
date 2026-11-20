@@ -94,8 +94,14 @@ export function registerTabsDirective(NoJS) {
         const tab = childTabs[i];
         const panel = childPanels[i];
 
-        const tabId = tab.id || _uid("nojs-tab");
-        const panelId = panel.id || _uid("nojs-panel");
+        // Host backend: a re-init after a server re-render gives generated
+        // ids back to the same positions (core initializes tabs once).
+        const kept = be.host ? (el.__nojsTabsIds ||= []) : null;
+        const tabId = kept?.[i]?.tab || tab.id || _uid("nojs-tab");
+        const panelId = kept?.[i]?.panel || panel.id || _uid("nojs-panel");
+        if (kept && !kept[i]) {
+          kept[i] = { tab: tab.id ? null : tabId, panel: panel.id ? null : panelId };
+        }
 
         tab.id = tabId;
         panel.id = panelId;
