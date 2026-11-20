@@ -814,8 +814,6 @@ The `validate` directive blocks the submit while the form is invalid. On every s
 
 `validate` also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`). There the validation engine this package ships (`dist/esm/validate-engine.mjs`) runs on the server with the same rules and messages, and the browser only reports field values and native validity. With the CDN core nothing on this page changes.
 
-A control the server does not validate (no `name`, or a `model` control whose name the host added for its no-JS form) sends nothing on `input` and `change`; the action it runs renders the form state itself.
-
 The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`).
 
 ### UI elements on server-rendered hosts

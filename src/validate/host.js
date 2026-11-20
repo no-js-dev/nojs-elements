@@ -31,18 +31,11 @@ export const PENDING_ATTR = "data-nj-validate-pending";
 
 const CONTROLS = "input, textarea, select";
 
-// Named controls whose values the server validates (file inputs: native
-// only). The build's no-JS form transport is not a field: its hidden inputs
-// (data-nj-fallback) and the names it gives `model` controls (data-nj-form
-// lists the attributes the build added).
-function isReported(c) {
-  if (!c.name || (c.type || "").toLowerCase() === "file") return false;
-  if (c.hasAttribute("data-nj-fallback")) return false;
-  return !(c.getAttribute("data-nj-form") || "").split(/\s+/).includes("name");
-}
-
+// Named controls whose values the server validates (file inputs: native only).
 function reportedControls(form) {
-  return [...form.querySelectorAll(CONTROLS)].filter(isReported);
+  return [...form.querySelectorAll(CONTROLS)].filter(
+    (c) => c.name && (c.type || "").toLowerCase() !== "file"
+  );
 }
 
 // values: checkbox → checked, radio → checked value or "", else value.
@@ -66,6 +59,19 @@ export function collectFacts(form) {
     }
   }
   return { values, native };
+}
+
+// Text entry fires "change" on blur, next to a focusout that already
+// reports. Any other control's "change" is one committed pick (a checkbox,
+// a radio, a select, a date): core re-validates on it at once, so the
+// submit auto-disable follows it without waiting for the debounce.
+const TEXT_ENTRY = new Set(["text", "search", "email", "url", "tel", "password", "number", ""]);
+
+function committedChange(target) {
+  if (!target || typeof target.tagName !== "string") return false;
+  if (target.tagName === "SELECT") return true;
+  if (target.tagName !== "INPUT") return false;
+  return !TEXT_ENTRY.has((target.getAttribute("type") || "").toLowerCase());
 }
 
 function readState(form, host) {
@@ -167,16 +173,16 @@ function initForm(el, host) {
   }
 
   if (!perField) {
-    // A control the server does not validate (no name, or a `model`
-    // checkbox named by the build's no-JS transport) adds nothing to the facts: the action it runs re-renders the
-    // form state itself, so no dispatch waits and the buttons follow it.
-    const reported = (e) => !!e.target && typeof e.target.hasAttribute === "function" && isReported(e.target);
-    listen(el, "input", (e) => { if (reported(e)) debounced("input", e.target.name); });
-    listen(el, "change", (e) => { if (reported(e)) debounced("change", e.target.name); });
+    listen(el, "input", (e) => debounced("input", e.target && e.target.name));
+    listen(el, "change", (e) => {
+      const name = e.target && e.target.name;
+      if (committedChange(e.target)) immediate("change", name);
+      else debounced("change", name);
+    });
     listen(el, "focusout", (e) => immediate("focusout", e.target && e.target.name));
   } else {
     for (const field of controls) {
-      if (!isReported(field)) continue;
+      if (!field.name) continue;
       listen(field, "input", () => debounced("input", field.name));
       listen(field, "focusout", () => immediate("focusout", field.name));
     }

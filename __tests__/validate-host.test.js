@@ -196,6 +196,23 @@ describe('facts', () => {
     expect(host.exec).toHaveBeenCalledTimes(2);
   });
 
+  test('a committed pick (checkbox, radio, select, date) reports its change at once', () => {
+    const form = mount(FORM('', `
+      <input name="title">
+      <input class="flag" type="checkbox">
+      <select name="size"><option>s</option><option>l</option></select>
+      <input name="due" type="date">`));
+    initValidate(form);
+    type(form.querySelector('[name=title]'), 'A');
+    form.querySelector('.flag').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(host.exec.mock.calls.map((c) => [c[1].trigger, c[1].field])).toEqual([['input', 'title'], ['change', undefined]]);
+    form.querySelector('[name=size]').dispatchEvent(new Event('change', { bubbles: true }));
+    form.querySelector('[name=due]').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(host.exec.mock.calls.slice(2).map((c) => [c[1].trigger, c[1].field])).toEqual([['change', 'size'], ['change', 'due']]);
+    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
+    expect(host.exec).toHaveBeenCalledTimes(4);
+  });
+
   test('events of unnamed or non-field elements omit `field`; native is omitted when nothing fails', () => {
     const form = mount(FORM('', '<input name="ok"><input class="x"><button type="submit" name="btn">b</button>'));
     initValidate(form);
@@ -204,29 +221,6 @@ describe('facts', () => {
     for (const [, payload] of host.exec.mock.calls) {
       expect(payload).toEqual({ trigger: 'focusout', values: { ok: '' } });
     }
-  });
-
-  test('input and change of a control the server does not validate send nothing and keep the buttons on the marker', () => {
-    const form = mount(FORM('data-nj-form-state=\'{"valid":false}\'', '<input name="ok"><input type="checkbox" class="x"><button type="submit">b</button>'));
-    initValidate(form);
-    const box = form.querySelector('.x');
-    box.dispatchEvent(new Event('input', { bubbles: true }));
-    box.dispatchEvent(new Event('change', { bubbles: true }));
-    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
-    expect(host.exec).not.toHaveBeenCalled();
-    expect(form.querySelector('button').disabled).toBe(true);
-  });
-
-  test('the no-JS transport is not a field: fallback inputs and build-given model names are left out', () => {
-    const form = mount(FORM('', '<input name="ok"><input type="hidden" name="__nojs_mcheck.a" value="x" data-nj-fallback>'
-      + '<input type="checkbox" name="__nojs_model.a" data-nj-form="name">'));
-    initValidate(form);
-    const box = form.querySelector('[type=checkbox]');
-    box.dispatchEvent(new Event('change', { bubbles: true }));
-    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
-    expect(host.exec).not.toHaveBeenCalled();
-    focusout(form.querySelector('[name=ok]'));
-    expect(host.exec.mock.calls[0][1]).toEqual({ trigger: 'focusout', field: 'ok', values: { ok: '' } });
   });
 
   test('per-field mode: listeners on named fields only, no change listener', () => {
