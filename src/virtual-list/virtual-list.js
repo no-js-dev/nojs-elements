@@ -1,10 +1,6 @@
 import { _virtualListRegistry } from "./state.js";
 import { _injectVirtualListStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -304,8 +300,8 @@ function _render(state, NoJS) {
     const item = state.dataArray[i];
     if (item === undefined) continue;
 
-    // Clone the template
-    const clone = state.template.cloneNode(true);
+    // Clone the template (host backend: the server-rendered item node)
+    const clone = state.pool ? state.pool[i] : state.template.cloneNode(true);
 
     // Create a child context for this item
     const childCtx = {};
@@ -323,14 +319,16 @@ function _render(state, NoJS) {
     clone.setAttribute("aria-posinset", String(i + 1));
     clone.setAttribute("tabindex", "-1");
 
-    // Store context on the node so NoJS.processTree can pick it up
-    clone.__ctx = Object.create(
-      NoJS.findContext ? NoJS.findContext(container) || {} : {},
-      Object.getOwnPropertyDescriptors(childCtx)
-    );
+    if (!state.pool) {
+      // Store context on the node so NoJS.processTree can pick it up
+      clone.__ctx = Object.create(
+        NoJS.findContext ? NoJS.findContext(container) || {} : {},
+        Object.getOwnPropertyDescriptors(childCtx)
+      );
 
-    // Mark for processTree
-    clone.__declared = false;
+      // Mark for processTree
+      clone.__declared = false;
+    }
 
     itemsToInsert.push({ index: i, node: clone });
     state.renderedNodes.set(i, clone);
@@ -360,7 +358,7 @@ function _render(state, NoJS) {
 
       // Process the node through NoJS so bindings resolve
       try {
-        if (NoJS.processTree) {
+        if (!state.pool && NoJS.processTree) {
           NoJS.processTree(node);
         }
       } catch (_err) {
@@ -446,9 +444,10 @@ function _refresh(state, newArray, NoJS) {
 // ─── Directive registration ─────────────────────────────────────────
 
 export function registerVirtualListDirective(NoJS) {
-  NoJS.directive("virtual", {
+  NoJS.directive("virtual", defineDirective(NoJS, "virtual", {
     priority: 10,
-    init(el, name, _expr) {
+    subtree: true,
+    init(el, _expr, be) {
       _injectVirtualListStyles();
 
       // Mark the container
@@ -516,6 +515,13 @@ export function registerVirtualListDirective(NoJS) {
         binding.eachEl.removeAttribute("for");
       }
 
+      // Host backend: the server rendered every item (its loop and bindings
+      // ran server-side); they become the pool the window draws from. A
+      // server re-render of the list re-initializes this directive.
+      const pool = be.host
+        ? Array.from(el.children).filter((c) => !c.classList.contains("nojs-virtual-spacer"))
+        : null;
+
       // Clear existing children (the template elements)
       while (el.firstChild) {
         el.removeChild(el.firstChild);
@@ -547,10 +553,12 @@ export function registerVirtualListDirective(NoJS) {
         renderedNodes: new Map(),
         iteratorVar: binding ? binding.iteratorVar : "item",
         arrayPath: binding ? binding.arrayPath : null,
-        dataArray: [],
+        dataArray: pool || [],
+        pool,
         dirty: true,
         disposed: false,
       };
+      if (pool) state.totalItems = pool.length;
 
       _virtualListRegistry.set(el, state);
 
@@ -640,10 +648,11 @@ export function registerVirtualListDirective(NoJS) {
       };
 
       // Start polling after a short delay to allow context to initialize
-      pollId = setTimeout(pollData, 100);
+      if (pool) _render(state, NoJS);
+      else pollId = setTimeout(pollData, 100);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         state.disposed = true;
 
         if (rafId) {
@@ -687,5 +696,5 @@ export function registerVirtualListDirective(NoJS) {
         _virtualListRegistry.delete(el);
       });
     },
-  });
+  }));
 }

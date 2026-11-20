@@ -6,11 +6,7 @@ import {
   touchAllFields,
   dispatchValidationBlocked,
 } from "./validation.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ── Context that carries $stepper ──
 // Under a `state` (or any element with a context) the stepper uses that
@@ -29,9 +25,10 @@ function _stepperContext(NoJS, el) {
 
 // ─── Stepper container directive ────────────────────────────────────
 export function registerStepper(NoJS) {
-  NoJS.directive("stepper", {
+  NoJS.directive("stepper", defineDirective(NoJS, "stepper", {
     priority: 14,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectStepperStyles();
 
       // ── Collect [step] children ──
@@ -41,10 +38,15 @@ export function registerStepper(NoJS) {
         return;
       }
 
-      const ctx = _stepperContext(NoJS, el);
+      // Host backend: no client context, so no $stepper for expressions;
+      // step-validate and the validation gate read server-rendered values.
+      const ctx = be.host ? null : _stepperContext(NoJS, el);
 
       // ── Read attributes ──
-      const initialStep = expr ? parseInt(expr, 10) || 0 : 0;
+      // A host re-init after a server re-render stays on the user's step.
+      const initialStep = be.host && el.__nojsStepperCurrent >= 0
+        ? el.__nojsStepperCurrent
+        : expr ? parseInt(expr, 10) || 0 : 0;
       const mode = el.getAttribute("stepper-mode") || "linear";
       const showIndicator = el.getAttribute("stepper-indicator") !== "false";
       const showNav = el.getAttribute("stepper-nav") !== "false";
@@ -94,7 +96,7 @@ export function registerStepper(NoJS) {
             item.setAttribute("data-clickable", "");
             const onItemClick = () => goTo(i);
             item.addEventListener("click", onItemClick);
-            addDisposer(el, () =>
+            be.dispose(() =>
               item.removeEventListener("click", onItemClick)
             );
           } else {
@@ -128,7 +130,7 @@ export function registerStepper(NoJS) {
           }
         };
         indicatorEl.addEventListener("keydown", onIndicatorKeydown);
-        addDisposer(el, () =>
+        be.dispose(() =>
           indicatorEl.removeEventListener("keydown", onIndicatorKeydown)
         );
 
@@ -150,7 +152,7 @@ export function registerStepper(NoJS) {
         prevBtn.textContent = "Previous";
         const onPrevClick = () => prev();
         prevBtn.addEventListener("click", onPrevClick);
-        addDisposer(el, () =>
+        be.dispose(() =>
           prevBtn.removeEventListener("click", onPrevClick)
         );
 
@@ -160,7 +162,7 @@ export function registerStepper(NoJS) {
         nextBtn.textContent = "Next";
         const onNextClick = () => next();
         nextBtn.addEventListener("click", onNextClick);
-        addDisposer(el, () =>
+        be.dispose(() =>
           nextBtn.removeEventListener("click", onNextClick)
         );
 
@@ -175,7 +177,7 @@ export function registerStepper(NoJS) {
         if (!stepEl) return true;
 
         // 1. Check stepper-validate gate (NoJS Validation module integration)
-        if (!checkStepValidationGate(stepEl, NoJS.findContext)) {
+        if (!checkStepValidationGate(stepEl, be.host ? undefined : NoJS.findContext)) {
           const form = stepEl.querySelector("form[validate]");
           if (form) {
             // Touch all fields so error messages become visible
@@ -208,7 +210,7 @@ export function registerStepper(NoJS) {
         const validateExpr = stepEl.getAttribute("step-validate");
         if (validateExpr) {
           try {
-            const result = NoJS.evaluate(validateExpr, ctx);
+            const result = be.host ? be.host.value(stepEl, "step-validate") : NoJS.evaluate(validateExpr, ctx);
             if (!result) return false;
           } catch (err) {
             console.warn(`[stepper] step-validate error: ${err.message}`);
@@ -348,7 +350,8 @@ export function registerStepper(NoJS) {
       };
 
       function _syncContext() {
-        ctx.$stepper = stepperAPI;
+        if (be.host) el.__nojsStepperCurrent = current;
+        else ctx.$stepper = stepperAPI;
       }
       _syncContext();
 
@@ -369,14 +372,14 @@ export function registerStepper(NoJS) {
       _updateView(true);
 
       // ── Cleanup ──
-      addDisposer(el, () => {
+      be.dispose(() => {
         _stepperRegistry.delete(el);
         if (indicatorEl && indicatorEl.parentNode) indicatorEl.remove();
         if (navEl && navEl.parentNode) navEl.remove();
-        delete ctx.$stepper;
+        if (ctx) delete ctx.$stepper;
       });
     },
-  });
+  }));
 }
 
 // ── Unique ID counter ──

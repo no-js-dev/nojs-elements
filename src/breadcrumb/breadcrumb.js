@@ -1,10 +1,6 @@
 import { _breadcrumbState } from "./state.js";
 import { _injectBreadcrumbStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Resolve crumb label from an element ─────────────────────────────
 // Priority: breadcrumb="label" > title="label" > textContent
@@ -103,11 +99,25 @@ function _buildRouteCrumbs(path) {
   return crumbs;
 }
 
+// ─── Route source on a compiled site (host backend) ─────────────────
+function _hostRouter() {
+  return {
+    get current() {
+      return { path: window.location.pathname };
+    },
+    on(fn) {
+      document.addEventListener("nojs:navigate", fn);
+      return () => document.removeEventListener("nojs:navigate", fn);
+    },
+  };
+}
+
 // ─── Register breadcrumb directive ──────────────────────────────────
 export function registerBreadcrumbDirective(NoJS) {
-  NoJS.directive("breadcrumb", {
+  NoJS.directive("breadcrumb", defineDirective(NoJS, "breadcrumb", {
     priority: 15,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectBreadcrumbStyles();
 
       // Ensure nav has aria-label
@@ -120,7 +130,9 @@ export function registerBreadcrumbDirective(NoJS) {
       const hasChildren = Array.from(el.children).some(
         (child) => !(child.tagName === "OL" && child.classList.contains("nojs-breadcrumb"))
       );
-      const router = NoJS.router;
+      // Host backend: no client router; the page path is the route and the
+      // integrator announces navigations with a `nojs:navigate` event.
+      const router = be.host ? _hostRouter() : NoJS.router;
       const isAutoTrack = !hasChildren && router;
 
       // Register state
@@ -147,7 +159,7 @@ export function registerBreadcrumbDirective(NoJS) {
           const entry = _breadcrumbState.containers.get(el);
           if (entry) entry.unsub = unsub;
 
-          addDisposer(el, () => {
+          be.dispose(() => {
             if (typeof unsub === "function") unsub();
             const e = _breadcrumbState.containers.get(el);
             if (e) e.unsub = null;
@@ -168,9 +180,9 @@ export function registerBreadcrumbDirective(NoJS) {
       }
 
       // ─── Cleanup ────────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         _breadcrumbState.containers.delete(el);
       });
     },
-  });
+  }));
 }

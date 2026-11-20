@@ -1,10 +1,6 @@
 import { _treeState } from "./state.js";
 import { _injectTreeStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -138,9 +134,10 @@ function _showIndicator(targetItem, position) {
 // ─── tree-drag-mode directive ────────────────────────────────────────
 
 export function registerTreeDragMode(NoJS) {
-  NoJS.directive("tree-drag-mode", {
+  NoJS.directive("tree-drag-mode", defineDirective(NoJS, "tree-drag-mode", {
     priority: 15,
-    init(el, name, mode) {
+    subtree: true,
+    init(el, mode, be) {
       _injectTreeStyles();
 
       // Validate mode
@@ -389,7 +386,7 @@ export function registerTreeDragMode(NoJS) {
       el.addEventListener("drop", dropHandler);
       el.addEventListener("dragend", dragendHandler);
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("dragstart", dragstartHandler);
         el.removeEventListener("dragover", dragoverHandler);
         el.removeEventListener("dragenter", dragenterHandler);
@@ -428,9 +425,9 @@ export function registerTreeDragMode(NoJS) {
         }
       });
       observer.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ["role"] });
-      addDisposer(el, () => observer.disconnect());
+      be.dispose(() => observer.disconnect());
     },
-  });
+  }));
 }
 
 /** Set draggable on a treeitem (unless tree-drag-disabled). */

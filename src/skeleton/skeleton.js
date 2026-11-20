@@ -1,17 +1,16 @@
 import { _injectSkeletonStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Skeleton directive ─────────────────────────────────────────────
 export function registerSkeletonDirective(NoJS) {
-  NoJS.directive("skeleton", {
+  NoJS.directive("skeleton", defineDirective(NoJS, "skeleton", {
     priority: 10,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectSkeletonStyles();
-      const ctx = NoJS.findContext(el);
+      // Host backend: `skeleton` holds the server-evaluated value; a change
+      // re-renders the attribute, which re-initializes this directive.
+      const ctx = be.host ? null : NoJS.findContext(el);
 
       // Read companion attributes
       const type = el.getAttribute("skeleton-type") || "text";
@@ -118,7 +117,7 @@ export function registerSkeletonDirective(NoJS) {
       let _active = false;
 
       function update() {
-        const loading = !!NoJS.evaluate(expr, ctx);
+        const loading = be.host ? !!be.host.value(el, "skeleton") : !!NoJS.evaluate(expr, ctx);
 
         if (loading && !_active) {
           _active = true;
@@ -131,11 +130,13 @@ export function registerSkeletonDirective(NoJS) {
 
       // Reactive watch
       update();
-      const unwatch = ctx.$watch(update);
-      addDisposer(el, unwatch);
+      if (!be.host) {
+        const unwatch = ctx.$watch(update);
+        be.dispose(unwatch);
+      }
 
       // Cleanup on dispose
-      addDisposer(el, () => {
+      be.dispose(() => {
         // Tear down any in-flight fade listener/timer (Rules 2 & 4).
         if (_cancelFade) _cancelFade();
         if (_active) {
@@ -149,5 +150,5 @@ export function registerSkeletonDirective(NoJS) {
         }
       });
     },
-  });
+  }));
 }

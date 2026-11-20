@@ -1,10 +1,6 @@
 import { _popoverRegistry } from "./state.js";
 import { _injectPopoverStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // Feature-detect a native Popover API method on an element. When unavailable,
 // the directive still registers ARIA/state wiring but skips calls that would
@@ -122,9 +118,9 @@ function _stopTracking(entry) {
 
 export function registerPopoverDirective(NoJS) {
 
-  NoJS.directive("popover", {
+  NoJS.directive("popover", defineDirective(NoJS, "popover", {
     priority: 20,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectPopoverStyles();
 
       const popoverId = expr || el.getAttribute("id") || `nojs-popover-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -166,7 +162,7 @@ export function registerPopoverDirective(NoJS) {
       };
       el.addEventListener("toggle", toggleHandler);
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("toggle", toggleHandler);
         const entry = _popoverRegistry.get(popoverId);
         if (!entry) return;
@@ -183,11 +179,11 @@ export function registerPopoverDirective(NoJS) {
         }
       });
     },
-  });
+  }));
 
-  NoJS.directive("popover-trigger", {
+  NoJS.directive("popover-trigger", defineDirective(NoJS, "popover-trigger", {
     priority: 20,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectPopoverStyles();
 
       let popoverId = expr;
@@ -253,7 +249,7 @@ export function registerPopoverDirective(NoJS) {
       };
       document.addEventListener("keydown", escHandler);
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", clickHandler);
         document.removeEventListener("keydown", escHandler);
         const entry = _popoverRegistry.get(popoverId);
@@ -266,11 +262,11 @@ export function registerPopoverDirective(NoJS) {
         }
       });
     },
-  });
+  }));
 
-  NoJS.directive("popover-dismiss", {
+  NoJS.directive("popover-dismiss", defineDirective(NoJS, "popover-dismiss", {
     priority: 20,
-    init(el) {
+    init(el, expr, be) {
       _injectPopoverStyles();
 
       const clickHandler = () => {
@@ -280,9 +276,9 @@ export function registerPopoverDirective(NoJS) {
       };
 
       el.addEventListener("click", clickHandler);
-      addDisposer(el, () => el.removeEventListener("click", clickHandler));
+      be.dispose(() => el.removeEventListener("click", clickHandler));
     },
-  });
+  }));
 
   // ─── Programmatic API: $popover ───────────────────────────────────
   const popoverApi = (id, anchorEl) => popoverApi.open(id, anchorEl);

@@ -1,10 +1,6 @@
 import { _tabsState } from "./state.js";
 import { _injectTabsStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Generate unique IDs ─────────────────────────────────────────────
 let _idCounter = 0;
@@ -60,9 +56,10 @@ function _findNextTab(tabs, current, direction) {
 
 // ─── Register tabs container directive ───────────────────────────────
 export function registerTabsDirective(NoJS) {
-  NoJS.directive("tabs", {
+  NoJS.directive("tabs", defineDirective(NoJS, "tabs", {
     priority: 10,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectTabsStyles();
 
       // Collect direct child [tab] and [panel] elements
@@ -150,13 +147,15 @@ export function registerTabsDirective(NoJS) {
 
       // Evaluate disabled state for each tab, and keep it reactive via $watch
       // so toggling the bound state updates aria-disabled (and can re-enable a
-      // previously disabled tab).
-      const ctx = NoJS.findContext(el);
+      // previously disabled tab). Host backend: tab-disabled holds the
+      // server-evaluated value; a change re-renders the tabs subtree, which
+      // re-initializes this directive.
+      const ctx = be.host ? null : NoJS.findContext(el);
       const disabledUnwatchers = [];
       const applyDisabled = (tab, disabledExpr) => {
         let isDisabled = false;
         try {
-          isDisabled = !!NoJS.evaluate(disabledExpr, ctx);
+          isDisabled = be.host ? !!be.host.value(tab, "tab-disabled") : !!NoJS.evaluate(disabledExpr, ctx);
         } catch (_err) {
           isDisabled = false;
         }
@@ -181,6 +180,11 @@ export function registerTabsDirective(NoJS) {
         if (!isNaN(parsed) && parsed >= 0 && parsed < pairedCount) {
           initialIndex = parsed;
         }
+      }
+      // Host backend: a re-init after a server re-render keeps the tab the
+      // user selected, as core keeps it while the content updates.
+      if (be.host && el.__nojsTabsActive >= 0 && el.__nojsTabsActive < pairedCount) {
+        initialIndex = el.__nojsTabsActive;
       }
 
       // If initial tab is disabled, find next enabled
@@ -266,7 +270,8 @@ export function registerTabsDirective(NoJS) {
       tablist.addEventListener("click", clickHandler);
 
       // ─── Cleanup ───────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
+        if (be.host) el.__nojsTabsActive = _tabsState.containers.get(el)?.activeIndex ?? -1;
         tablist.removeEventListener("keydown", keydownHandler);
         tablist.removeEventListener("click", clickHandler);
         for (const unwatch of disabledUnwatchers) {
@@ -276,5 +281,5 @@ export function registerTabsDirective(NoJS) {
         _tabsState.containers.delete(el);
       });
     },
-  });
+  }));
 }

@@ -1,10 +1,6 @@
 import { _accordionState } from "./state.js";
 import { _injectAccordionStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Feature detection ──────────────────────────────────────────────
 let _supportsDetailsContent = null;
@@ -114,9 +110,10 @@ function _getDirectDetails(container) {
 
 // ─── Register accordion directive ───────────────────────────────────
 export function registerAccordionDirective(NoJS) {
-  NoJS.directive("accordion", {
+  NoJS.directive("accordion", defineDirective(NoJS, "accordion", {
     priority: 10,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectAccordionStyles();
 
       const mode = (expr || "").trim().toLowerCase() === "multi" ? "multi" : "single";
@@ -298,7 +295,7 @@ export function registerAccordionDirective(NoJS) {
       });
 
       // ─── Cleanup ──────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("keydown", keydownHandler);
         observer.disconnect();
         for (const entry of listeners) {
@@ -312,5 +309,5 @@ export function registerAccordionDirective(NoJS) {
         _accordionState.containers.delete(el);
       });
     },
-  });
+  }));
 }

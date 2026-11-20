@@ -1,10 +1,6 @@
 import { _tableState } from "./state.js";
 import { _injectTableStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -115,21 +111,25 @@ function _clearSortIndicators(table) {
 // ─── sortable ───────────────────────────────────────────────────────
 
 export function registerSortable(NoJS) {
-  NoJS.directive("sortable", {
+  NoJS.directive("sortable", defineDirective(NoJS, "sortable", {
     priority: 10,
-    init(el) {
+    subtree: true,
+    init(el, expr, be) {
       _injectTableStyles();
       el.classList.add("nojs-sortable");
+      // Host backend: a server re-render brings the rows back in server
+      // order and re-initializes this directive; keep the user's sort.
+      if (be.host) _reapplyHostSort(el);
     },
-  });
+  }));
 }
 
 // ─── sort ───────────────────────────────────────────────────────────
 
 export function registerSort(NoJS) {
-  NoJS.directive("sort", {
+  NoJS.directive("sort", defineDirective(NoJS, "sort", {
     priority: 11,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectTableStyles();
 
       const sortKey = expr;
@@ -158,7 +158,7 @@ export function registerSort(NoJS) {
       if (sortDefault === "asc" || sortDefault === "desc") {
         const state = _tableState.sorts.get(table);
         if (!state.column) {
-          _applySortFromTh(el, table, sortKey, sortType, sortDefault, NoJS);
+          _applySortFromTh(el, table, sortKey, sortType, sortDefault, be.host ? null : NoJS);
         }
       }
 
@@ -178,7 +178,7 @@ export function registerSort(NoJS) {
           nextDir = "asc";
         }
 
-        _applySortFromTh(el, table, sortKey, sortType, nextDir, NoJS);
+        _applySortFromTh(el, table, sortKey, sortType, nextDir, be.host ? null : NoJS);
       };
 
       // Keyboard: Enter/Space triggers sort (WCAG 2.1.1)
@@ -191,7 +191,7 @@ export function registerSort(NoJS) {
 
       el.addEventListener("click", clickHandler);
       el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", clickHandler);
         el.removeEventListener("keydown", keydownHandler);
         // Prune the per-table sort state (and captured original-order snapshots)
@@ -205,7 +205,7 @@ export function registerSort(NoJS) {
         }
       });
     },
-  });
+  }));
 }
 
 /**
@@ -228,8 +228,10 @@ function _applySortFromTh(th, table, sortKey, sortType, direction, NoJS) {
     state.direction = null;
   }
 
-  // Try reactive array sorting first (each/foreach binding)
-  const binding = _findEachBinding(table, NoJS);
+  // Try reactive array sorting first (each/foreach binding). Without core
+  // (host backend: rows rendered by the server, no client state) the
+  // rendered rows are sorted.
+  const binding = NoJS ? _findEachBinding(table, NoJS) : null;
 
   if (binding) {
     const ctx = NoJS.findContext(table);
@@ -267,6 +269,20 @@ function _applySortFromTh(th, table, sortKey, sortType, direction, NoJS) {
 
   // Fallback: DOM-based sorting for static table rows
   _sortStaticRows(table, th, sortKey, sortType, direction);
+}
+
+/**
+ * Host backend: re-sort freshly rendered rows by the table's current sort.
+ */
+function _reapplyHostSort(table) {
+  const state = _tableState.sorts.get(table);
+  if (!state || !state.column || !state.direction) return;
+  const th = Array.from(table.querySelectorAll("th[sort]")).find(
+    (t) => t.getAttribute("sort") === state.column
+  );
+  if (!th) return;
+  delete table._nojsOriginalRows;
+  _sortStaticRows(table, th, state.column, th.getAttribute("sort-type") || "string", state.direction);
 }
 
 /**
@@ -324,23 +340,23 @@ function _sortStaticRows(table, th, sortKey, sortType, direction) {
 // ─── fixed-header ───────────────────────────────────────────────────
 
 export function registerFixedHeader(NoJS) {
-  NoJS.directive("fixed-header", {
+  NoJS.directive("fixed-header", defineDirective(NoJS, "fixed-header", {
     priority: 10,
-    init(el) {
+    init(el, expr, be) {
       _injectTableStyles();
       el.classList.add("nojs-fixed-header");
     },
-  });
+  }));
 }
 
 // ─── fixed-col ──────────────────────────────────────────────────────
 
 export function registerFixedCol(NoJS) {
-  NoJS.directive("fixed-col", {
+  NoJS.directive("fixed-col", defineDirective(NoJS, "fixed-col", {
     priority: 10,
-    init(el) {
+    init(el, expr, be) {
       _injectTableStyles();
       el.classList.add("nojs-fixed-col");
     },
-  });
+  }));
 }

@@ -1,9 +1,5 @@
 import { _injectTableStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -81,9 +77,10 @@ function _calcRowDropIndex(tbody, mouseY) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerTableReorder(NoJS) {
-  NoJS.directive("table-reorder", {
+  NoJS.directive("table-reorder", defineDirective(NoJS, "table-reorder", {
     priority: 15,
-    init(el) {
+    subtree: true,
+    init(el, expr, be) {
       _injectTableStyles();
 
       // The directive must be on a <table> that also has `sortable` (table-sortable)
@@ -92,7 +89,8 @@ export function registerTableReorder(NoJS) {
       const tbody = el.querySelector("tbody");
       if (!tbody) return;
 
-      const ctx = NoJS.findContext(el);
+      // Host backend: no client state; rows are reordered in the DOM.
+      const ctx = be.host ? null : NoJS.findContext(el);
       const handleSel = el.getAttribute("table-reorder-handle");
       const dragClass = el.getAttribute("table-reorder-drag-class") || "nojs-row-dragging";
       const overClass = el.getAttribute("table-reorder-over-class") || "nojs-row-drag-over";
@@ -123,7 +121,7 @@ export function registerTableReorder(NoJS) {
               _handleAllowed = !!e.target.closest(handleSel);
             };
             row.addEventListener("mousedown", mousedownHandler);
-            addDisposer(row, () => row.removeEventListener("mousedown", mousedownHandler));
+            be.disposeOn(row, () => row.removeEventListener("mousedown", mousedownHandler));
           }
 
           // ── dragstart ─────────────────────────────────────────────
@@ -261,7 +259,7 @@ export function registerTableReorder(NoJS) {
           row.addEventListener("drop", dropHandler);
           row.addEventListener("dragend", dragendHandler);
 
-          addDisposer(row, () => {
+          be.disposeOn(row, () => {
             row.removeEventListener("dragstart", dragstartHandler);
             row.removeEventListener("dragover", dragoverHandler);
             row.removeEventListener("dragenter", dragoverHandler);
@@ -362,7 +360,7 @@ export function registerTableReorder(NoJS) {
       setupRows();
 
       // Cleanup
-      addDisposer(el, () => {
+      be.dispose(() => {
         observer.disconnect();
         tbody.removeEventListener("dragover", tbodyDragoverHandler);
         tbody.removeEventListener("dragenter", tbodyDragoverHandler);
@@ -370,5 +368,5 @@ export function registerTableReorder(NoJS) {
         _cleanup();
       });
     },
-  });
+  }));
 }

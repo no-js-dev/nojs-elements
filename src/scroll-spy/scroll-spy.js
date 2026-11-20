@@ -1,10 +1,6 @@
 import { _spyGroups, _spyElements } from "./state.js";
 import { _injectScrollSpyStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Resolve the target section ID from a spy element ───────────────
 function _resolveTargetId(el) {
@@ -143,9 +139,10 @@ function _spyWarn(NoJS, message) {
 
 // ─── Register spy directive ─────────────────────────────────────────
 export function registerScrollSpyDirective(NoJS) {
-  NoJS.directive("spy", {
+  NoJS.directive("spy", defineDirective(NoJS, "spy", {
     priority: 20,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectScrollSpyStyles();
 
       const targetId = _resolveTargetId(el);
@@ -154,7 +151,9 @@ export function registerScrollSpyDirective(NoJS) {
         // skipped — the directive matched the attr but no target was
         // resolvable. Non-<a> elements get a warning.
         if (el.tagName !== "A") {
-          _spyWarn(NoJS, '[spy] could not resolve target ID. Use spy="#targetId" or href="#targetId" on <a>.');
+          const msg = 'could not resolve target ID. Use spy="#targetId" or href="#targetId" on <a>.';
+          if (be.host) be.host.warn(msg);
+          else _spyWarn(NoJS, "[spy] " + msg);
         }
         return;
       }
@@ -193,7 +192,7 @@ export function registerScrollSpyDirective(NoJS) {
       }
 
       // ─── Cleanup ───────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         // Remove this spy entry from the group
         const idx = group.spyEntries.indexOf(spyEntry);
         if (idx !== -1) group.spyEntries.splice(idx, 1);
@@ -219,5 +218,5 @@ export function registerScrollSpyDirective(NoJS) {
         }
       });
     },
-  });
+  }));
 }
