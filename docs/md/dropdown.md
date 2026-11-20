@@ -181,3 +181,5 @@ No.JS automatically adds:
 ## Server-Rendered Hosts
 
 This element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), where expressions are evaluated on the server and the browser receives rendered HTML. With the CDN core nothing on this page changes. Markup and behavior are the same. `NoJS.dropdown` is available to page scripts.
+
+A menu without an `id` gets `nojs-dd-menu-<n>`, the lowest number no element of the page uses yet, so the same markup gets the same ids on both hosts. The menu carries the native `popover` attribute, but the [popover](popover.md) directive never initializes on it: the dropdown owns it.

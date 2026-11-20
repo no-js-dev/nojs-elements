@@ -814,6 +814,8 @@ The `validate` directive blocks the submit while the form is invalid. On every s
 
 `validate` also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`). There the validation engine this package ships (`dist/esm/validate-engine.mjs`) runs on the server with the same rules and messages, and the browser only reports field values and native validity. With the CDN core nothing on this page changes.
 
+A control the server does not validate (no `name`, or a `model` control whose name the host added for its no-JS form) sends nothing on `input` and `change`; the action it runs renders the form state itself.
+
 The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`).
 
 ### UI elements on server-rendered hosts
@@ -822,14 +824,15 @@ Every UI element runs on hosts that implement the NoJS plugin host API (`NoJS.ho
 
 - **accordion**: Markup and behavior are the same. A server re-render of the accordion's content re-initializes it on the new markup; the items keep the `open` state the server renders and the user's toggles while the content is unchanged.
 - **breadcrumb**: Manual mode is the same. Auto-track mode (no children) builds the trail from the page path and updates after each host navigation.
-- **dropdown**: Markup and behavior are the same. `NoJS.dropdown` is available to page scripts.
+- **dnd**: `drag` delivers the dragged value as an opaque reference; `drop` runs on the server with `$drag`, `$dropIndex`, `$source.index`, `$target.index`, `$dragType`, `$dragEffect` (no `$el`). `drag-list`: the server renders the rows (one `display: contents` wrapper per item) and runs reorder, move to another list and copy; the `nojs:dnd-*` events carry `list: null` and `fromList: null`. `drag-multiple`: same selection; a selection drag sends the selected items.
+- **dropdown**: Markup and behavior are the same. `NoJS.dropdown` is available to page scripts. A menu without an `id` gets `nojs-dd-menu-<n>` (lowest free number, the same on both hosts); the popover directive never initializes on a dropdown menu.
 - **modal**: Markup and behavior are the same. `NoJS.modal` is available to page scripts.
 - **popover**: Markup and behavior are the same. `NoJS.popover` is available to page scripts.
 - **scroll-spy**: Markup and behavior are the same.
 - **skeleton**: The `skeleton` expression is evaluated on the server. When its value changes, the server re-renders the attribute and the element switches state (without the fade transition core runs on a reactive change).
 - **split**: Markup and behavior are the same. A server re-render of the panes' content re-initializes the split, so pane sizes reset unless `split-persist` stores them.
-- **stepper**: The indicator, navigation, `step-validate` and the `stepper-validate` gate work the same; `step-validate` is evaluated on the server and read when Next is pressed. A server re-render of the steps keeps the current step. `$stepper` is not available to expressions, because expressions run on the server: use the built-in Previous/Next buttons or the indicator.
-- **table**: `sortable`, `sort`, `fixed-header`, `fixed-col` and `table-reorder` work on the rendered rows: sorting and reordering move the rows in the page, as they do here for a table without an `each` loop. A table rendered from an `each` loop is not re-sorted in its data, so other bindings that read the array keep its order. After a server re-render of the rows the current sort is applied again.
+- **stepper**: The indicator, navigation, `step-validate` and the `stepper-validate` gate work the same; `step-validate` is evaluated on the server and read when Next is pressed. A server re-render of the steps keeps the current step; each indicator tab links to its panel from the first render. `$stepper` is not available to expressions, because expressions run on the server: use the built-in Previous/Next buttons or the indicator.
+- **table**: `sortable`, `sort`, `fixed-header`, `fixed-col` and `table-reorder` work on the rendered rows: sorting and reordering move the rows in the page, as they do here for a table without an `each` loop. A table rendered from an `each` loop is not re-sorted in its data, so other bindings that read the array keep its order. After a server re-render of the rows the current sort is applied again; sorted rows stay before a loop's end marker.
 - **tabs**: Markup and behavior are the same; `tab-disabled` is evaluated on the server. A server re-render of the tabs keeps the selected tab and the generated ids.
 - **toast**: `toast` on a button, a link or an element with `on:click` shows its text on click, as here. On any other element `toast` is an expression evaluated on the server: a new truthy value shows a toast. `toast-container` works the same. `$toast(...)` is not available to expressions, because expressions run on the server; `NoJS.toast(...)` works from page scripts.
 - **tooltip**: Markup and behavior are the same; `tooltip-disabled` is evaluated on the server, and a change hides a visible tooltip.
