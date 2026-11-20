@@ -223,6 +223,7 @@ describe('tabs', () => {
     const el = document.querySelector('[tabs]');
     el.querySelectorAll('[role="tab"]')[0].click();
     expect(_tabsState.containers.get(el).activeIndex).toBe(0);
+    const ids = [...el.querySelectorAll('[role="tab"], [role="tabpanel"]')].map((n) => n.id);
 
     h.dispose(el, 'tabs');
     // The morph brings back the server markup, then the host re-inits.
@@ -231,6 +232,7 @@ describe('tabs', () => {
     const tabs = el.querySelectorAll('[role="tablist"] > [role="tab"]');
     expect(tabs[0].getAttribute('aria-selected')).toBe('true');
     expect(tabs[2].hasAttribute('aria-disabled')).toBe(false);
+    expect([...el.querySelectorAll('[role="tab"], [role="tabpanel"]')].map((n) => n.id)).toEqual(ids);
   });
 });
 
@@ -330,11 +332,13 @@ describe('stepper', () => {
     expect(current()).toBe(1);
     next();
     expect(current()).toBe(1);
+    const ids = [...el.querySelectorAll('.nojs-stepper-indicator-item')].map((i) => i.id);
 
     h.dispose(el, 'stepper');
     el.querySelectorAll('[step]')[1].setAttribute('step-validate', 'true');
     h.initAll();
     expect(current()).toBe(1);
+    expect([...el.querySelectorAll('.nojs-stepper-indicator-item')].map((i) => i.id)).toEqual(ids);
     next();
     expect(current()).toBe(2);
   });
