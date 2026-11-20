@@ -61,6 +61,19 @@ export function collectFacts(form) {
   return { values, native };
 }
 
+// Text entry fires "change" on blur, next to a focusout that already
+// reports. Any other control's "change" is one committed pick (a checkbox,
+// a radio, a select, a date): core re-validates on it at once, so the
+// submit auto-disable follows it without waiting for the debounce.
+const TEXT_ENTRY = new Set(["text", "search", "email", "url", "tel", "password", "number", ""]);
+
+function committedChange(target) {
+  if (!target || typeof target.tagName !== "string") return false;
+  if (target.tagName === "SELECT") return true;
+  if (target.tagName !== "INPUT") return false;
+  return !TEXT_ENTRY.has((target.getAttribute("type") || "").toLowerCase());
+}
+
 function readState(form, host) {
   const state = host.value(form, STATE_ATTR);
   return state && typeof state === "object" ? state : null;
@@ -161,7 +174,11 @@ function initForm(el, host) {
 
   if (!perField) {
     listen(el, "input", (e) => debounced("input", e.target && e.target.name));
-    listen(el, "change", (e) => debounced("change", e.target && e.target.name));
+    listen(el, "change", (e) => {
+      const name = e.target && e.target.name;
+      if (committedChange(e.target)) immediate("change", name);
+      else debounced("change", name);
+    });
     listen(el, "focusout", (e) => immediate("focusout", e.target && e.target.name));
   } else {
     for (const field of controls) {

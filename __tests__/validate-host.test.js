@@ -196,6 +196,23 @@ describe('facts', () => {
     expect(host.exec).toHaveBeenCalledTimes(2);
   });
 
+  test('a committed pick (checkbox, radio, select, date) reports its change at once', () => {
+    const form = mount(FORM('', `
+      <input name="title">
+      <input class="flag" type="checkbox">
+      <select name="size"><option>s</option><option>l</option></select>
+      <input name="due" type="date">`));
+    initValidate(form);
+    type(form.querySelector('[name=title]'), 'A');
+    form.querySelector('.flag').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(host.exec.mock.calls.map((c) => [c[1].trigger, c[1].field])).toEqual([['input', 'title'], ['change', undefined]]);
+    form.querySelector('[name=size]').dispatchEvent(new Event('change', { bubbles: true }));
+    form.querySelector('[name=due]').dispatchEvent(new Event('change', { bubbles: true }));
+    expect(host.exec.mock.calls.slice(2).map((c) => [c[1].trigger, c[1].field])).toEqual([['change', 'size'], ['change', 'due']]);
+    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
+    expect(host.exec).toHaveBeenCalledTimes(4);
+  });
+
   test('events of unnamed or non-field elements omit `field`; native is omitted when nothing fails', () => {
     const form = mount(FORM('', '<input name="ok"><input class="x"><button type="submit" name="btn">b</button>'));
     initValidate(form);
