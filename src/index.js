@@ -102,13 +102,6 @@ const ELEMENT_DIRECTIVE_ATTRS = [
   "spy", "spy-offset", "spy-threshold",
 ];
 
-// Directives whose module has not been migrated to the NoJS-Server host API.
-// On compiled sites each is registered as a stub that warns when used, so a
-// missing element is loud instead of silently inert.
-const HOST_PENDING_DIRECTIVES = ["drag-list", "drag-multiple"].filter(
-  (d) => !DND_HOST_DIRECTIVES.includes(d)
-);
-
 // Programmatic APIs a page script reaches through `window.NoJS`. On a
 // compiled site `install()` receives the integrator's registrar, so they
 // are also set on the integrator's `window.NoJS` compat object.
@@ -127,16 +120,6 @@ function _installHost(NoJS, options) {
   registerValidation(NoJS, options);
   _registerUiElements(NoJS, options);
   _exposeHostApis(NoJS);
-  for (const name of HOST_PENDING_DIRECTIVES) {
-    NoJS.directive(name, {
-      priority: 30,
-      init(el, host) {
-        host.warn(
-          `"${name}" is not yet available on NoJS-Server compiled sites (host API migration pending); the element is not initialized.`
-        );
-      },
-    });
-  }
 }
 
 // UI elements: one implementation per module, on both backends.

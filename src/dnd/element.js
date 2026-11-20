@@ -207,6 +207,18 @@ function _getOrCreateLiveRegion() {
   return _liveRegion;
 }
 
+// What a screen reader announces for an item: its aria-label, else its
+// visible text (hidden switch cases and the like left out) with the
+// markup's whitespace collapsed, so source indentation never decides
+// where the 50-character cut falls.
+function _itemLabel(el) {
+  if (!el) return "Item";
+  const aria = el.getAttribute("aria-label");
+  if (aria) return aria;
+  const text = typeof el.innerText === "string" ? el.innerText : el.textContent;
+  return (text || "").replace(/\s+/g, " ").trim().slice(0, 50) || "Item";
+}
+
 function _announce(message) {
   const region = _getOrCreateLiveRegion();
   if (!region) return;
@@ -393,7 +405,7 @@ function _initDrag(el, backend) {
     }
 
     // Screen reader announcement (WCAG 4.1.3)
-    const dragLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
+    const dragLabel = _itemLabel(el);
     _announce(`Grabbed ${dragLabel}. Use arrow keys to move.`);
 
     // Dispatch custom event
@@ -477,7 +489,7 @@ function _initDrag(el, backend) {
         listDirective: null,
       };
       dragClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-      const kbLabel = el.getAttribute("aria-label") || el.textContent?.trim()?.slice(0, 50) || "Item";
+      const kbLabel = _itemLabel(el);
       _announce(`Grabbed ${kbLabel}. Use arrow keys to move.`);
       el.dispatchEvent(
         new CustomEvent("nojs:dnd-start", {
@@ -793,469 +805,602 @@ function _initDrop(el, backend) {
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDragList(NoJS) {
+  if (isHostBackend(NoJS)) {
+    NoJS.directive("drag-list", {
+      priority: 10,
+      // Rows are server-rendered: a morph keeps the decorated rows while the
+      // server markup is unchanged and re-initializes on new rows.
+      subtree: true,
+      init(el, host) {
+        _injectDndStyles();
+        _initDragList(el, el.getAttribute("drag-list"), _hostDragListBackend(el, host));
+      },
+    });
+    return;
+  }
+
   _removeCoreStub(NoJS, "drag-list");
 
   NoJS.directive("drag-list", {
     priority: 10,
     init(el, name, listPath) {
       _injectDndStyles();
-      const ctx = NoJS.findContext(el);
-      _markBound(el, ctx);
-
-      const tplId = el.getAttribute("template");
-      const keyProp = el.getAttribute("drag-list-key");
-      const itemName = el.getAttribute("drag-list-item") || "item";
-      const sortDir = el.getAttribute("drop-sort") || "vertical";
-      const type = el.getAttribute("drag-type") || ("__draglist_" + listPath);
-      const acceptAttr = el.getAttribute("drop-accept") || type;
-      const copyMode = el.hasAttribute("drag-list-copy");
-      const removeMode = el.hasAttribute("drag-list-remove");
-      const disabledDragExpr = el.getAttribute("drag-disabled");
-      const disabledDropExpr = el.getAttribute("drop-disabled");
-      const maxExpr = el.getAttribute("drop-max");
-      const placeholderAttr = el.getAttribute("drop-placeholder");
-      const placeholderClass = el.getAttribute("drop-placeholder-class");
-      const dragClass = el.getAttribute("drag-class") || "nojs-dragging";
-      const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
-      const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
-      const settleClass = el.getAttribute("drop-settle-class") || "nojs-drop-settle";
-      const emptyClass = el.getAttribute("drop-empty-class") || "nojs-drag-list-empty";
-
-      // Accessibility
-      el.setAttribute("role", "listbox");
-      el.setAttribute("aria-dropeffect", copyMode ? "copy" : "move");
-
-      // Register for cross-list communication
-      const listInfo = { listPath, ctx, el };
-      _dragListRegistry.set(el, listInfo);
-      addDisposer(el, () => _dragListRegistry.delete(el));
-
-      let _enterDepth = 0;
-      let _prevList = null;
-
-      // ─── Render items ──────────────────────────────────────────────────
-      function renderItems() {
-        const list = NoJS.resolve(listPath, ctx);
-        if (!Array.isArray(list)) return;
-
-        // Same reference & items already rendered — propagate to children
-        // without rebuilding the DOM (preserves focus, input state, etc.)
-        if (list === _prevList && list.length > 0 && el.children.length > 0) {
-          for (const child of el.children) {
-            if (child.__ctx && child.__ctx.$notify) child.__ctx.$notify();
-          }
-          return;
-        }
-        _prevList = list;
-
-        const tpl = tplId ? document.getElementById(tplId) : null;
-        if (!tpl) return;
-
-        const disposeChildren = _internal(NoJS, 'disposeChildren');
-        if (typeof disposeChildren === 'function') disposeChildren(el);
-        el.innerHTML = "";
-        const count = list.length;
-
-        list.forEach((item, i) => {
-          const childData = {
-            [itemName]: item,
-            $index: i,
-            $count: count,
-            $first: i === 0,
-            $last: i === count - 1,
-            $even: i % 2 === 0,
-            $odd: i % 2 !== 0,
-          };
-          const childCtx = NoJS.createContext(childData, ctx);
-
-          const clone = tpl.content.cloneNode(true);
-          const wrapper = document.createElement("div");
-          wrapper.style.display = "contents";
-          wrapper.__ctx = childCtx;
-          // role="option" goes on the rendered, focusable item (dragEl) below —
-          // the display:contents wrapper is not a perceivable a11y node.
-
-          // Append clone first so we can access the visible child
-          wrapper.appendChild(clone);
-          el.appendChild(wrapper);
-
-          // The drag source is the first visible child
-          // (display:contents wrapper has no box, so draggable must be on a rendered element)
-          const dragEl = wrapper.firstElementChild || wrapper;
-          dragEl.draggable = true;
-          dragEl.setAttribute("role", "option");
-          dragEl.setAttribute("aria-roledescription", "draggable item");
-          if (!dragEl.getAttribute("tabindex")) dragEl.setAttribute("tabindex", "0");
-
-          // Per-item drag handlers (on wrapper so events from dragEl bubble up to them)
-          const itemDragstart = (e) => {
-            if (disabledDragExpr && NoJS.evaluate(disabledDragExpr, ctx)) {
-              e.preventDefault();
-              return;
-            }
-            _dndState.dragging = {
-              item,
-              type,
-              effect: copyMode ? "copy" : "move",
-              sourceEl: wrapper,
-              sourceCtx: childCtx,
-              sourceList: list,
-              sourceIndex: i,
-              listDirective: { el, listPath, ctx, keyProp, copyMode, removeMode },
-            };
-            if (e.dataTransfer) {
-              e.dataTransfer.effectAllowed = copyMode ? "copy" : "move";
-              e.dataTransfer.setData("text/plain", "");
-            }
-            dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.add(c));
-            const dlItemLabel = dragEl.getAttribute("aria-label") || dragEl.textContent?.trim()?.slice(0, 50) || "Item";
-            _announce(`Grabbed ${dlItemLabel}. Use arrow keys to reorder.`);
-
-            el.dispatchEvent(
-              new CustomEvent("nojs:dnd-start", {
-                bubbles: true,
-                detail: { item, index: i, el: dragEl },
-              })
-            );
-          };
-
-          const itemDragend = () => {
-            dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.remove(c));
-
-            // If drag-list-remove and item was NOT dropped in a target, no action
-            // If dragging state is still set, it wasn't dropped
-            if (_dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
-              _dndState.dragging = null;
-            }
-            _removePlaceholder();
-          };
-
-          wrapper.addEventListener("dragstart", itemDragstart);
-          wrapper.addEventListener("dragend", itemDragend);
-
-          // Keyboard DnD on items
-          const itemKeydown = (e) => {
-            if (e.key === " " && !_dndState.dragging) {
-              e.preventDefault();
-              // Stop the grab keypress from bubbling to the list container's
-              // Enter/Space drop handler, which would otherwise immediately drop
-              // the item we just grabbed (grab + drop in one keystroke).
-              e.stopPropagation();
-              _dndState.dragging = {
-                item,
-                type,
-                effect: copyMode ? "copy" : "move",
-                sourceEl: wrapper,
-                sourceCtx: childCtx,
-                sourceList: list,
-                sourceIndex: i,
-                listDirective: { el, listPath, ctx, keyProp, copyMode, removeMode },
-              };
-              dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.add(c));
-              const kbDlItemLabel = dragEl.getAttribute("aria-label") || dragEl.textContent?.trim()?.slice(0, 50) || "Item";
-              _announce(`Grabbed ${kbDlItemLabel}. Use arrow keys to reorder.`);
-            } else if (e.key === "Escape" && _dndState.dragging) {
-              e.preventDefault();
-              e.stopPropagation();
-              // Reset the grabbed item's visual state. Resolve by the live DOM
-              // (nojs-dragging class within this list) so a re-render that swapped
-              // the wrapper between grab and cancel can't strand the dragging flag.
-              const grabbedEl =
-                el.querySelector(`.${dragClass.split(/\s+/)[0]}`) || dragEl;
-              dragClass.split(/\s+/).filter(Boolean).forEach((c) => grabbedEl.classList.remove(c));
-              _announce("Reorder cancelled.");
-              _dndState.dragging = null;
-              _removePlaceholder();
-            } else if ((e.key === "ArrowDown" || e.key === "ArrowRight") && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
-              e.preventDefault();
-              // Navigate to next item via wrapper siblings
-              const nextWrapper = wrapper.nextElementSibling;
-              if (nextWrapper) {
-                const nextEl = nextWrapper.firstElementChild || nextWrapper;
-                nextEl.focus();
-                const siblings = [...el.children].filter(c => !c.classList.contains("nojs-drop-placeholder"));
-                const pos = siblings.indexOf(nextWrapper) + 1;
-                _announce(`Moved to position ${pos} of ${siblings.length}.`);
-              }
-            } else if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
-              e.preventDefault();
-              const prevWrapper = wrapper.previousElementSibling;
-              if (prevWrapper) {
-                const prevEl = prevWrapper.firstElementChild || prevWrapper;
-                prevEl.focus();
-                const siblings = [...el.children].filter(c => !c.classList.contains("nojs-drop-placeholder"));
-                const pos = siblings.indexOf(prevWrapper) + 1;
-                _announce(`Moved to position ${pos} of ${siblings.length}.`);
-              }
-            }
-          };
-          wrapper.addEventListener("keydown", itemKeydown);
-
-          // Register cleanup on wrapper so disposers run when disposeChildren(el) is called
-          wrapper.__disposers = wrapper.__disposers || [];
-          wrapper.__disposers.push(
-            () => wrapper.removeEventListener("dragstart", itemDragstart),
-            () => wrapper.removeEventListener("dragend", itemDragend),
-            () => wrapper.removeEventListener("keydown", itemKeydown),
-          );
-
-          NoJS.processTree(wrapper);
-        });
-
-        // Toggle empty class so the container remains a viable drop target
-        const isEmpty = list.length === 0;
-        emptyClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.toggle(c, isEmpty));
-      }
-
-      // ─── Drop zone handlers on the list container ─────────────────────
-      const dragoverHandler = (e) => {
-        if (!_dndState.dragging) return;
-        if (disabledDropExpr && NoJS.evaluate(disabledDropExpr, ctx)) return;
-
-        const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-        let maxOk = true;
-        if (maxExpr) {
-          const max = NoJS.evaluate(maxExpr, ctx);
-          const list = NoJS.resolve(listPath, ctx);
-          if (typeof max === "number" && Array.isArray(list) && list.length >= max) maxOk = false;
-        }
-
-        if (!typeOk || !maxOk) {
-          rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          _removePlaceholder();
-          return;
-        }
-
-        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-
-        e.preventDefault();
-        if (e.dataTransfer) e.dataTransfer.dropEffect = copyMode ? "copy" : "move";
-
-        const idx = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
-        if (placeholderAttr) {
-          _insertPlaceholder(el, idx, placeholderAttr, placeholderClass);
-        }
-      };
-
-      // An accepting list cancels every dragenter, as the drop zone does.
-      const dragenterHandler = (e) => {
-        if (!_dndState.dragging) return;
-        if (disabledDropExpr && NoJS.evaluate(disabledDropExpr, ctx)) return;
-
-        const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
-        let maxOk = true;
-        if (maxExpr) {
-          const max = NoJS.evaluate(maxExpr, ctx);
-          const list = NoJS.resolve(listPath, ctx);
-          if (typeof max === "number" && Array.isArray(list) && list.length >= max) maxOk = false;
-        }
-
-        if (typeOk && maxOk) {
-          e.preventDefault();
-          if (e.dataTransfer) e.dataTransfer.dropEffect = copyMode ? "copy" : "move";
-        }
-
-        _enterDepth++;
-        if (_enterDepth === 1) {
-          if (typeOk && maxOk) {
-            dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-            el.dispatchEvent(
-              new CustomEvent("nojs:dnd-enter", {
-                bubbles: false,
-                detail: { item: _dndState.dragging.item, type: _dndState.dragging.type },
-              })
-            );
-          } else {
-            rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          }
-        }
-      };
-
-      const dragleaveHandler = () => {
-        if (!_dndState.dragging) return;
-        _enterDepth--;
-        if (_enterDepth <= 0) {
-          _enterDepth = 0;
-          dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          _removePlaceholder();
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-leave", {
-              bubbles: false,
-              detail: { item: _dndState.dragging?.item },
-            })
-          );
-        }
-      };
-
-      const dropHandler = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        _enterDepth = 0;
-
-        if (!_dndState.dragging) return;
-        if (disabledDropExpr && NoJS.evaluate(disabledDropExpr, ctx)) return;
-        if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
-
-        // Max check
-        if (maxExpr) {
-          const max = NoJS.evaluate(maxExpr, ctx);
-          const list = NoJS.resolve(listPath, ctx);
-          if (typeof max === "number" && Array.isArray(list) && list.length >= max) return;
-        }
-
-        const dragItem = _dndState.dragging.item;
-        const sourceInfo = _dndState.dragging.listDirective;
-        const sourceIndex = _dndState.dragging.sourceIndex;
-
-        const dropIndex = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
-
-        // Remove visual feedback
-        dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-        _removePlaceholder();
-
-        const targetList = NoJS.resolve(listPath, ctx);
-        if (!Array.isArray(targetList)) return;
-
-        // Self-drop check: same list, same position
-        const isSameList = sourceInfo && sourceInfo.el === el;
-        if (isSameList && sourceIndex === dropIndex) {
-          _dndState.dragging = null;
-          return;
-        }
-        // Same list, but adjacent position (effectively same position)
-        if (isSameList && sourceIndex + 1 === dropIndex) {
-          _dndState.dragging = null;
-          return;
-        }
-
-        // Perform the list mutation
-        let newTargetList = [...targetList];
-
-        if (isSameList) {
-          // Same-list reorder
-          const [moved] = newTargetList.splice(sourceIndex, 1);
-          const insertAt = sourceIndex < dropIndex ? dropIndex - 1 : dropIndex;
-          newTargetList.splice(insertAt, 0, moved);
-          ctx.$set(listPath, newTargetList);
-
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-reorder", {
-              bubbles: true,
-              detail: { list: newTargetList, item: dragItem, from: sourceIndex, to: insertAt },
-            })
-          );
-        } else {
-          // Cross-list transfer
-          const itemToInsert = copyMode ? (typeof dragItem === "object" ? { ...dragItem } : dragItem) : dragItem;
-          newTargetList.splice(dropIndex, 0, itemToInsert);
-          ctx.$set(listPath, newTargetList);
-
-          // Remove from source if move mode
-          if (sourceInfo && !sourceInfo.copyMode && (removeMode || sourceInfo.removeMode)) {
-            const sourceList = NoJS.resolve(sourceInfo.listPath, sourceInfo.ctx);
-            if (Array.isArray(sourceList) && sourceIndex != null) {
-              const newSourceList = sourceList.filter((_, idx) => idx !== sourceIndex);
-              sourceInfo.ctx.$set(sourceInfo.listPath, newSourceList);
-
-              sourceInfo.el.dispatchEvent(
-                new CustomEvent("nojs:dnd-remove", {
-                  bubbles: true,
-                  detail: { list: newSourceList, item: dragItem, index: sourceIndex },
-                })
-              );
-            }
-          }
-
-          el.dispatchEvent(
-            new CustomEvent("nojs:dnd-receive", {
-              bubbles: true,
-              detail: {
-                list: newTargetList,
-                item: dragItem,
-                from: sourceIndex,
-                fromList: sourceInfo ? NoJS.resolve(sourceInfo.listPath, sourceInfo.ctx) : null,
-              },
-            })
-          );
-        }
-
-        // Announce drop for screen readers (WCAG 4.1.3)
-        const dlDropLabel =
-          (_dndState.dragging?.sourceEl?.firstElementChild?.getAttribute("aria-label") ||
-           _dndState.dragging?.sourceEl?.firstElementChild?.textContent?.trim()?.slice(0, 50)) || "Item";
-        const finalPos = isSameList ? (sourceIndex < dropIndex ? dropIndex : dropIndex + 1) : dropIndex + 1;
-        _announce(`Dropped ${dlDropLabel} at position ${finalPos}.`);
-
-        // Settle animation (apply to visible child, not display:contents wrapper)
-        requestAnimationFrame(() => {
-          const children = [...el.children];
-          const targetChild = children[isSameList ? (sourceIndex < dropIndex ? dropIndex - 1 : dropIndex) : dropIndex];
-          if (targetChild) {
-            const animEl = targetChild.firstElementChild || targetChild;
-            settleClass.split(/\s+/).filter(Boolean).forEach((c) => animEl.classList.add(c));
-            animEl.addEventListener("animationend", () => {
-              settleClass.split(/\s+/).filter(Boolean).forEach((c) => animEl.classList.remove(c));
-            }, { once: true });
-          }
-        });
-
-        // Clear dragging state
-        _dndState.dragging = null;
-      };
-
-      // Keyboard: Enter/Space to drop
-      const keydownHandler = (e) => {
-        if (!_dndState.dragging) return;
-        if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          // Simulate drop at the focused element's position
-          const focused = el.querySelector(":focus");
-          if (focused) {
-            const measured = focused.style?.display === "contents"
-              ? (focused.firstElementChild || focused) : focused;
-            const rect = measured.getBoundingClientRect();
-            const fakeEvent = {
-              preventDefault() {},
-              stopPropagation() {},
-              clientX: rect.left + rect.width / 2,
-              clientY: rect.top + rect.height + 1,
-              dataTransfer: null,
-            };
-            dropHandler(fakeEvent);
-          }
-        }
-      };
-
-      el.addEventListener("dragover", dragoverHandler);
-      el.addEventListener("dragenter", dragenterHandler);
-      el.addEventListener("dragleave", dragleaveHandler);
-      el.addEventListener("drop", dropHandler);
-      el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => {
-        el.removeEventListener("dragover", dragoverHandler);
-        el.removeEventListener("dragenter", dragenterHandler);
-        el.removeEventListener("dragleave", dragleaveHandler);
-        el.removeEventListener("drop", dropHandler);
-        el.removeEventListener("keydown", keydownHandler);
-      });
-
-      // ─── Reactive rendering ──────────────────────────────────────────
-      const unwatchList = ctx.$watch(renderItems);
-      addDisposer(el, unwatchList);
-      renderItems();
+      _initDragList(el, listPath, _coreDragListBackend(NoJS, el, listPath));
     },
   });
 }
+
+// Core backend: the list lives in the element's reactive context; the
+// directive renders its rows and writes the edited arrays back.
+function _coreDragListBackend(NoJS, el, listPath) {
+  const ctx = NoJS.findContext(el);
+  _markBound(el, ctx);
+  const disabledDragExpr = el.getAttribute("drag-disabled");
+  const disabledDropExpr = el.getAttribute("drop-disabled");
+  const maxExpr = el.getAttribute("drop-max");
+  const list = () => NoJS.resolve(listPath, ctx);
+  return {
+    ctx,
+    dragDisabled: () => !!(disabledDragExpr && NoJS.evaluate(disabledDragExpr, ctx)),
+    dropDisabled: () => !!(disabledDropExpr && NoJS.evaluate(disabledDropExpr, ctx)),
+    full() {
+      if (!maxExpr) return false;
+      const max = NoJS.evaluate(maxExpr, ctx);
+      const l = list();
+      return typeof max === "number" && Array.isArray(l) && l.length >= max;
+    },
+    canEdit: () => Array.isArray(list()),
+    move(from, to) {
+      const next = [...list()];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      ctx.$set(listPath, next);
+      return next;
+    },
+    insert(index, item, copy) {
+      const next = [...list()];
+      next.splice(index, 0, copy ? (typeof item === "object" ? { ...item } : item) : item);
+      ctx.$set(listPath, next);
+      return next;
+    },
+    removeAt(index) {
+      const l = list();
+      if (!Array.isArray(l)) return undefined;
+      const next = l.filter((_, idx) => idx !== index);
+      ctx.$set(listPath, next);
+      return next;
+    },
+    current: list,
+    settle: (index, apply) => requestAnimationFrame(() => apply(index)),
+    render: (setupRow, toggleEmpty) => _renderCoreRows(NoJS, el, ctx, listPath, setupRow, toggleEmpty),
+    onDispose: (fn) => addDisposer(el, fn),
+  };
+}
+
+// Core rendering: one display:contents wrapper per item, its row context
+// holding the item and the loop variables.
+function _renderCoreRows(NoJS, el, ctx, listPath, setupRow, toggleEmpty) {
+  const tplId = el.getAttribute("template");
+  const itemName = el.getAttribute("drag-list-item") || "item";
+  let _prevList = null;
+
+  function renderItems() {
+    const list = NoJS.resolve(listPath, ctx);
+    if (!Array.isArray(list)) return;
+
+    // Same reference & items already rendered — propagate to children
+    // without rebuilding the DOM (preserves focus, input state, etc.)
+    if (list === _prevList && list.length > 0 && el.children.length > 0) {
+      for (const child of el.children) {
+        if (child.__ctx && child.__ctx.$notify) child.__ctx.$notify();
+      }
+      return;
+    }
+    _prevList = list;
+
+    const tpl = tplId ? document.getElementById(tplId) : null;
+    if (!tpl) return;
+
+    const disposeChildren = _internal(NoJS, 'disposeChildren');
+    if (typeof disposeChildren === 'function') disposeChildren(el);
+    el.innerHTML = "";
+    const count = list.length;
+
+    list.forEach((item, i) => {
+      const childData = {
+        [itemName]: item,
+        $index: i,
+        $count: count,
+        $first: i === 0,
+        $last: i === count - 1,
+        $even: i % 2 === 0,
+        $odd: i % 2 !== 0,
+      };
+      const childCtx = NoJS.createContext(childData, ctx);
+
+      const clone = tpl.content.cloneNode(true);
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "contents";
+      wrapper.__ctx = childCtx;
+      // role="option" goes on the rendered, focusable item (dragEl) below —
+      // the display:contents wrapper is not a perceivable a11y node.
+
+      // Append clone first so we can access the visible child
+      wrapper.appendChild(clone);
+      el.appendChild(wrapper);
+
+      // Register cleanup on wrapper so disposers run when disposeChildren(el) is called
+      wrapper.__disposers = wrapper.__disposers || [];
+      setupRow(wrapper, i, item, list, childCtx, (fn) => wrapper.__disposers.push(fn));
+
+      NoJS.processTree(wrapper);
+    });
+
+    toggleEmpty(list.length === 0);
+  }
+
+  const unwatchList = ctx.$watch(renderItems);
+  addDisposer(el, unwatchList);
+  renderItems();
+}
+
+// Host backend (compiled sites): the server rendered the rows (one wrapper
+// per item, the item sealed in data-nj-list-item) and compiled the edits to
+// actions whose keys sit in data-nj-list-move / -insert / -remove. The
+// mechanics report indices; the server edits the list and re-renders it.
+function _hostDragListBackend(el, host) {
+  const exec = (attr, payload) => {
+    const key = el.getAttribute(attr);
+    if (key) host.exec(key, payload);
+  };
+  const rows = () => [...el.children].filter((c) => c.hasAttribute("data-nj-list-item"));
+  return {
+    ctx: null,
+    dragDisabled: () => !!host.value(el, "drag-disabled"),
+    dropDisabled: () => !!host.value(el, "drop-disabled"),
+    full() {
+      const max = host.value(el, "drop-max");
+      return typeof max === "number" && rows().length >= max;
+    },
+    canEdit: () => el.hasAttribute("data-nj-list-move"),
+    move(from, to) {
+      exec("data-nj-list-move", { $from: from, $to: to });
+      return null;
+    },
+    // A copy is a fresh value server-side: the sealed reference unseals to a new object.
+    insert(index, item) {
+      exec("data-nj-list-insert", { $index: index, $item: item });
+      return null;
+    },
+    removeAt(index) {
+      exec("data-nj-list-remove", { $index: index });
+      return null;
+    },
+    current: () => null,
+    // The edited rows arrive with the server's re-render, which
+    // re-initializes the list: the settle waits for them. A later envelope
+    // can re-initialize the list again (a move to another list sends two
+    // actions), so the class is re-applied until the animation ends, as
+    // core keeps it, or until the row count changes, when core would have
+    // rebuilt its rows.
+    settle(index) {
+      el.__nojsDragListSettle = { index, count: null };
+    },
+    render(setupRow, toggleEmpty, settleRow) {
+      // The loop's comment markers are not part of core's rows.
+      for (const node of [...el.childNodes]) if (node.nodeType === 8) node.remove();
+      const all = rows();
+      all.forEach((wrapper, i) => {
+        const item = wrapper.getAttribute("data-nj-list-item");
+        setupRow(wrapper, i, item, null, null, (fn) => host.onDispose(wrapper, fn));
+      });
+      toggleEmpty(all.length === 0);
+      const settle = el.__nojsDragListSettle;
+      if (settle && (settle.count === null || settle.count === all.length)) {
+        settle.count = all.length;
+        const animEl = settleRow(settle.index);
+        animEl?.addEventListener("animationend", () => {
+          if (el.__nojsDragListSettle === settle) delete el.__nojsDragListSettle;
+        }, { once: true });
+      } else {
+        delete el.__nojsDragListSettle;
+      }
+    },
+    onDispose: (fn) => host.onDispose(el, fn),
+  };
+}
+
+function _initDragList(el, listPath, b) {
+  const ctx = b.ctx;
+  const keyProp = el.getAttribute("drag-list-key");
+  const sortDir = el.getAttribute("drop-sort") || "vertical";
+  const type = el.getAttribute("drag-type") || ("__draglist_" + listPath);
+  const acceptAttr = el.getAttribute("drop-accept") || type;
+  const copyMode = el.hasAttribute("drag-list-copy");
+  const removeMode = el.hasAttribute("drag-list-remove");
+  const placeholderAttr = el.getAttribute("drop-placeholder");
+  const placeholderClass = el.getAttribute("drop-placeholder-class");
+  const dragClass = el.getAttribute("drag-class") || "nojs-dragging";
+  const dropClass = el.getAttribute("drop-class") || "nojs-drag-over";
+  const rejectClass = el.getAttribute("drop-reject-class") || "nojs-drop-reject";
+  const settleClass = el.getAttribute("drop-settle-class") || "nojs-drop-settle";
+  const emptyClass = el.getAttribute("drop-empty-class") || "nojs-drag-list-empty";
+
+  // Accessibility
+  el.setAttribute("role", "listbox");
+  el.setAttribute("aria-dropeffect", copyMode ? "copy" : "move");
+
+  // Register for cross-list communication
+  const listInfo = { listPath, ctx, el };
+  _dragListRegistry.set(el, listInfo);
+  b.onDispose(() => _dragListRegistry.delete(el));
+
+  let _enterDepth = 0;
+
+  // ─── Rows ──────────────────────────────────────────────────────────
+  const toggleEmpty = (isEmpty) => {
+    // Toggle empty class so the container remains a viable drop target
+    emptyClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.toggle(c, isEmpty));
+  };
+
+  function setupRow(wrapper, i, item, list, childCtx, disposeRow) {
+    // The drag source is the first visible child
+    // (display:contents wrapper has no box, so draggable must be on a rendered element)
+    const dragEl = wrapper.firstElementChild || wrapper;
+    dragEl.draggable = true;
+    dragEl.setAttribute("role", "option");
+    dragEl.setAttribute("aria-roledescription", "draggable item");
+    if (!dragEl.getAttribute("tabindex")) dragEl.setAttribute("tabindex", "0");
+
+    // Per-item drag handlers (on wrapper so events from dragEl bubble up to them)
+    const itemDragstart = (e) => {
+      if (b.dragDisabled()) {
+        e.preventDefault();
+        return;
+      }
+      _dndState.dragging = {
+        item,
+        type,
+        effect: copyMode ? "copy" : "move",
+        sourceEl: wrapper,
+        sourceCtx: childCtx,
+        sourceList: list,
+        sourceIndex: i,
+        listDirective: { el, listPath, ctx, keyProp, copyMode, removeMode, backend: b },
+      };
+      if (e.dataTransfer) {
+        e.dataTransfer.effectAllowed = copyMode ? "copy" : "move";
+        e.dataTransfer.setData("text/plain", "");
+      }
+      dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.add(c));
+      const dlItemLabel = _itemLabel(dragEl);
+      _announce(`Grabbed ${dlItemLabel}. Use arrow keys to reorder.`);
+
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-start", {
+          bubbles: true,
+          detail: { item, index: i, el: dragEl },
+        })
+      );
+    };
+
+    const itemDragend = () => {
+      dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.remove(c));
+
+      // If drag-list-remove and item was NOT dropped in a target, no action
+      // If dragging state is still set, it wasn't dropped
+      if (_dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
+        _dndState.dragging = null;
+      }
+      _removePlaceholder();
+    };
+
+    wrapper.addEventListener("dragstart", itemDragstart);
+    wrapper.addEventListener("dragend", itemDragend);
+
+    // Keyboard DnD on items
+    const itemKeydown = (e) => {
+      if (e.key === " " && !_dndState.dragging) {
+        e.preventDefault();
+        // Stop the grab keypress from bubbling to the list container's
+        // Enter/Space drop handler, which would otherwise immediately drop
+        // the item we just grabbed (grab + drop in one keystroke).
+        e.stopPropagation();
+        _dndState.dragging = {
+          item,
+          type,
+          effect: copyMode ? "copy" : "move",
+          sourceEl: wrapper,
+          sourceCtx: childCtx,
+          sourceList: list,
+          sourceIndex: i,
+          listDirective: { el, listPath, ctx, keyProp, copyMode, removeMode, backend: b },
+        };
+        dragClass.split(/\s+/).filter(Boolean).forEach((c) => dragEl.classList.add(c));
+        const kbDlItemLabel = _itemLabel(dragEl);
+        _announce(`Grabbed ${kbDlItemLabel}. Use arrow keys to reorder.`);
+      } else if (e.key === "Escape" && _dndState.dragging) {
+        e.preventDefault();
+        e.stopPropagation();
+        // Reset the grabbed item's visual state. Resolve by the live DOM
+        // (nojs-dragging class within this list) so a re-render that swapped
+        // the wrapper between grab and cancel can't strand the dragging flag.
+        const grabbedEl =
+          el.querySelector(`.${dragClass.split(/\s+/)[0]}`) || dragEl;
+        dragClass.split(/\s+/).filter(Boolean).forEach((c) => grabbedEl.classList.remove(c));
+        _announce("Reorder cancelled.");
+        _dndState.dragging = null;
+        _removePlaceholder();
+      } else if ((e.key === "ArrowDown" || e.key === "ArrowRight") && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
+        e.preventDefault();
+        // Navigate to next item via wrapper siblings
+        const nextWrapper = wrapper.nextElementSibling;
+        if (nextWrapper) {
+          const nextEl = nextWrapper.firstElementChild || nextWrapper;
+          nextEl.focus();
+          const siblings = [...el.children].filter(c => !c.classList.contains("nojs-drop-placeholder"));
+          const pos = siblings.indexOf(nextWrapper) + 1;
+          _announce(`Moved to position ${pos} of ${siblings.length}.`);
+        }
+      } else if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && _dndState.dragging && _dndState.dragging.sourceEl === wrapper) {
+        e.preventDefault();
+        const prevWrapper = wrapper.previousElementSibling;
+        if (prevWrapper) {
+          const prevEl = prevWrapper.firstElementChild || prevWrapper;
+          prevEl.focus();
+          const siblings = [...el.children].filter(c => !c.classList.contains("nojs-drop-placeholder"));
+          const pos = siblings.indexOf(prevWrapper) + 1;
+          _announce(`Moved to position ${pos} of ${siblings.length}.`);
+        }
+      }
+    };
+    wrapper.addEventListener("keydown", itemKeydown);
+
+    disposeRow(() => wrapper.removeEventListener("dragstart", itemDragstart));
+    disposeRow(() => wrapper.removeEventListener("dragend", itemDragend));
+    disposeRow(() => wrapper.removeEventListener("keydown", itemKeydown));
+  }
+
+  function settleRow(index) {
+    const targetChild = [...el.children][index];
+    if (targetChild) {
+      const animEl = targetChild.firstElementChild || targetChild;
+      settleClass.split(/\s+/).filter(Boolean).forEach((c) => animEl.classList.add(c));
+      animEl.addEventListener("animationend", () => {
+        settleClass.split(/\s+/).filter(Boolean).forEach((c) => animEl.classList.remove(c));
+      }, { once: true });
+      return animEl;
+    }
+    return null;
+  }
+
+  // ─── Drop zone handlers on the list container ─────────────────────
+  const dragoverHandler = (e) => {
+    if (!_dndState.dragging) return;
+    if (b.dropDisabled()) return;
+
+    const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+    const maxOk = !b.full();
+
+    if (!typeOk || !maxOk) {
+      rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      _removePlaceholder();
+      return;
+    }
+
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = copyMode ? "copy" : "move";
+
+    const idx = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
+    if (placeholderAttr) {
+      _insertPlaceholder(el, idx, placeholderAttr, placeholderClass);
+    }
+  };
+
+  // An accepting list cancels every dragenter, as the drop zone does.
+  const dragenterHandler = (e) => {
+    if (!_dndState.dragging) return;
+    if (b.dropDisabled()) return;
+
+    const typeOk = _isTypeAccepted(_dndState.dragging.type, acceptAttr);
+    const maxOk = !b.full();
+
+    if (typeOk && maxOk) {
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = copyMode ? "copy" : "move";
+    }
+
+    _enterDepth++;
+    if (_enterDepth === 1) {
+      if (typeOk && maxOk) {
+        dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+        el.dispatchEvent(
+          new CustomEvent("nojs:dnd-enter", {
+            bubbles: false,
+            detail: { item: _dndState.dragging.item, type: _dndState.dragging.type },
+          })
+        );
+      } else {
+        rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      }
+    }
+  };
+
+  const dragleaveHandler = () => {
+    if (!_dndState.dragging) return;
+    _enterDepth--;
+    if (_enterDepth <= 0) {
+      _enterDepth = 0;
+      dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      _removePlaceholder();
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-leave", {
+          bubbles: false,
+          detail: { item: _dndState.dragging?.item },
+        })
+      );
+    }
+  };
+
+  const dropHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    _enterDepth = 0;
+
+    if (!_dndState.dragging) return;
+    if (b.dropDisabled()) return;
+    if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
+
+    // Max check
+    if (b.full()) return;
+
+    const dragItem = _dndState.dragging.item;
+    const sourceInfo = _dndState.dragging.listDirective;
+    const sourceIndex = _dndState.dragging.sourceIndex;
+
+    const dropIndex = _calcDropIndex(el, e.clientX, e.clientY, sortDir);
+
+    // Remove visual feedback
+    dropClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    rejectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+    _removePlaceholder();
+
+    if (!b.canEdit()) return;
+
+    // Self-drop check: same list, same position
+    const isSameList = sourceInfo && sourceInfo.el === el;
+    if (isSameList && sourceIndex === dropIndex) {
+      _dndState.dragging = null;
+      return;
+    }
+    // Same list, but adjacent position (effectively same position)
+    if (isSameList && sourceIndex + 1 === dropIndex) {
+      _dndState.dragging = null;
+      return;
+    }
+
+    // Perform the list mutation
+    if (isSameList) {
+      // Same-list reorder
+      const insertAt = sourceIndex < dropIndex ? dropIndex - 1 : dropIndex;
+      const newTargetList = b.move(sourceIndex, insertAt);
+
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-reorder", {
+          bubbles: true,
+          detail: { list: newTargetList, item: dragItem, from: sourceIndex, to: insertAt },
+        })
+      );
+    } else {
+      // Cross-list transfer
+      const newTargetList = b.insert(dropIndex, dragItem, copyMode);
+
+      // Remove from source if move mode
+      if (sourceInfo && !sourceInfo.copyMode && (removeMode || sourceInfo.removeMode) && sourceIndex != null) {
+        const newSourceList = sourceInfo.backend.removeAt(sourceIndex);
+        if (newSourceList !== undefined) {
+          sourceInfo.el.dispatchEvent(
+            new CustomEvent("nojs:dnd-remove", {
+              bubbles: true,
+              detail: { list: newSourceList, item: dragItem, index: sourceIndex },
+            })
+          );
+        }
+      }
+
+      el.dispatchEvent(
+        new CustomEvent("nojs:dnd-receive", {
+          bubbles: true,
+          detail: {
+            list: newTargetList,
+            item: dragItem,
+            from: sourceIndex,
+            fromList: sourceInfo ? sourceInfo.backend.current() : null,
+          },
+        })
+      );
+    }
+
+    // Announce drop for screen readers (WCAG 4.1.3)
+    const dlDropLabel = _itemLabel(_dndState.dragging?.sourceEl?.firstElementChild);
+    const finalPos = isSameList ? (sourceIndex < dropIndex ? dropIndex : dropIndex + 1) : dropIndex + 1;
+    _announce(`Dropped ${dlDropLabel} at position ${finalPos}.`);
+
+    // Settle animation (apply to visible child, not display:contents wrapper)
+    b.settle(isSameList ? (sourceIndex < dropIndex ? dropIndex - 1 : dropIndex) : dropIndex, settleRow);
+
+    // Clear dragging state
+    _dndState.dragging = null;
+  };
+
+  // Keyboard: Enter/Space to drop
+  const keydownHandler = (e) => {
+    if (!_dndState.dragging) return;
+    if (!_isTypeAccepted(_dndState.dragging.type, acceptAttr)) return;
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      // Simulate drop at the focused element's position
+      const focused = el.querySelector(":focus");
+      if (focused) {
+        const measured = focused.style?.display === "contents"
+          ? (focused.firstElementChild || focused) : focused;
+        const rect = measured.getBoundingClientRect();
+        const fakeEvent = {
+          preventDefault() {},
+          stopPropagation() {},
+          clientX: rect.left + rect.width / 2,
+          clientY: rect.top + rect.height + 1,
+          dataTransfer: null,
+        };
+        dropHandler(fakeEvent);
+      }
+    }
+  };
+
+  el.addEventListener("dragover", dragoverHandler);
+  el.addEventListener("dragenter", dragenterHandler);
+  el.addEventListener("dragleave", dragleaveHandler);
+  el.addEventListener("drop", dropHandler);
+  el.addEventListener("keydown", keydownHandler);
+  b.onDispose(() => {
+    el.removeEventListener("dragover", dragoverHandler);
+    el.removeEventListener("dragenter", dragenterHandler);
+    el.removeEventListener("dragleave", dragleaveHandler);
+    el.removeEventListener("drop", dropHandler);
+    el.removeEventListener("keydown", keydownHandler);
+  });
+
+  // ─── Rows (core: reactive rendering; host: server-rendered) ────────
+  b.render(setupRow, toggleEmpty, settleRow);
+}
+
 
 // ═══════════════════════════════════════════════════════════════════════
 //  DRAG-MULTIPLE DIRECTIVE
 // ═══════════════════════════════════════════════════════════════════════
 
 export function registerDragMultiple(NoJS) {
+  if (isHostBackend(NoJS)) {
+    // Compiled sites: `drag` holds the item's sealed reference; a drag of a
+    // selection sends the references, each unsealed by the server.
+    NoJS.directive("drag-multiple", {
+      priority: 16,
+      init(el, host) {
+        _initDragMultiple(el, {
+          ctx: null,
+          item: () => el.getAttribute("drag"),
+          warn: (msg) => host.warn(msg),
+          onDispose: (fn) => host.onDispose(el, fn),
+        });
+      },
+    });
+    return;
+  }
+
   _removeCoreStub(NoJS, "drag-multiple");
 
   NoJS.directive("drag-multiple", {
@@ -1263,65 +1408,77 @@ export function registerDragMultiple(NoJS) {
     init(el, name) {
       const ctx = NoJS.findContext(el);
       _markBound(el, ctx);
-      const group = el.getAttribute("drag-group");
-      const selectClass = el.getAttribute("drag-multiple-class") || "nojs-selected";
-
-      if (!group) {
-        (_internal(NoJS, 'warn') || console.warn)("drag-multiple requires drag-group attribute");
-        return;
-      }
-
-      // Initialize group set if needed
-      if (!_dndState.selected.has(group)) {
-        _dndState.selected.set(group, new Set());
-      }
-      const selectedSet = _dndState.selected.get(group);
-
-      const clickHandler = (e) => {
-        const dragExpr = el.getAttribute("drag");
-        const item = dragExpr ? NoJS.evaluate(dragExpr, ctx) : null;
-        const entry = { item, el, ctx };
-
-        if (e.ctrlKey || e.metaKey) {
-          // Additive selection
-          const existing = [...selectedSet].find((s) => s.el === el);
-          if (existing) {
-            selectedSet.delete(existing);
-            selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
-          } else {
-            selectedSet.add(entry);
-            selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-          }
-        } else {
-          // Replace selection
-          for (const s of selectedSet) {
-            selectClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
-          }
-          selectedSet.clear();
-          selectedSet.add(entry);
-          selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
-        }
-      };
-
-      el.addEventListener("click", clickHandler);
-      addDisposer(el, () => {
-        el.removeEventListener("click", clickHandler);
-        // Remove this element from the selection set
-        const existing = [...selectedSet].find((s) => s.el === el);
-        if (existing) selectedSet.delete(existing);
+      _initDragMultiple(el, {
+        ctx,
+        item: () => {
+          const dragExpr = el.getAttribute("drag");
+          return dragExpr ? NoJS.evaluate(dragExpr, ctx) : null;
+        },
+        warn: (msg) => (_internal(NoJS, 'warn') || console.warn)(msg),
+        onDispose: (fn) => addDisposer(el, fn),
       });
-
-      // Escape clears selection for this group
-      const escHandler = (e) => {
-        if (e.key === "Escape") {
-          for (const s of selectedSet) {
-            selectClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
-          }
-          selectedSet.clear();
-        }
-      };
-      window.addEventListener("keydown", escHandler);
-      addDisposer(el, () => window.removeEventListener("keydown", escHandler));
     },
   });
+}
+
+function _initDragMultiple(el, b) {
+  const ctx = b.ctx;
+  const group = el.getAttribute("drag-group");
+  const selectClass = el.getAttribute("drag-multiple-class") || "nojs-selected";
+
+  if (!group) {
+    b.warn("drag-multiple requires drag-group attribute");
+    return;
+  }
+
+  // Initialize group set if needed
+  if (!_dndState.selected.has(group)) {
+    _dndState.selected.set(group, new Set());
+  }
+  const selectedSet = _dndState.selected.get(group);
+
+  const clickHandler = (e) => {
+    const item = b.item();
+    const entry = { item, el, ctx };
+
+    if (e.ctrlKey || e.metaKey) {
+      // Additive selection
+      const existing = [...selectedSet].find((s) => s.el === el);
+      if (existing) {
+        selectedSet.delete(existing);
+        selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.remove(c));
+      } else {
+        selectedSet.add(entry);
+        selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+      }
+    } else {
+      // Replace selection
+      for (const s of selectedSet) {
+        selectClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
+      }
+      selectedSet.clear();
+      selectedSet.add(entry);
+      selectClass.split(/\s+/).filter(Boolean).forEach((c) => el.classList.add(c));
+    }
+  };
+
+  el.addEventListener("click", clickHandler);
+  b.onDispose(() => {
+    el.removeEventListener("click", clickHandler);
+    // Remove this element from the selection set
+    const existing = [...selectedSet].find((s) => s.el === el);
+    if (existing) selectedSet.delete(existing);
+  });
+
+  // Escape clears selection for this group
+  const escHandler = (e) => {
+    if (e.key === "Escape") {
+      for (const s of selectedSet) {
+        selectClass.split(/\s+/).filter(Boolean).forEach((c) => s.el.classList.remove(c));
+      }
+      selectedSet.clear();
+    }
+  };
+  window.addEventListener("keydown", escHandler);
+  b.onDispose(() => window.removeEventListener("keydown", escHandler));
 }

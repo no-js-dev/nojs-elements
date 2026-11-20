@@ -116,15 +116,9 @@ describe('host install', () => {
   test('marks the directives that restructure or annotate their subtree', () => {
     const subtree = [...h.defs].filter(([, d]) => d.subtree).map(([n]) => n).sort();
     expect(subtree).toEqual([
-      'accordion', 'breadcrumb', 'skeleton', 'sortable', 'split', 'spy', 'stepper',
+      'accordion', 'breadcrumb', 'drag-list', 'skeleton', 'sortable', 'split', 'spy', 'stepper',
       'table-reorder', 'tabs', 'toast-container', 'tree', 'tree-drag-mode', 'virtual',
     ]);
-  });
-
-  test('only drag-list and drag-multiple remain host stubs', () => {
-    document.body.innerHTML = '<ul drag-list="items"></ul>';
-    h.initAll();
-    expect(h.warns).toEqual([expect.stringContaining('"drag-list" is not yet available')]);
   });
 
   test('declares the expression attributes in the contract', () => {

@@ -270,6 +270,17 @@ describe('Drag Directive', () => {
     expect(_dndState.dragging.sourceEl).toBe(el);
   });
 
+  test('21b - the grab announcement uses the text with whitespace collapsed before the 50-character cut', async () => {
+    const { el } = setupDrag("'test'");
+    el.innerHTML = '\n          <small>0</small>\n          <span>1/1</span>\n          <a>Ship the integrator</a>\n          <b>high</b>\n        ';
+    const evt = new Event('dragstart', { bubbles: true });
+    evt.dataTransfer = { effectAllowed: '', setData: jest.fn() };
+    el.dispatchEvent(evt);
+    await new Promise((r) => requestAnimationFrame(r));
+    expect(document.querySelector('.nojs-dnd-live-region').textContent)
+      .toBe('Grabbed 0 1/1 Ship the integrator high. Use arrow keys to move.');
+  });
+
   test('22 - dragstart applies drag class', () => {
     const { el } = setupDrag("'test'");
     const evt = new Event('dragstart', { bubbles: true });
