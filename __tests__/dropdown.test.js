@@ -128,6 +128,22 @@ describe('Dropdown Menu', () => {
     expect(menu.id).toBeTruthy();
     expect(menu.id).toMatch(/^nojs-dd-menu-/);
   });
+
+  test('6b — menu ids are the lowest free index, independent of render history', () => {
+    const a = setupDropdown();
+    const b = setupDropdown();
+    expect([a.menu.id, b.menu.id]).toEqual(['nojs-dd-menu-0', 'nojs-dd-menu-1']);
+    // Re-rendering (core recreates loop rows) hands out the same ids again.
+    a.wrapper.remove();
+    b.wrapper.remove();
+    expect(setupDropdown().menu.id).toBe('nojs-dd-menu-0');
+  });
+
+  test('6c — the menu does not also get the popover directive', () => {
+    const { menu } = setupDropdown();
+    expect(menu.classList.contains('nojs-popover')).toBe(false);
+    expect(menu.hasAttribute('data-popover-id')).toBe(false);
+  });
 });
 
 // =======================================================================

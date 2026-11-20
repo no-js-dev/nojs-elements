@@ -53,3 +53,19 @@ export function defineDirective(NoJS, name, { priority, subtree = false, init: b
     },
   };
 }
+
+// ── Generated ids ──
+// The lowest `<prefix>-<n>` no element in the document (or in el's detached
+// tree) uses yet. It depends only on the DOM, so both backends give the same
+// id to the same element: core re-creates loop rows and fetched content
+// with every render, while a server-rendered host initializes them once,
+// so a running counter drifts between the two.
+export function freeId(el, prefix) {
+  const doc = el.ownerDocument;
+  const root = el.getRootNode();
+  const taken = (id) =>
+    doc.getElementById(id) || (root !== doc && typeof root.querySelector === "function" && root.querySelector(`[id="${id}"]`));
+  let n = 0;
+  while (taken(`${prefix}-${n}`)) n++;
+  return `${prefix}-${n}`;
+}

@@ -121,6 +121,9 @@ export function registerPopoverDirective(NoJS) {
   NoJS.directive("popover", defineDirective(NoJS, "popover", {
     priority: 20,
     init(el, expr, be) {
+      // A dropdown menu carries the native `popover` attribute its
+      // [dropdown-toggle] sets; the dropdown owns it, not this directive.
+      if (el.hasAttribute("dropdown-menu")) return;
       _injectPopoverStyles();
 
       const popoverId = expr || el.getAttribute("id") || `nojs-popover-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
