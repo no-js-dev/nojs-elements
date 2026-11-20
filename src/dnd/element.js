@@ -271,7 +271,13 @@ function _hostDragBackend(el, host) {
     ctx: null,
     value: () => el.getAttribute("drag"),
     disabled: () => host.value(el, "drag-disabled"),
-    watchDisabled: (fn) => host.watch(el, "drag-disabled", fn),
+    // Core's watcher runs on every change of the element's context (any
+    // state write after init applies the disabled state); the host watcher
+    // runs only when the delivered value changes, so apply it now.
+    watchDisabled: (fn) => {
+      fn();
+      return host.watch(el, "drag-disabled", fn);
+    },
     onDispose: (fn) => host.onDispose(el, fn),
   };
 }

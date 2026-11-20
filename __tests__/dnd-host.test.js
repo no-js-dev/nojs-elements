@@ -148,6 +148,15 @@ describe('drag (host)', () => {
     expect(_dndState.dragging).toBeNull();
   });
 
+  test('applies a delivered drag-disabled=true at init (not draggable, no roledescription)', () => {
+    const ul = buildList(1);
+    const li = ul.firstElementChild;
+    li.setAttribute('drag-disabled', 'true');
+    init('drag', li, createHost());
+    expect(li.draggable).toBe(false);
+    expect(li.hasAttribute('aria-roledescription')).toBe(false);
+  });
+
   test('watches drag-disabled and toggles draggable on change', () => {
     const ul = buildList(1);
     const li = ul.firstElementChild;
