@@ -411,3 +411,20 @@ describe('Virtual List Directive', () => {
     expect(after).toBe(before);
   });
 });
+
+describe('row bindings (core backend)', () => {
+  test('bindings inside the row template resolve against the item', () => {
+    jest.useFakeTimers();
+    const root = document.createElement('div');
+    root.setAttribute('state', "{ rows: [{ label: 'r0' }, { label: 'r1' }, { label: 'r2' }] }");
+    root.innerHTML = '<ul virtual virtual-height="20"><li each="row in rows" bind="row.label"></li></ul>';
+    document.body.appendChild(root);
+    NoJS.processTree(root);
+    const ul = root.querySelector('ul');
+    Object.defineProperty(ul, 'clientHeight', { value: 100, configurable: true });
+    jest.advanceTimersByTime(150);
+    expect([...ul.querySelectorAll('[role="option"]')].map((li) => li.textContent)).toEqual(['r0', 'r1', 'r2']);
+    root.remove();
+    jest.useRealTimers();
+  });
+});

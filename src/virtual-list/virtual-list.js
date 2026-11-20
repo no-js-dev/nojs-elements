@@ -320,11 +320,13 @@ function _render(state, NoJS) {
     clone.setAttribute("tabindex", "-1");
 
     if (!state.pool) {
-      // Store context on the node so NoJS.processTree can pick it up
-      clone.__ctx = Object.create(
-        NoJS.findContext ? NoJS.findContext(container) || {} : {},
-        Object.getOwnPropertyDescriptors(childCtx)
-      );
+      // Store context on the node so NoJS.processTree can pick it up. A
+      // core context (child of the container's) makes the row's bindings
+      // resolve; a plain object inheriting from the proxy did not.
+      const parentCtx = NoJS.findContext ? NoJS.findContext(container) || null : null;
+      clone.__ctx = typeof NoJS.createContext === "function"
+        ? NoJS.createContext(childCtx, parentCtx)
+        : Object.create(parentCtx || {}, Object.getOwnPropertyDescriptors(childCtx));
 
       // Mark for processTree
       clone.__declared = false;
