@@ -323,6 +323,22 @@ describe('Sort Default', () => {
   });
 });
 
+describe('Sort of rendered rows', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    _tableState.sorts.clear();
+  });
+
+  test('sorted rows stay between the loop markers that hold them', () => {
+    document.body.innerHTML = '<table sortable><thead><tr><th sort="n" sort-default="asc">N</th></tr></thead>'
+      + '<tbody><!--foreach--><tr><td>b</td></tr><tr><td>a</td></tr><!--/foreach--></tbody></table>';
+    NoJS.processTree(document.body);
+    const tbody = document.querySelector('tbody');
+    expect([...tbody.childNodes].map((n) => n.nodeType === 8 ? n.data : n.textContent))
+      .toEqual(['foreach', 'a', 'b', '/foreach']);
+  });
+});
+
 // =======================================================================
 //  FIXED-HEADER DIRECTIVE TESTS
 // =======================================================================
