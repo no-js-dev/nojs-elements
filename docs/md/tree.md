@@ -394,3 +394,9 @@ Every tree item is made draggable, whether it is written in the HTML or rendered
 ---
 
 **Previous:** [Tabs](tabs.md)
+
+---
+
+## Server-Rendered Hosts
+
+This element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), where expressions are evaluated on the server and the browser receives rendered HTML. With the CDN core nothing on this page changes. Markup, keyboard navigation and `tree-drag-mode` work the same (dragging moves the items in the page and dispatches the same events).

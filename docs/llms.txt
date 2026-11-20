@@ -2,7 +2,7 @@
 
 > NoJS Elements is a UI element plugin library for the No.JS HTML-first reactive framework. 17 declarative, accessible components — zero JavaScript required from developers. Everything is driven by HTML attributes. Requires No.JS >= 1.13.0.
 
-NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modals, dropdowns, toasts, tabs, trees, steppers, skeletons, split panes, sortable tables, accordions, breadcrumbs, scroll spy, and virtual lists. When loaded via CDN `<script>` tag, it auto-installs itself into NoJS — no `NoJS.use()` call needed. Each element injects scoped CSS (`.nojs-*` classes) and adds full ARIA accessibility and keyboard navigation out of the box.
+NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modals, dropdowns, toasts, tabs, trees, steppers, skeletons, split panes, sortable tables, accordions, breadcrumbs, scroll spy, and virtual lists. When loaded via CDN `<script>` tag, it auto-installs itself into NoJS — no `NoJS.use()` call needed. Each element injects scoped CSS (`.nojs-*` classes) and adds full ARIA accessibility and keyboard navigation out of the box. Every element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), with expressions evaluated on the server; see each page's "Server-Rendered Hosts" section (`$stepper` and `$toast` are not available to expressions there).
 
 ## Installation
 
@@ -44,7 +44,7 @@ NoJS Elements provides drag-and-drop, form validation, tooltips, popovers, modal
 - [Accordion](https://elements.no-js.dev/accordion): `accordion`; animated expand/collapse on native `<details>` elements, single/multi mode, keyboard navigation, CSS custom properties
 - [Breadcrumb](https://elements.no-js.dev/breadcrumb): `breadcrumb`; accessible breadcrumb trail, manual child mode or auto-track from router, custom separators via CSS custom properties
 - [Scroll Spy](https://elements.no-js.dev/scroll-spy): `spy`, `spy-offset`, `spy-threshold`; highlights navigation links based on visible sections, IntersectionObserver-based, dynamic target support
-- [Virtual List](https://elements.no-js.dev/virtual-list): `virtual-height`, `virtual-buffer`; efficient DOM virtualization for large datasets, fixed or auto-measured row heights, table/list/dl support
+- [Virtual List](https://elements.no-js.dev/virtual-list): `virtual`, `virtual-height`, `virtual-buffer`; efficient DOM virtualization for large datasets, fixed or auto-measured row heights, table/list/dl support
 
 ## Reference
 

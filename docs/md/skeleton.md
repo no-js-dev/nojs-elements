@@ -154,3 +154,9 @@ No.JS Elements automatically adds:
 ---
 
 **Previous:** [Stepper](stepper.md)
+
+---
+
+## Server-Rendered Hosts
+
+This element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), where expressions are evaluated on the server and the browser receives rendered HTML. With the CDN core nothing on this page changes. The `skeleton` expression is evaluated on the server. When its value changes, the server re-renders the attribute and the element switches state (without the fade transition core runs on a reactive change).

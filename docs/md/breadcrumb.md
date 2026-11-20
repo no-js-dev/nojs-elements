@@ -248,3 +248,9 @@ No.JS automatically applies:
 | `aria-current="page"` | Last crumb `<span>` | Marks the current page in the trail |
 
 ---
+
+---
+
+## Server-Rendered Hosts
+
+This element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), where expressions are evaluated on the server and the browser receives rendered HTML. With the CDN core nothing on this page changes. Manual mode is the same. Auto-track mode (no children) builds the trail from the page path and updates after each host navigation.

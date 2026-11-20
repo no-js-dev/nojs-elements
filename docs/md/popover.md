@@ -96,3 +96,9 @@ Popovers are positioned using viewport-aware calculations:
 ---
 
 **Next:** [Modal -->](modal.md)
+
+---
+
+## Server-Rendered Hosts
+
+This element also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`), where expressions are evaluated on the server and the browser receives rendered HTML. With the CDN core nothing on this page changes. Markup and behavior are the same. `NoJS.popover` is available to page scripts.
