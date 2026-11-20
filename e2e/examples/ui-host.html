@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>UI directives host backend — NoJS Elements E2E</title>
+  <style>
+    body { font: 14px/1.4 sans-serif; margin: 16px; }
+    section.doc { height: 600px; }
+    body { padding-bottom: 1200px; }
+    #vlist { height: 100px; overflow-y: auto; padding: 0; margin: 0; }
+    #vlist li { height: 20px; box-sizing: border-box; }
+    #split { display: flex; width: 400px; height: 80px; }
+  </style>
+</head>
+<body>
+  <!-- A NoJS-Server compiled page (server-rendered markup: expression
+       attributes hold delivered JSON values) with a stand-in for the
+       integrator's plugin host. window.__rerender(el, html) does what an
+       envelope does to a subtree-owning element whose markup changed:
+       dispose its directives, apply the server markup, re-init. -->
+  <section accordion="single" id="faq" data-test="faq">
+    <details id="q1"><summary data-test="q1">First</summary><p>One</p></details>
+    <details id="q2"><summary data-test="q2">Second</summary><p>Two</p></details>
+  </section>
+
+  <div tabs id="tabs" data-test="tabs">
+    <button tab data-test="tab-a">A</button>
+    <button tab data-test="tab-b">B</button>
+    <button tab tab-disabled="true" data-test="tab-c">C</button>
+    <div panel>Panel A</div><div panel>Panel B</div><div panel>Panel C</div>
+  </div>
+
+  <span tooltip="Helpful" tooltip-delay="0" tooltip-disabled="false" tabindex="0" data-test="hint">Hint</span>
+
+  <button modal-open="m" data-test="open-modal">Open</button>
+  <div modal="m" data-test="modal"><h2>Modal</h2><button modal-close data-test="close-modal">Close</button></div>
+
+  <div dropdown>
+    <button dropdown-toggle data-test="dd-toggle">Menu</button>
+    <ul dropdown-menu data-test="dd-menu"><li dropdown-item>Edit</li><li dropdown-item>Delete</li></ul>
+  </div>
+
+  <button popover-trigger="info" data-test="pop-trigger">Info</button>
+  <div popover="info" data-test="pop">Info text</div>
+
+  <div toast-container="bottom-right" data-test="toasts"></div>
+  <button toast="Saved!" toast-duration="0" data-test="toast-btn">Save</button>
+  <p toast="&quot;first&quot;" toast-duration="0" data-test="notice"></p>
+
+  <div skeleton="true" skeleton-lines="2" data-test="skel">Card</div>
+
+  <div stepper data-test="stepper">
+    <div step>One</div><div step step-validate="false" data-test="step2">Two</div><div step>Three</div>
+  </div>
+
+  <nav breadcrumb data-test="crumbs"><a href="/">Home</a><span>Here</span></nav>
+
+  <table sortable data-test="table">
+    <thead><tr><th sort="name" data-test="th-name">Name</th></tr></thead>
+    <tbody><tr><td>Carol</td></tr><tr><td>Alice</td></tr><tr><td>Bob</td></tr></tbody>
+  </table>
+
+  <div split id="split" data-test="split"><div pane>Left</div><div pane>Right</div></div>
+
+  <ul tree data-test="tree"><li branch data-test="branch">src<ul subtree><li>a.js</li></ul></li></ul>
+
+  <ul virtual virtual-height="20" virtual-buffer="1" id="vlist" data-test="vlist"></ul>
+
+  <ul id="toc"><li><a href="#s1" spy data-test="spy1">One</a></li><li><a href="#s2" spy data-test="spy2">Two</a></li></ul>
+  <section class="doc" id="s1">Section one</section>
+  <section class="doc" id="s2">Section two</section>
+
+  <script>
+    (function () {
+      var vlist = document.getElementById('vlist');
+      for (var i = 0; i < 200; i++) {
+        var li = document.createElement('li');
+        li.textContent = 'Row ' + i;
+        vlist.appendChild(li);
+      }
+      var defs = new Map();
+      var disposers = new Map();
+      var watchers = [];
+      window.__warns = [];
+      function hostFor(name) {
+        return {
+          value: function (el, attr) {
+            var raw = el.getAttribute(attr);
+            if (raw == null || raw === '') return null;
+            try { return JSON.parse(raw); } catch (e) { return null; }
+          },
+          exec: function () {},
+          watch: function (el, attr, cb) {
+            var w = { el: el, attr: attr, cb: cb, last: el.getAttribute(attr) };
+            watchers.push(w);
+            return function () { w.cb = null; };
+          },
+          onDispose: function (el, fn) {
+            if (!disposers.has(el)) disposers.set(el, []);
+            disposers.get(el).push(fn);
+          },
+          disposeTree: function () {},
+          validators: new Map(),
+          warn: function (msg) { window.__warns.push('[' + name + '] ' + msg); },
+        };
+      }
+      window.NoJS = {
+        hostApi: 1,
+        use: function (plugin) { plugin.install(window.NoJS); },
+        directive: function (name, def) { defs.set(name, def); },
+        filter: function () {}, validator: function () {}, global: function () {}, config: function () {},
+      };
+      function initAll(root) {
+        var order = Array.from(defs.entries()).sort(function (a, b) { return (a[1].priority || 20) - (b[1].priority || 20); });
+        var els = [root].concat(Array.from(root.querySelectorAll('*')));
+        els.forEach(function (el) {
+          order.forEach(function (entry) {
+            var name = entry[0];
+            if (!el.hasAttribute(name)) return;
+            el.__inited = el.__inited || {};
+            if (el.__inited[name]) return;
+            el.__inited[name] = true;
+            entry[1].init(el, hostFor(name));
+          });
+        });
+      }
+      window.__boot = function () { initAll(document.body); };
+      window.__rerender = function (sel, html) {
+        var el = document.querySelector(sel);
+        var list = disposers.get(el) || [];
+        disposers.delete(el);
+        list.reverse().forEach(function (fn) { fn(); });
+        el.__inited = {};
+        el.innerHTML = html;
+        initAll(el);
+      };
+      // A changed directive attribute: dispose, apply, re-init (lifecycle step 4).
+      window.__reinit = function (sel, attr, value) {
+        var el = document.querySelector(sel);
+        var list = disposers.get(el) || [];
+        disposers.delete(el);
+        list.reverse().forEach(function (fn) { fn(); });
+        el.__inited = {};
+        el.setAttribute(attr, value);
+        initAll(el);
+      };
+      window.__setAttr = function (sel, attr, value) {
+        document.querySelector(sel).setAttribute(attr, value);
+        watchers.forEach(function (w) {
+          var v = w.el.getAttribute(w.attr);
+          if (w.cb && v !== w.last) { var prev = w.last; w.last = v; w.cb(v, prev); }
+        });
+      };
+    })();
+  </script>
+  <script src="../../dist/iife/nojs-elements.js"></script>
+  <script>window.__boot();</script>
+</body>
+</html>
