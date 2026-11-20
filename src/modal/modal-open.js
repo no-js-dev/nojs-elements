@@ -1,10 +1,6 @@
 import { _modalStack, _modalRegistry } from "./state.js";
 import { _injectModalStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // Look up a modal element by its data-modal-id without interpolating the
 // (potentially attacker-influenced) id into a CSS selector string, which
@@ -19,9 +15,9 @@ function _findModalById(id) {
 
 // ─── Register the `modal-open` directive ────────────────────────────
 export function registerModalOpen(NoJS) {
-  NoJS.directive("modal-open", {
+  NoJS.directive("modal-open", defineDirective(NoJS, "modal-open", {
     priority: 10,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectModalStyles();
 
       let targetId = expr;
@@ -109,18 +105,18 @@ export function registerModalOpen(NoJS) {
       // Try synchronous first; defer only if modal hasn't registered yet
       if (!_observeClose()) {
         const rafId = requestAnimationFrame(_observeClose);
-        addDisposer(el, () => cancelAnimationFrame(rafId));
+        be.dispose(() => cancelAnimationFrame(rafId));
       }
 
       el.addEventListener("click", clickHandler);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", clickHandler);
         if (_observedModal && _toggleHandler) {
           _observedModal.removeEventListener("toggle", _toggleHandler);
         }
       });
     },
-  });
+  }));
 }

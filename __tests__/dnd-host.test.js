@@ -2,6 +2,7 @@ import NoJSElements from '../src/index.js';
 import { isHostBackend } from '../src/_host.js';
 import { _dndState, resetDndState } from '../src/dnd/state.js';
 import { dndContract } from '../src/dnd/contract.js';
+import { uiContract } from '../src/ui-contract.js';
 
 // Host backend (NoJS-Server compiled sites): directives receive
 // `init(el, host)` and only do DOM mechanics. Expressions were compiled
@@ -106,7 +107,7 @@ describe('dual-backend seam', () => {
   test('the plugin exposes the dnd attribute contract', () => {
     expect(NoJSElements.contract.directives.drop.attrs.drop).toBe('statement');
     expect(NoJSElements.contract.directives.drag.attrs.drag).toEqual({ type: 'expression', deliver: 'sealed' });
-    expect(NoJSElements.contract.directives).toEqual(dndContract);
+    expect(NoJSElements.contract.directives).toEqual({ ...dndContract, ...uiContract });
   });
 });
 
@@ -145,6 +146,15 @@ describe('drag (host)', () => {
 
     expect(evt.defaultPrevented).toBe(true);
     expect(_dndState.dragging).toBeNull();
+  });
+
+  test('applies a delivered drag-disabled=true at init (not draggable, no roledescription)', () => {
+    const ul = buildList(1);
+    const li = ul.firstElementChild;
+    li.setAttribute('drag-disabled', 'true');
+    init('drag', li, createHost());
+    expect(li.draggable).toBe(false);
+    expect(li.hasAttribute('aria-roledescription')).toBe(false);
   });
 
   test('watches drag-disabled and toggles draggable on change', () => {

@@ -1,14 +1,10 @@
 import { _dropdownState, _sharedListeners } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
+import { defineDirective } from "../_backend.js";
 
 // Monotonic counter for guaranteed-unique menu ids (Date.now()+random can
 // collide when several dropdowns init within the same tick).
 let _menuIdCounter = 0;
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
 
 // ─── Singleton document-level listeners ─────────────────────────────
 // One pair of listeners handles outside-click and Escape for ALL
@@ -138,16 +134,16 @@ function _focusLastItem(menu) {
 // ─── Register dropdown directives ───────────────────────────────────
 export function registerDropdownDirective(NoJS) {
 
-  NoJS.directive("dropdown", {
+  NoJS.directive("dropdown", defineDirective(NoJS, "dropdown", {
     priority: 15,
-    init(el) {
+    init(el, expr, be) {
       _injectDropdownStyles();
     },
-  });
+  }));
 
-  NoJS.directive("dropdown-toggle", {
+  NoJS.directive("dropdown-toggle", defineDirective(NoJS, "dropdown-toggle", {
     priority: 15,
-    init(el) {
+    init(el, expr, be) {
       _injectDropdownStyles();
 
       const wrapper = el.closest("[dropdown]");
@@ -279,7 +275,7 @@ export function registerDropdownDirective(NoJS) {
       window.addEventListener("scroll", repositionHandler, true);
       window.addEventListener("resize", repositionHandler);
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", clickHandler);
         el.removeEventListener("keydown", keydownHandler);
         menu.removeEventListener("keydown", menuKeydownHandler);
@@ -296,15 +292,15 @@ export function registerDropdownDirective(NoJS) {
         }
       });
     },
-  });
+  }));
 
-  NoJS.directive("dropdown-menu", {
+  NoJS.directive("dropdown-menu", defineDirective(NoJS, "dropdown-menu", {
     priority: 15,
-    init(el) {
+    init(el, expr, be) {
       _injectDropdownStyles();
       if (!el.hasAttribute("role")) el.setAttribute("role", "menu");
     },
-  });
+  }));
 
   // ─── Programmatic API: $dropdown ──────────────────────────────────
   const dropdownApi = (menuId) => dropdownApi.open(menuId);

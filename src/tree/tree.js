@@ -1,10 +1,6 @@
 import { _treeState } from "./state.js";
 import { _injectTreeStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -208,9 +204,10 @@ function _handleKeydown(e, el) {
 // ─── tree directive ──────────────────────────────────────────────────
 
 export function registerTreeDirective(NoJS) {
-  NoJS.directive("tree", {
+  NoJS.directive("tree", defineDirective(NoJS, "tree", {
     priority: 15,
-    init(el) {
+    subtree: true,
+    init(el, expr, be) {
       _injectTreeStyles();
 
       // Setup tree root
@@ -223,15 +220,15 @@ export function registerTreeDirective(NoJS) {
         el.setAttribute("data-tree-icon", "false");
       }
     },
-  });
+  }));
 }
 
 // ─── branch directive ────────────────────────────────────────────────
 
 export function registerBranch(NoJS) {
-  NoJS.directive("branch", {
+  NoJS.directive("branch", defineDirective(NoJS, "branch", {
     priority: 16,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectTreeStyles();
 
       const startExpanded = expr === "expanded";
@@ -283,17 +280,17 @@ export function registerBranch(NoJS) {
         toggleBranch(el);
       };
       el.addEventListener("click", clickHandler);
-      addDisposer(el, () => el.removeEventListener("click", clickHandler));
+      be.dispose(() => el.removeEventListener("click", clickHandler));
 
       // Keyboard handler
       const keydownHandler = (e) => {
         _handleKeydown(e, el);
       };
       el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
+      be.dispose(() => el.removeEventListener("keydown", keydownHandler));
 
       // Cleanup
-      addDisposer(el, () => {
+      be.dispose(() => {
         _disposed = true;
         _treeState.branches.delete(el);
         if (_treeState.selectedItem === el) {
@@ -307,7 +304,7 @@ export function registerBranch(NoJS) {
         }
       });
     },
-  });
+  }));
 }
 
 /** Set roving tabindex and focus an item. */
@@ -321,9 +318,9 @@ function _focusItem(target, allItems) {
 // ─── subtree directive ───────────────────────────────────────────────
 
 export function registerSubtree(NoJS) {
-  NoJS.directive("subtree", {
+  NoJS.directive("subtree", defineDirective(NoJS, "subtree", {
     priority: 16,
-    init(el) {
+    init(el, expr, be) {
       _injectTreeStyles();
 
       // Setup subtree
@@ -343,16 +340,16 @@ export function registerSubtree(NoJS) {
             selectBranch(li);
           };
           li.addEventListener("click", leafClickHandler);
-          addDisposer(li, () => li.removeEventListener("click", leafClickHandler));
+          be.disposeOn(li, () => li.removeEventListener("click", leafClickHandler));
 
           const leafKeydownHandler = (e) => {
             _handleKeydown(e, li);
           };
           li.addEventListener("keydown", leafKeydownHandler);
-          addDisposer(li, () => li.removeEventListener("keydown", leafKeydownHandler));
+          be.disposeOn(li, () => li.removeEventListener("keydown", leafKeydownHandler));
 
           // Cleanup selectedItem reference when leaf is removed
-          addDisposer(li, () => {
+          be.disposeOn(li, () => {
             if (_treeState.selectedItem === li) {
               _treeState.selectedItem = null;
             }
@@ -381,5 +378,5 @@ export function registerSubtree(NoJS) {
         el.setAttribute("aria-hidden", "true");
       }
     },
-  });
+  }));
 }

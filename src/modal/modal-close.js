@@ -1,17 +1,13 @@
 import { _modalRegistry } from "./state.js";
 import { _closeModal } from "./modal.js";
 import { _injectModalStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Register the `modal-close` directive ───────────────────────────
 export function registerModalClose(NoJS) {
-  NoJS.directive("modal-close", {
+  NoJS.directive("modal-close", defineDirective(NoJS, "modal-close", {
     priority: 10,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectModalStyles();
 
       const clickHandler = () => {
@@ -42,9 +38,9 @@ export function registerModalClose(NoJS) {
       el.addEventListener("click", clickHandler);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", clickHandler);
       });
     },
-  });
+  }));
 }

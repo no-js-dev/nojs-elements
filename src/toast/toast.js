@@ -4,11 +4,7 @@ import {
   nextToastId,
 } from "./state.js";
 import { _injectToastStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 
@@ -128,15 +124,25 @@ function _removeToast(toast) {
   toast.remove();
 }
 
+function _isJson(text) {
+  try {
+    JSON.parse(text);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ─── Directive Registration ──────────────────────────────────────────
 
 export function registerToastDirectives(NoJS) {
   _injectToastStyles();
 
   // ── toast-container directive ────────────────────────────────────
-  NoJS.directive("toast-container", {
+  NoJS.directive("toast-container", defineDirective(NoJS, "toast-container", {
     priority: 10,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       const position =
         expr && VALID_POSITIONS.has(expr) ? expr : "top-right";
 
@@ -148,18 +154,18 @@ export function registerToastDirectives(NoJS) {
 
       _toastContainers.set(position, el);
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         if (_toastContainers.get(position) === el) {
           _toastContainers.delete(position);
         }
       });
     },
-  });
+  }));
 
   // ── toast (declarative) directive ────────────────────────────────
-  NoJS.directive("toast", {
+  NoJS.directive("toast", defineDirective(NoJS, "toast", {
     priority: 10,
-    init(el, name, expr) {
+    init(el, expr, be) {
       if (!expr) return;
 
       const type = el.getAttribute("toast-type") || "info";
@@ -167,7 +173,12 @@ export function registerToastDirectives(NoJS) {
       const parsedDuration = parseInt(el.getAttribute("toast-duration"), 10);
       const duration = Number.isNaN(parsedDuration) ? 3000 : parsedDuration;
       const dismiss = el.getAttribute("toast-dismiss") !== "false";
-      const isInteractive = el.tagName === "BUTTON" || el.tagName === "A" || el.hasAttribute("on:click");
+      // Host backend: `toast` is literal on buttons, links and on:click
+      // elements (contract `literalOn`) and the server-delivered JSON value
+      // elsewhere; a compiled element no longer carries on:click, so text
+      // that is not a delivered value marks it interactive.
+      const isInteractive = el.tagName === "BUTTON" || el.tagName === "A" ||
+        (be.host ? !_isJson(expr) : el.hasAttribute("on:click"));
 
       // Interactive elements: show toast on click
       if (isInteractive) {
@@ -176,7 +187,24 @@ export function registerToastDirectives(NoJS) {
           _createToast(container, expr, type, duration, dismiss);
         };
         el.addEventListener("click", clickHandler);
-        addDisposer(el, () => el.removeEventListener("click", clickHandler));
+        be.dispose(() => el.removeEventListener("click", clickHandler));
+        return;
+      }
+
+      // Host backend: the server re-renders `toast` when its value changes,
+      // which re-initializes this directive; the previous value is kept on
+      // the element so a new truthy value shows a toast, as core's watcher.
+      if (be.host) {
+        const value = be.host.value(el, "toast");
+        const prev = el.__nojsToastPrev;
+        el.__nojsToastPrev = value;
+        if (prev !== undefined && value && value !== prev) {
+          const msg = typeof value === "string" ? value : String(value);
+          _createToast(_resolveContainer(), msg, type, duration, dismiss);
+        }
+        be.dispose(() => {
+          if (!el.hasAttribute("toast")) el.__nojsToastPrev = undefined;
+        });
         return;
       }
 
@@ -201,9 +229,9 @@ export function registerToastDirectives(NoJS) {
       }
 
       const unwatch = ctx.$watch(check);
-      addDisposer(el, unwatch);
+      be.dispose(unwatch);
     },
-  });
+  }));
 
   // ── $toast global function ───────────────────────────────────────
   const toastFn = (msg, type = "info", duration = 3000) => {

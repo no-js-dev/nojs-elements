@@ -1,10 +1,6 @@
 import { _dropdownState } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Get navigable (non-disabled) items from the parent menu ────────
 function _getItems(menu) {
@@ -37,9 +33,9 @@ function _closeMenu(menu, wrapper) {
 
 // ─── Register dropdown-item directive ───────────────────────────────
 export function registerDropdownItem(NoJS) {
-  NoJS.directive("dropdown-item", {
+  NoJS.directive("dropdown-item", defineDirective(NoJS, "dropdown-item", {
     priority: 15,
-    init(el) {
+    init(el, expr, be) {
       _injectDropdownStyles();
 
       const menu = el.closest("[dropdown-menu]");
@@ -107,7 +103,7 @@ export function registerDropdownItem(NoJS) {
         }
       };
       el.addEventListener("keydown", keydownHandler);
-      addDisposer(el, () => el.removeEventListener("keydown", keydownHandler));
+      be.dispose(() => el.removeEventListener("keydown", keydownHandler));
 
       // ── Close menu after click on item ──────────────────────────
       const clickHandler = () => {
@@ -119,7 +115,7 @@ export function registerDropdownItem(NoJS) {
         }
       };
       el.addEventListener("click", clickHandler);
-      addDisposer(el, () => el.removeEventListener("click", clickHandler));
+      be.dispose(() => el.removeEventListener("click", clickHandler));
     },
-  });
+  }));
 }

@@ -1,10 +1,6 @@
 import { _tooltipRegistry, _tooltipTimeouts } from "./state.js";
 import { _injectTooltipStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Positioning helpers ────────────────────────────────────────────
 
@@ -76,14 +72,15 @@ function _tooltipWarn(NoJS, message) {
 // ─── Directive ──────────────────────────────────────────────────────
 
 export function registerTooltip(NoJS) {
-  NoJS.directive("tooltip", {
+  NoJS.directive("tooltip", defineDirective(NoJS, "tooltip", {
     priority: 20,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectTooltipStyles();
 
       const text = expr;
       if (!text) {
-        _tooltipWarn(NoJS, "[tooltip] attribute value (tooltip text) is required.");
+        if (be.host) be.host.warn("attribute value (tooltip text) is required.");
+        else _tooltipWarn(NoJS, "[tooltip] attribute value (tooltip text) is required.");
         return;
       }
 
@@ -93,9 +90,11 @@ export function registerTooltip(NoJS) {
       const parsedDelay = parseInt(el.getAttribute("tooltip-delay"), 10);
       const delay = Number.isNaN(parsedDelay) ? 300 : parsedDelay;
       const disabledExpr = el.getAttribute("tooltip-disabled");
-      const ctx = disabledExpr ? NoJS.findContext(el) : null;
+      // Host backend: the server evaluated tooltip-disabled (delivered value).
+      const ctx = disabledExpr && !be.host ? NoJS.findContext(el) : null;
 
       const _isDisabled = () => {
+        if (be.host) return !!be.host.value(el, "tooltip-disabled");
         if (!disabledExpr || !ctx) return false;
         try {
           return !!NoJS.evaluate(disabledExpr, ctx);
@@ -219,14 +218,16 @@ export function registerTooltip(NoJS) {
       // the tooltip is visible, hide it immediately (tooltip-disabled is
       // documented as reactive, not just evaluated at show time).
       let unwatch = null;
-      if (disabledExpr && ctx && typeof ctx.$watch === "function") {
-        const watcher = () => {
-          if (visible && _isDisabled()) hide();
-        };
+      const watcher = () => {
+        if (visible && _isDisabled()) hide();
+      };
+      if (be.host) {
+        unwatch = be.host.watch(el, "tooltip-disabled", watcher);
+      } else if (disabledExpr && ctx && typeof ctx.$watch === "function") {
         unwatch = ctx.$watch(watcher);
       }
 
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("mouseenter", mouseenterHandler);
         el.removeEventListener("mouseleave", mouseleaveHandler);
         el.removeEventListener("focusin", focusinHandler);
@@ -254,5 +255,5 @@ export function registerTooltip(NoJS) {
         _tooltipRegistry.delete(el);
       });
     },
-  });
+  }));
 }

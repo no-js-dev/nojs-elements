@@ -1,10 +1,6 @@
 import { _splitRegistry, _paneRegistry, _resizeState } from "./state.js";
 import { _injectSplitStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -344,9 +340,10 @@ function _createGutter(splitEl, direction, prevPane, nextPane, gutterSize) {
 // ─── Directive ──────────────────────────────────────────────────────
 
 export function registerSplitDirective(NoJS) {
-  NoJS.directive("split", {
+  NoJS.directive("split", defineDirective(NoJS, "split", {
     priority: 14,
-    init(el, name, expr) {
+    subtree: true,
+    init(el, expr, be) {
       _injectSplitStyles();
 
       const direction = (expr || "horizontal").trim() === "vertical"
@@ -430,7 +427,7 @@ export function registerSplitDirective(NoJS) {
       });
 
       // Cleanup
-      addDisposer(el, () => {
+      be.dispose(() => {
         cleanups.forEach((fn) => fn());
         gutters.forEach((g) => g.remove());
         _splitRegistry.delete(el);
@@ -439,5 +436,5 @@ export function registerSplitDirective(NoJS) {
         el.removeAttribute("data-direction");
       });
     },
-  });
+  }));
 }

@@ -1,10 +1,6 @@
 import { _modalStack, _modalRegistry, currentZIndex } from "./state.js";
 import { _injectModalStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Focusable selector ─────────────────────────────────────────────
 const FOCUSABLE =
@@ -58,9 +54,9 @@ const _escHandlers = new WeakMap();
 
 // ─── Register the `modal` directive ─────────────────────────────────
 export function registerModalDirective(NoJS) {
-  NoJS.directive("modal", {
+  NoJS.directive("modal", defineDirective(NoJS, "modal", {
     priority: 10,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectModalStyles();
 
       const id = expr || `nojs-modal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
@@ -176,7 +172,7 @@ export function registerModalDirective(NoJS) {
       el.addEventListener("toggle", toggleHandler);
 
       // ── Cleanup ─────────────────────────────────────────────────
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.removeEventListener("click", backdropClickHandler);
         el.removeEventListener("toggle", toggleHandler);
         _removeFocusTrap(el);
@@ -191,7 +187,7 @@ export function registerModalDirective(NoJS) {
         if (idx !== -1) _modalStack.splice(idx, 1);
       });
     },
-  });
+  }));
 
   // ─── Programmatic API: $modal ──────────────────────────────────────
   const modalApi = (id) => modalApi.open(id);

@@ -1,12 +1,13 @@
 import { _injectStepperStyles } from "./styles.js";
+import { defineDirective } from "../_backend.js";
 
 // ─── Step directive ─────────────────────────────────────────────────
 let _panelIdCounter = 0;
 
 export function registerStep(NoJS) {
-  NoJS.directive("step", {
+  NoJS.directive("step", defineDirective(NoJS, "step", {
     priority: 13,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectStepperStyles();
 
       // ── Styling ──
@@ -21,5 +22,5 @@ export function registerStep(NoJS) {
 
       // Stepper.js _updateView() will set the correct aria-hidden/inert
     },
-  });
+  }));
 }

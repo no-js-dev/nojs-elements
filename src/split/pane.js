@@ -1,17 +1,13 @@
 import { _paneRegistry } from "./state.js";
 import { _injectSplitStyles } from "./styles.js";
-
-function addDisposer(el, fn) {
-  el.__disposers = el.__disposers || [];
-  el.__disposers.push(fn);
-}
+import { defineDirective } from "../_backend.js";
 
 // ─── Pane directive ─────────────────────────────────────────────────
 
 export function registerPane(NoJS) {
-  NoJS.directive("pane", {
+  NoJS.directive("pane", defineDirective(NoJS, "pane", {
     priority: 15,
-    init(el, name, expr) {
+    init(el, expr, be) {
       _injectSplitStyles();
 
       el.classList.add("nojs-pane");
@@ -42,7 +38,7 @@ export function registerPane(NoJS) {
       }
 
       // Cleanup
-      addDisposer(el, () => {
+      be.dispose(() => {
         el.classList.remove("nojs-pane");
         _paneRegistry.delete(el);
         // removeProperty requires kebab-case names; camelCase is silently ignored
@@ -54,5 +50,5 @@ export function registerPane(NoJS) {
         el.style.removeProperty("flex-grow");
       });
     },
-  });
+  }));
 }

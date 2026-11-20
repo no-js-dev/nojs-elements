@@ -480,3 +480,36 @@ describe('Table Edge Cases', () => {
     expect(ctx.rows.map(r => r.name).sort()).toEqual(['Alice', 'Bob', 'Charlie']);
   });
 });
+
+describe('Sort directive outside a table header (loop companion)', () => {
+  afterEach(() => {
+    document.body.innerHTML = '';
+    _tableState.sorts.clear();
+  });
+
+  test('a loop `sort` leaves its rows unmarked, inside or outside a table', () => {
+    const root = document.createElement('div');
+    root.setAttribute('state', "{ items: [{ t: 'b' }, { t: 'a' }] }");
+    root.innerHTML =
+      '<ul><li each="it in items" sort="it.t" class="row"><span bind="it.t"></span></li></ul>' +
+      '<table><tbody><tr each="it in items" sort="it.t" class="trow"><td bind="it.t"></td></tr></tbody></table>';
+    document.body.appendChild(root);
+    NoJS.processTree(root);
+    const rows = [...root.querySelectorAll('.row, .trow')];
+    expect(rows).toHaveLength(4);
+    for (const r of rows) {
+      expect(r.hasAttribute('aria-sort')).toBe(false);
+      expect(r.hasAttribute('data-sortable')).toBe(false);
+      expect(r.hasAttribute('tabindex')).toBe(false);
+    }
+  });
+
+  test('a th outside a table is not marked', () => {
+    const root = document.createElement('div');
+    root.setAttribute('state', '{}');
+    root.innerHTML = '<div><span sort="name">x</span></div>';
+    document.body.appendChild(root);
+    NoJS.processTree(root);
+    expect(root.querySelector('[sort]').hasAttribute('aria-sort')).toBe(false);
+  });
+});

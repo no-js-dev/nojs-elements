@@ -21,6 +21,7 @@ import { isHostBackend } from "./_host.js";
 import { dndContract } from "./dnd/contract.js";
 import { DND_HOST_DIRECTIVES } from "./dnd/index.js";
 import { ENGINE_API } from "./validate/engine.js";
+import { uiContract } from "./ui-contract.js";
 
 // Elements whose core stubs this plugin replaces with full implementations.
 const SWAPPED = '[validate],[drag],[drop],[drag-list],[drag-multiple]';
@@ -104,14 +105,28 @@ const ELEMENT_DIRECTIVE_ATTRS = [
 // Directives whose module has not been migrated to the NoJS-Server host API.
 // On compiled sites each is registered as a stub that warns when used, so a
 // missing element is loud instead of silently inert.
-const HOST_PENDING_DIRECTIVES = [
-  "drag-list", "drag-multiple",
-  ...ELEMENT_DIRECTIVE_ATTRS,
-].filter((d) => !DND_HOST_DIRECTIVES.includes(d));
+const HOST_PENDING_DIRECTIVES = ["drag-list", "drag-multiple"].filter(
+  (d) => !DND_HOST_DIRECTIVES.includes(d)
+);
+
+// Programmatic APIs a page script reaches through `window.NoJS`. On a
+// compiled site `install()` receives the integrator's registrar, so they
+// are also set on the integrator's `window.NoJS` compat object.
+const PAGE_APIS = ["modal", "dropdown", "popover", "toast"];
+
+function _exposeHostApis(NoJS) {
+  const page = typeof window !== "undefined" ? window.NoJS : null;
+  if (!page || page === NoJS || !isHostBackend(page)) return;
+  for (const key of PAGE_APIS) {
+    if (NoJS[key] !== undefined) page[key] = NoJS[key];
+  }
+}
 
 function _installHost(NoJS, options) {
   registerDnd(NoJS, options);
   registerValidation(NoJS, options);
+  _registerUiElements(NoJS, options);
+  _exposeHostApis(NoJS);
   for (const name of HOST_PENDING_DIRECTIVES) {
     NoJS.directive(name, {
       priority: 30,
@@ -124,15 +139,34 @@ function _installHost(NoJS, options) {
   }
 }
 
+// UI elements: one implementation per module, on both backends.
+function _registerUiElements(NoJS, options) {
+  registerTooltipModule(NoJS, options);
+  registerPopover(NoJS, options);
+  registerModal(NoJS, options);
+  registerDropdown(NoJS, options);
+  registerToast(NoJS, options);
+  registerTabs(NoJS, options);
+  registerTree(NoJS, options);
+  registerStepperModule(NoJS, options);
+  registerSkeleton(NoJS, options);
+  registerSplit(NoJS, options);
+  registerTable(NoJS, options);
+  registerBreadcrumb(NoJS, options);
+  registerAccordion(NoJS, options);
+  registerVirtualList(NoJS, options);
+  registerScrollSpy(NoJS, options);
+}
+
 const NoJSElements = {
   name: "nojs-elements",
 
   // Attribute contract for the NoJS-Server compiler (ADR-021): typed
-  // attributes per directive. Only host-migrated directives are declared.
+  // attributes per directive. Undeclared attributes are literals.
   // `validation` names the pure validation engine the server bundles into
   // its runtime (ADR-028), resolved from this module's directory.
   contract: {
-    directives: { ...dndContract },
+    directives: { ...dndContract, ...uiContract },
     validation: { api: ENGINE_API, engine: "./validate-engine.mjs" },
   },
 
@@ -147,21 +181,7 @@ const NoJSElements = {
     registerValidation(NoJS, options);
 
     // UI elements
-    registerTooltipModule(NoJS, options);
-    registerPopover(NoJS, options);
-    registerModal(NoJS, options);
-    registerDropdown(NoJS, options);
-    registerToast(NoJS, options);
-    registerTabs(NoJS, options);
-    registerTree(NoJS, options);
-    registerStepperModule(NoJS, options);
-    registerSkeleton(NoJS, options);
-    registerSplit(NoJS, options);
-    registerTable(NoJS, options);
-    registerBreadcrumb(NoJS, options);
-    registerAccordion(NoJS, options);
-    registerVirtualList(NoJS, options);
-    registerScrollSpy(NoJS, options);
+    _registerUiElements(NoJS, options);
 
     // Load order 1: core auto-init already processed these nodes with stubs.
     _rebindSwappedNodes(NoJS);
