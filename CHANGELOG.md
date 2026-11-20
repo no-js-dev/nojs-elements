@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Validate host backend (compiled sites): a `change` from a checkbox, radio, select, date or other non-text control reports at once instead of after the 300 ms facts debounce, as core re-validates on it. A `validate-if` that reads the picked value now disables the submit button in the same interaction (NoJS-Server acceptance j6c, step 4). Text entry keeps the debounce; its `change` comes with a `focusout` that already reports
 - dnd (compiled sites): `drag-disabled` is applied at init; a locked row was draggable until its delivered value changed
 - table: `sort` marks only a `<th>` inside a table. `sort` is also core's loop companion (`each="t in tasks" sort="t.title"`), and loop rows rendered after Elements installed got `data-sortable`, `aria-sort="none"` and `tabindex="0"`. Visible change: those rows are no longer in the tab order and carry no sort attributes
 - virtual-list: bindings inside the row template (`<li each="row in rows" bind="row.label">`) render; rows were empty because each row got a plain object instead of a core context
