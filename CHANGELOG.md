@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/no-js-dev/nojs-elements/compare/v1.23.0...HEAD)
 
+### Added
+
+- Every UI element runs on the NoJS-Server plugin host API (compiled sites, `NoJS.hostApi >= 1`): accordion, breadcrumb, dropdown, modal, popover, scroll-spy, skeleton, split, stepper, table (`sortable`, `sort`, `fixed-header`, `fixed-col`, `table-reorder`), tabs, toast, tooltip, tree (with drag) and virtual-list. Each module keeps one implementation (`src/_backend.js`, `defineDirective`); on core pages behavior is unchanged. On compiled sites the expression attributes hold server-evaluated values (`tooltip-disabled`, `tab-disabled`, `skeleton`, `step-validate`, `toast` outside buttons/links/`on:click`), directives that build their own subtree register `subtree: true`, and tabs, stepper and table keep the selected tab, the current step, the sort and generated ids across a server re-render. Breadcrumb auto mode follows the page path and the integrator's `nojs:navigate` event. `NoJS.modal` / `dropdown` / `popover` / `toast` are also set on the page's `window.NoJS`. Only `drag-list` and `drag-multiple` remain host stubs
+- The plugin contract declares those expression attributes and `sort`, and `toast` with `literalOn` (NoJS-Server ADR-021 amendment)
+
+### Changed
+
+- Compiled sites only: table sort and `table-reorder` reorder the rendered rows (a loop-bound table's array is not reordered, there is no client state); virtual-list windows the rows the server rendered; `$stepper` and `$toast` are not available to expressions (they run on the server)
+
+### Fixed
+
+- dnd (compiled sites): `drag-disabled` is applied at init; a locked row was draggable until its delivered value changed
+
 ## [1.23.0](https://github.com/no-js-dev/nojs-elements/compare/v1.22.0...v1.23.0) — 2026-11-12
 
 ### Added
