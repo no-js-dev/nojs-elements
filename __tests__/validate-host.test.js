@@ -206,6 +206,29 @@ describe('facts', () => {
     }
   });
 
+  test('input and change of a control the server does not validate send nothing and keep the buttons on the marker', () => {
+    const form = mount(FORM('data-nj-form-state=\'{"valid":false}\'', '<input name="ok"><input type="checkbox" class="x"><button type="submit">b</button>'));
+    initValidate(form);
+    const box = form.querySelector('.x');
+    box.dispatchEvent(new Event('input', { bubbles: true }));
+    box.dispatchEvent(new Event('change', { bubbles: true }));
+    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
+    expect(host.exec).not.toHaveBeenCalled();
+    expect(form.querySelector('button').disabled).toBe(true);
+  });
+
+  test('the no-JS transport is not a field: fallback inputs and build-given model names are left out', () => {
+    const form = mount(FORM('', '<input name="ok"><input type="hidden" name="__nojs_mcheck.a" value="x" data-nj-fallback>'
+      + '<input type="checkbox" name="__nojs_model.a" data-nj-form="name">'));
+    initValidate(form);
+    const box = form.querySelector('[type=checkbox]');
+    box.dispatchEvent(new Event('change', { bubbles: true }));
+    jest.advanceTimersByTime(FACTS_DEBOUNCE_MS);
+    expect(host.exec).not.toHaveBeenCalled();
+    focusout(form.querySelector('[name=ok]'));
+    expect(host.exec.mock.calls[0][1]).toEqual({ trigger: 'focusout', field: 'ok', values: { ok: '' } });
+  });
+
   test('per-field mode: listeners on named fields only, no change listener', () => {
     const form = mount(FORM('', `
       <input name="a" validate-on="focusout">

@@ -31,11 +31,18 @@ export const PENDING_ATTR = "data-nj-validate-pending";
 
 const CONTROLS = "input, textarea, select";
 
-// Named controls whose values the server validates (file inputs: native only).
+// Named controls whose values the server validates (file inputs: native
+// only). The build's no-JS form transport is not a field: its hidden inputs
+// (data-nj-fallback) and the names it gives `model` controls (data-nj-form
+// lists the attributes the build added).
+function isReported(c) {
+  if (!c.name || (c.type || "").toLowerCase() === "file") return false;
+  if (c.hasAttribute("data-nj-fallback")) return false;
+  return !(c.getAttribute("data-nj-form") || "").split(/\s+/).includes("name");
+}
+
 function reportedControls(form) {
-  return [...form.querySelectorAll(CONTROLS)].filter(
-    (c) => c.name && (c.type || "").toLowerCase() !== "file"
-  );
+  return [...form.querySelectorAll(CONTROLS)].filter(isReported);
 }
 
 // values: checkbox → checked, radio → checked value or "", else value.
@@ -160,12 +167,16 @@ function initForm(el, host) {
   }
 
   if (!perField) {
-    listen(el, "input", (e) => debounced("input", e.target && e.target.name));
-    listen(el, "change", (e) => debounced("change", e.target && e.target.name));
+    // A control the server does not validate (no name, or a `model`
+    // checkbox named by the build's no-JS transport) adds nothing to the facts: the action it runs re-renders the
+    // form state itself, so no dispatch waits and the buttons follow it.
+    const reported = (e) => !!e.target && typeof e.target.hasAttribute === "function" && isReported(e.target);
+    listen(el, "input", (e) => { if (reported(e)) debounced("input", e.target.name); });
+    listen(el, "change", (e) => { if (reported(e)) debounced("change", e.target.name); });
     listen(el, "focusout", (e) => immediate("focusout", e.target && e.target.name));
   } else {
     for (const field of controls) {
-      if (!field.name) continue;
+      if (!isReported(field)) continue;
       listen(field, "input", () => debounced("input", field.name));
       listen(field, "focusout", () => immediate("focusout", field.name));
     }
