@@ -17,7 +17,8 @@
 //   Each row's item is delivered sealed: it is the `$drag` a drop zone or
 //   another list receives.
 // - drag-multiple: client-only selection; a selection drag sends the
-//   selected items' sealed references.
+//   selected items' sealed references (`$drag` opts in to a list: at most
+//   100 distinct references).
 
 const SOURCE_TARGET_EL = "it is a DOM element; client mechanics never send DOM nodes";
 
@@ -50,7 +51,8 @@ export const dndContract = {
       "drop-placeholder-class": "literal",
     },
     implicit: {
-      $drag: { sealed: true },
+      // One item, or a drag-multiple selection (distinct references).
+      $drag: { sealed: { multiple: true, maxItems: 100 } },
       $dragType: { schema: { type: "string", maxLength: 256 } },
       $dragEffect: { schema: { type: "string", maxLength: 32 } },
       $dropIndex: { schema: { type: "integer", minimum: 0, maximum: 1000000 } },
