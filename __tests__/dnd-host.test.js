@@ -92,16 +92,13 @@ describe('dual-backend seam', () => {
     expect(isHostBackend(null)).toBe(false);
   });
 
-  test('host install registers drag and drop, warn stubs for unmigrated directives', () => {
-    expect(registrar.directives.has('drag')).toBe(true);
-    expect(registrar.directives.has('drop')).toBe(true);
-    for (const name of ['drag-list', 'drag-multiple', 'validate', 'modal', 'tabs']) {
+  test('host install registers every dnd directive, none as a warning stub', () => {
+    for (const name of ['drag', 'drop', 'drag-list', 'drag-multiple', 'validate', 'modal', 'tabs']) {
       expect(registrar.directives.has(name)).toBe(true);
     }
     const host = createHost();
-    const el = document.createElement('div');
-    init('drag-list', el, host);
-    expect(host.warn).toHaveBeenCalledWith(expect.stringContaining('"drag-list" is not yet available'));
+    init('drag-list', document.createElement('ul'), host);
+    expect(host.warn).not.toHaveBeenCalled();
   });
 
   test('the plugin exposes the dnd attribute contract', () => {
@@ -294,5 +291,171 @@ describe('drop-disabled watcher (host)', () => {
     const host = createHost();
     init('drop', ul, host);
     expect(host.watchers.find((x) => x.attr === 'drop-disabled')).toBeUndefined();
+  });
+});
+
+// Server-rendered drag-list (NoJS-Server plugin-lists.ts): the loop's
+// markers, one display:contents wrapper per item with its sealed item, and
+// the action keys of the compiled edits.
+function buildServerList(id, items, attrs = {}) {
+  const ul = document.createElement('ul');
+  ul.id = id;
+  ul.setAttribute('drag-list', id);
+  ul.setAttribute('template', 'row');
+  ul.setAttribute('data-nj-list', '');
+  ul.setAttribute('data-nj-list-move', `np-move-${id}`);
+  ul.setAttribute('data-nj-list-insert', `np-insert-${id}`);
+  ul.setAttribute('data-nj-list-remove', `np-remove-${id}`);
+  for (const [k, v] of Object.entries(attrs)) ul.setAttribute(k, v);
+  ul.appendChild(document.createComment('foreach'));
+  items.forEach((text, i) => {
+    const w = document.createElement('div');
+    w.setAttribute('style', 'display: contents;');
+    w.setAttribute('data-nj-list-item', `v1.${id}-${i}`);
+    const span = document.createElement('span');
+    span.textContent = text;
+    w.appendChild(span);
+    ul.appendChild(w);
+  });
+  ul.appendChild(document.createComment('/foreach'));
+  document.body.appendChild(ul);
+  [...ul.querySelectorAll('span')].forEach((el, i) => {
+    el.getBoundingClientRect = () => ({ top: i * 20, bottom: i * 20 + 20, height: 20, left: 0, right: 100, width: 100, x: 0, y: i * 20 });
+  });
+  return ul;
+}
+
+function startRowDrag(ul, index) {
+  const evt = dragEvent('dragstart');
+  evt.dataTransfer = { effectAllowed: '', setData: jest.fn() };
+  ul.children[index].firstElementChild.dispatchEvent(evt);
+}
+
+describe('drag-list (host)', () => {
+  test('decorates the server-rendered rows as core renders them and drops the loop markers', () => {
+    const ul = buildServerList('backlog', ['Spike SSE', 'Write docs'], { 'drag-list-copy': '' });
+    init('drag-list', ul, createHost());
+    expect([...ul.childNodes].some((n) => n.nodeType === 8)).toBe(false);
+    expect(ul.getAttribute('role')).toBe('listbox');
+    expect(ul.getAttribute('aria-dropeffect')).toBe('copy');
+    const span = ul.querySelector('span');
+    expect(span.draggable).toBe(true);
+    expect(span.getAttribute('role')).toBe('option');
+    expect(span.getAttribute('aria-roledescription')).toBe('draggable item');
+    expect(span.getAttribute('tabindex')).toBe('0');
+  });
+
+  test('an empty list gets the empty class', () => {
+    const ul = buildServerList('empty', [], { 'drop-empty-class': 'empty' });
+    init('drag-list', ul, createHost());
+    expect(ul.classList.contains('empty')).toBe(true);
+  });
+
+  test('dragging a row records its sealed item', () => {
+    const ul = buildServerList('a', ['x', 'y']);
+    init('drag-list', ul, createHost());
+    startRowDrag(ul, 1);
+    expect(_dndState.dragging.item).toBe('v1.a-1');
+    expect(_dndState.dragging.sourceIndex).toBe(1);
+  });
+
+  test('a reorder in the same list sends the move action with core indices', () => {
+    const host = createHost();
+    const ul = buildServerList('a', ['x', 'y', 'z']);
+    init('drag-list', ul, host);
+    startRowDrag(ul, 0);
+    ul.dispatchEvent(dragEvent('drop', 55)); // below the third row's midpoint: index 3
+    expect(host.exec).toHaveBeenCalledWith('np-move-a', { $from: 0, $to: 2 });
+  });
+
+  test('a drop onto the same position sends nothing', () => {
+    const host = createHost();
+    const ul = buildServerList('a', ['x', 'y']);
+    init('drag-list', ul, host);
+    startRowDrag(ul, 0);
+    ul.dispatchEvent(dragEvent('drop', 5));
+    expect(host.exec).not.toHaveBeenCalled();
+  });
+
+  test('a move to another list inserts the sealed item there, then removes it from the source', () => {
+    const host = createHost();
+    const from = buildServerList('a', ['x', 'y'], { 'drag-type': 't', 'drag-list-remove': '' });
+    const to = buildServerList('b', ['z'], { 'drop-accept': 't' });
+    init('drag-list', from, host);
+    init('drag-list', to, host);
+    startRowDrag(from, 1);
+    to.dispatchEvent(dragEvent('drop', 0));
+    expect(host.exec.mock.calls).toEqual([
+      ['np-insert-b', { $index: 0, $item: 'v1.a-1' }],
+      ['np-remove-a', { $index: 1 }],
+    ]);
+  });
+
+  test('a copy list keeps its source item', () => {
+    const host = createHost();
+    const from = buildServerList('a', ['x'], { 'drag-type': 't', 'drag-list-copy': '', 'drag-list-remove': '' });
+    const to = buildServerList('b', [], { 'drop-accept': 't' });
+    init('drag-list', from, host);
+    init('drag-list', to, host);
+    startRowDrag(from, 0);
+    to.dispatchEvent(dragEvent('drop', 0));
+    expect(host.exec.mock.calls).toEqual([['np-insert-b', { $index: 0, $item: 'v1.a-0' }]]);
+  });
+
+  test('delivered drop-disabled and drop-max block the drop', () => {
+    const host = createHost();
+    const from = buildServerList('a', ['x'], { 'drag-type': 't' });
+    const off = buildServerList('b', [], { 'drop-accept': 't', 'drop-disabled': 'true' });
+    const full = buildServerList('c', ['y'], { 'drop-accept': 't', 'drop-max': '1' });
+    for (const ul of [from, off, full]) init('drag-list', ul, host);
+    startRowDrag(from, 0);
+    off.dispatchEvent(dragEvent('drop', 0));
+    full.dispatchEvent(dragEvent('drop', 0));
+    expect(host.exec).not.toHaveBeenCalled();
+  });
+
+  test('a delivered drag-disabled cancels the row drag', () => {
+    const ul = buildServerList('a', ['x'], { 'drag-disabled': 'true' });
+    init('drag-list', ul, createHost());
+    const evt = dragEvent('dragstart');
+    ul.querySelector('span').dispatchEvent(evt);
+    expect(evt.defaultPrevented).toBe(true);
+    expect(_dndState.dragging).toBeNull();
+  });
+
+  test('declares the list in the contract', () => {
+    expect(dndContract['drag-list'].attrs['drag-list']).toBe('path');
+    expect(dndContract['drag-list'].list).toEqual({
+      path: 'drag-list', template: 'template', item: 'drag-list-item', itemDefault: 'item',
+      wrapper: { tag: 'div', attrs: { style: 'display: contents;' } },
+    });
+  });
+});
+
+describe('drag-multiple (host)', () => {
+  test('selects with a click and drags the selection as sealed references', () => {
+    const host = createHost();
+    const ul = buildList(3);
+    for (const li of ul.children) {
+      li.setAttribute('drag-group', 'g');
+      li.setAttribute('drag-multiple', '');
+      init('drag', li, host);
+      init('drag-multiple', li, host);
+    }
+    const [a, b] = ul.children;
+    a.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    b.dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }));
+    expect(a.classList.contains('nojs-selected')).toBe(true);
+    expect(b.classList.contains('nojs-selected')).toBe(true);
+    const evt = dragEvent('dragstart');
+    evt.dataTransfer = { effectAllowed: '', setData: jest.fn() };
+    a.dispatchEvent(evt);
+    expect(_dndState.dragging.item).toEqual(['v1.token-0', 'v1.token-1']);
+  });
+
+  test('warns like core without drag-group', () => {
+    const host = createHost();
+    init('drag-multiple', document.createElement('div'), host);
+    expect(host.warn).toHaveBeenCalledWith('drag-multiple requires drag-group attribute');
   });
 });

@@ -1,10 +1,6 @@
 import { _dropdownState, _sharedListeners } from "./state.js";
 import { _injectDropdownStyles } from "./styles.js";
-import { defineDirective } from "../_backend.js";
-
-// Monotonic counter for guaranteed-unique menu ids (Date.now()+random can
-// collide when several dropdowns init within the same tick).
-let _menuIdCounter = 0;
+import { defineDirective, freeId } from "../_backend.js";
 
 // ─── Singleton document-level listeners ─────────────────────────────
 // One pair of listeners handles outside-click and Escape for ALL
@@ -158,7 +154,7 @@ export function registerDropdownDirective(NoJS) {
       menu.classList.add("nojs-dropdown-menu");
       menu.setAttribute("role", "menu");
       menu.setAttribute("popover", "auto");
-      if (!menu.id) menu.id = `nojs-dd-menu-${Date.now()}-${_menuIdCounter++}`;
+      if (!menu.id) menu.id = freeId(menu, "nojs-dd-menu");
       el.setAttribute("aria-controls", menu.id);
 
       // Whether this menu is currently shown via the Popover API top-layer.

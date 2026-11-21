@@ -52,6 +52,17 @@ describe('Stepper Directive', () => {
     document.querySelectorAll('style[data-nojs-stepper]').forEach(s => s.remove());
   });
 
+  test('links each indicator tab to its panel from the first render', () => {
+    const { el } = setupStepper(3);
+    const tabs = [...el.querySelectorAll('.nojs-stepper-indicator-item')];
+    const steps = [...el.querySelectorAll('[step]')];
+    tabs.forEach((tab, i) => {
+      expect(steps[i].id).toMatch(/^nojs-stepper-panel-/);
+      expect(tab.getAttribute('aria-controls')).toBe(steps[i].id);
+      expect(steps[i].getAttribute('aria-labelledby')).toBe(tab.id);
+    });
+  });
+
   test('1 -- sets role=group and aria-label on container', () => {
     const { el } = setupStepper(2);
     expect(el.getAttribute('role')).toBe('group');

@@ -10,8 +10,15 @@
 // - *-disabled / drop-max: evaluated server-side, delivered as JSON values.
 // - $source.list / $target.list: bound by the server at action time, never
 //   by the client. With a `drag` source and a `drop` target core's values
-//   are null for both (see __tests__/dnd.test.js); drag-list sources carry
-//   their list once drag-list runs on the host API.
+//   are null for both (see __tests__/dnd.test.js).
+// - drag-list: `list` makes the server render the rows of the array at its
+//   path through the row template (one display:contents wrapper per item,
+//   as core) and compile index edits (move / insert / remove) to actions.
+//   Each row's item is delivered sealed: it is the `$drag` a drop zone or
+//   another list receives.
+// - drag-multiple: client-only selection; a selection drag sends the
+//   selected items' sealed references (`$drag` opts in to a list: at most
+//   100 distinct references).
 
 const SOURCE_TARGET_EL = "it is a DOM element; client mechanics never send DOM nodes";
 
@@ -44,7 +51,8 @@ export const dndContract = {
       "drop-placeholder-class": "literal",
     },
     implicit: {
-      $drag: { sealed: true },
+      // One item, or a drag-multiple selection (distinct references).
+      $drag: { sealed: { multiple: true, maxItems: 100 } },
       $dragType: { schema: { type: "string", maxLength: 256 } },
       $dragEffect: { schema: { type: "string", maxLength: 32 } },
       $dropIndex: { schema: { type: "integer", minimum: 0, maximum: 1000000 } },
@@ -69,6 +77,42 @@ export const dndContract = {
         fixed: { list: null },
       },
       $el: { unavailable: SOURCE_TARGET_EL },
+    },
+  },
+  "drag-list": {
+    attrs: {
+      "drag-list": "path",
+      template: "literal",
+      "drag-list-item": "literal",
+      "drag-list-key": "literal",
+      "drag-list-copy": "literal",
+      "drag-list-remove": "literal",
+      "drag-disabled": "expression",
+      "drop-disabled": "expression",
+      "drop-max": "expression",
+      "drag-type": "literal",
+      "drag-class": "literal",
+      "drop-accept": "literal",
+      "drop-class": "literal",
+      "drop-reject-class": "literal",
+      "drop-settle-class": "literal",
+      "drop-empty-class": "literal",
+      "drop-sort": "literal",
+      "drop-placeholder": "literal",
+      "drop-placeholder-class": "literal",
+    },
+    list: {
+      path: "drag-list",
+      template: "template",
+      item: "drag-list-item",
+      itemDefault: "item",
+      wrapper: { tag: "div", attrs: { style: "display: contents;" } },
+    },
+  },
+  "drag-multiple": {
+    attrs: {
+      "drag-multiple": "literal",
+      "drag-multiple-class": "literal",
     },
   },
 };

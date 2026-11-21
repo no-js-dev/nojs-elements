@@ -7,6 +7,7 @@ import {
   dispatchValidationBlocked,
 } from "./validation.js";
 import { defineDirective } from "../_backend.js";
+import { ensureStepId } from "./step.js";
 
 // ── Context that carries $stepper ──
 // Under a `state` (or any element with a context) the stepper uses that
@@ -53,6 +54,7 @@ export function registerStepper(NoJS) {
       const ariaLabel = el.getAttribute("aria-label") || "Stepper";
 
       let current = Math.max(0, Math.min(initialStep, steps.length - 1));
+      steps.forEach(ensureStepId);
 
       // ── ARIA on container ──
       el.setAttribute("role", "group");
@@ -247,11 +249,8 @@ export function registerStepper(NoJS) {
             // Roving tabindex
             item.setAttribute("tabindex", i === current ? "0" : "-1");
             // Associate tab ↔ panel
-            const stepEl = steps[i];
-            if (stepEl.id) {
-              item.setAttribute("aria-controls", stepEl.id);
-              stepEl.setAttribute("aria-labelledby", item.id);
-            }
+            item.setAttribute("aria-controls", steps[i].id);
+            steps[i].setAttribute("aria-labelledby", item.id);
           });
         }
 

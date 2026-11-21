@@ -309,9 +309,7 @@ function _sortStaticRows(table, th, sortKey, sortType, direction) {
 
   if (!direction) {
     // Restore original order
-    const frag = document.createDocumentFragment();
-    for (const row of table._nojsOriginalRows) frag.appendChild(row);
-    tbody.appendChild(frag);
+    _placeRows(tbody, rows, table._nojsOriginalRows);
     return;
   }
 
@@ -334,9 +332,17 @@ function _sortStaticRows(table, th, sortKey, sortType, direction) {
     return direction === "desc" ? -cmp : cmp;
   });
 
+  _placeRows(tbody, [...tbody.querySelectorAll(":scope > tr")], rows);
+}
+
+// Put `ordered` where the rows were: before the node that followed the last
+// row, so a loop's end marker (core and server-rendered) stays after them.
+function _placeRows(tbody, current, ordered) {
+  let anchor = current.length ? current[current.length - 1].nextSibling : null;
+  while (anchor && ordered.includes(anchor)) anchor = anchor.nextSibling;
   const frag = document.createDocumentFragment();
-  for (const row of rows) frag.appendChild(row);
-  tbody.appendChild(frag);
+  for (const row of ordered) frag.appendChild(row);
+  tbody.insertBefore(frag, anchor);
 }
 
 // ─── fixed-header ───────────────────────────────────────────────────
