@@ -142,7 +142,7 @@ async function launch() {
   const logFd = fs.openSync(logFile, 'a');
   const child = spawn(process.execPath, ['test-server.js'], {
     cwd: ROOT,
-    env: { ...process.env, TEST_PORT: String(port) },
+    env: { ...process.env, TEST_PORT: String(port), TEST_HOST: HOST },
     detached: true,
     stdio: ['ignore', logFd, logFd],
   });

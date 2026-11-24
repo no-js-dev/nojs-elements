@@ -20,7 +20,7 @@ node .claude/skills/verify-nojs-elements/scripts/verify.mjs launch --core ../NoJ
 node .claude/skills/verify-nojs-elements/scripts/verify.mjs launch --port 4322 --core <core no.js> --build
 ```
 
-- Starts `node test-server.js` detached with `TEST_PORT=<port>` (default 4321; use 4301-4399), cwd = repo root. Run state goes to `.verify/run/<port>/` (`server.pid`, `server.log`, `meta.json`).
+- Starts `node test-server.js` detached with `TEST_PORT=<port>` (default 4321; use 4301-4399) and `TEST_HOST=127.0.0.1`, cwd = repo root. Run state goes to `.verify/run/<port>/` (`server.pid`, `server.log`, `meta.json`).
 - `--core <path>` names the NoJS core build the pages run on, and is recorded in `meta.json`. Without it the default is `../NoJS/dist/iife/no.js`, the shared sibling checkout, which is often an older release (it was 1.21.1 while Elements was 1.23.0). Point it at a core worktree or release build you control. Launch fails if the file is not a NoJS build and warns when its version differs from `package.json`.
 - Ready means usable: the helper polls until `/dist/iife/nojs-elements.js` returns 200 with the banner `NoJS Elements v<package.json version>` and `/docs/examples/modal/` returns 200. It prints `READY http://127.0.0.1:4321 pid=<pid> elements=<version> sha=<git sha> core=<version> (<path>) log=...`. No `READY` within 15 s means a failed launch: the log tail is printed and the exit code is 1.
 - `--build` runs `node build.js` first. Use it whenever `src/` changed: the pages load `dist/iife/nojs-elements.js`. The build rewrites tracked `dist/` files; on a clean `main` it produces no diff.
@@ -122,7 +122,7 @@ node .claude/skills/verify-nojs-elements/scripts/verify.mjs stop   [--port 4321]
 ## Isolation
 
 - Run state and evidence live in this checkout's `.verify/`, keyed by port; two worktrees or two ports run side by side.
-- `test-server.js` listens on all interfaces (it has no host option), so the example pages are reachable from the local network while it runs. Stop it when done.
+- `launch` passes `TEST_HOST=127.0.0.1`, so the example pages are reachable only from this machine. Without `TEST_HOST`, `test-server.js` listens on all interfaces (the default for `npm` and Playwright runs).
 - `test-server.js` serves any URL containing `/NoJS/` from the sibling `../NoJS` checkout. Only the browser driven by this harness gets the `--core` build; `curl` against the server still returns the sibling's file.
 - `cd e2e && npx playwright test` starts its own server on `TEST_PORT` (default 3001) and reuses whatever already listens there.
 
