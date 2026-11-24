@@ -1,0 +1,27 @@
+{
+  "name": "dnd",
+  "steps": [
+    ["goto", "/docs/examples/dnd/"],
+    ["expect-count", "[data-test=list-a] [data-test=item]", 3],
+    ["expect-count", "[data-test=list-b] [data-test=item]", 0],
+    ["expect-text", "[data-test=count-a]", "3"],
+    ["expect-text", "[data-test=count-b]", "0"],
+    ["expect-attr", "[data-test=list-a] [data-test=item] >> nth=0", "aria-roledescription", "draggable item"],
+    ["drag", "[data-test=list-a] [data-test=item] >> nth=0", "[data-test=list-b]"],
+    ["expect-text", "[data-test=count-a]", "2"],
+    ["expect-text", "[data-test=count-b]", "1"],
+    ["expect-count", "[data-test=list-b] [data-test=item]", 1],
+    ["screenshot", "01-after-cross-list-drag"],
+    ["focus", "[data-test=kb-list] [data-test=item] >> nth=0"],
+    ["key", "Space"],
+    ["expect-class", "[data-test=kb-list] [data-test=item] >> nth=0", "nojs-dragging"],
+    ["expect-contains", ".nojs-dnd-live-region", "Grabbed"],
+    ["key", "ArrowDown"],
+    ["key", "Space"],
+    ["expect-text", "[data-test=kb-list] [data-test=item] >> nth=0", "KB-2"],
+    ["expect-text", "[data-test=kb-list] [data-test=item] >> nth=1", "KB-1"],
+    ["expect-text", "[data-test=kb-list] [data-test=item] >> nth=2", "KB-3"],
+    ["screenshot", "02-after-keyboard-reorder"],
+    ["aria", "02-kb-list", "[data-test=kb-list]"]
+  ]
+}
