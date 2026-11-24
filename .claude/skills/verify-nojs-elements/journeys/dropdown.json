@@ -1,0 +1,25 @@
+{
+  "name": "dropdown",
+  "steps": [
+    ["goto", "/docs/examples/dropdown/"],
+    ["expect-hidden", "[data-test=basic-menu]"],
+    ["expect-attr", "[data-test=basic-toggle]", "aria-expanded", "false"],
+    ["click", "[data-test=basic-toggle]"],
+    ["expect-visible", "[data-test=basic-menu]"],
+    ["expect-attr", "[data-test=basic-toggle]", "aria-expanded", "true"],
+    ["key", "ArrowDown"],
+    ["expect-focused", "[data-test=basic-menu] >> role=menuitem[name=\"Edit\"]"],
+    ["key", "ArrowDown"],
+    ["expect-focused", "[data-test=basic-menu] >> role=menuitem[name=\"Duplicate\"]"],
+    ["screenshot", "01-open-keyboard"],
+    ["aria", "01-open-keyboard", "[data-test=basic-menu]"],
+    ["key", "Escape"],
+    ["expect-hidden", "[data-test=basic-menu]"],
+    ["expect-attr", "[data-test=basic-toggle]", "aria-expanded", "false"],
+    ["click", "[data-test=basic-toggle]"],
+    ["expect-visible", "[data-test=basic-menu]"],
+    ["click", "body", { "position": { "x": 10, "y": 10 } }],
+    ["expect-hidden", "[data-test=basic-menu]"],
+    ["expect-disabled", "[data-test=disabled-item]"]
+  ]
+}

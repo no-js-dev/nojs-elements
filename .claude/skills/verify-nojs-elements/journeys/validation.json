@@ -1,0 +1,32 @@
+{
+  "name": "validation",
+  "steps": [
+    ["goto", "/docs/examples/validation/"],
+    ["expect-text", "[data-test=form-valid]", "false"],
+    ["expect-disabled", "[data-test=basic-form] [data-test=submit-btn]"],
+    ["focus", "[data-test=input-name]"],
+    ["key", "Tab"],
+    ["expect-text", "[data-test=error-name]", "Name is required"],
+    ["fill", "[data-test=input-email]", "not-an-email"],
+    ["key", "Tab"],
+    ["expect-text", "[data-test=error-email]", "Please enter a valid email"],
+    ["fill", "[data-test=input-age]", "10"],
+    ["key", "Tab"],
+    ["expect-text", "[data-test=error-age]", "You must be at least 18"],
+    ["screenshot", "01-errors"],
+    ["aria", "01-errors", "[data-test=basic-form]"],
+    ["fill", "[data-test=input-name]", "Ada"],
+    ["fill", "[data-test=input-email]", "ada@example.com"],
+    ["fill", "[data-test=input-age]", "30"],
+    ["key", "Tab"],
+    ["expect-hidden", "[data-test=error-name]"],
+    ["expect-hidden", "[data-test=error-email]"],
+    ["expect-hidden", "[data-test=error-age]"],
+    ["expect-text", "[data-test=form-valid]", "true"],
+    ["expect-text", "[data-test=error-count]", "0"],
+    ["expect-enabled", "[data-test=basic-form] [data-test=submit-btn]"],
+    ["click", "[data-test=basic-form] [data-test=submit-btn]"],
+    ["expect-visible", "[data-test=submit-msg]"],
+    ["screenshot", "02-submitted"]
+  ]
+}

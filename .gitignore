@@ -27,5 +27,9 @@ test-results/
 .github/reviews
 .github/agents
 
-# Claude Code local settings/cache
-.claude/
+# Claude Code local settings/cache (project skills are tracked)
+.claude/*
+!.claude/skills/
+
+# verify-nojs-elements skill run state and evidence
+.verify/

@@ -1,0 +1,26 @@
+{
+  "name": "tabs",
+  "steps": [
+    ["goto", "/docs/examples/tabs/"],
+    ["expect-attr", "[data-test=tab-overview]", "aria-selected", "true"],
+    ["expect-visible", "[data-test=panel-overview]"],
+    ["expect-hidden", "[data-test=panel-details]"],
+    ["click", "[data-test=tab-details]"],
+    ["expect-attr", "[data-test=tab-details]", "aria-selected", "true"],
+    ["expect-attr", "[data-test=tab-overview]", "aria-selected", "false"],
+    ["expect-visible", "[data-test=panel-details]"],
+    ["expect-hidden", "[data-test=panel-overview]"],
+    ["focus", "[data-test=tab-details]"],
+    ["key", "ArrowRight"],
+    ["expect-focused", "[data-test=tab-settings]"],
+    ["key", "ArrowLeft"],
+    ["expect-focused", "[data-test=tab-details]"],
+    ["expect-contains", "[data-test=preselected-tabs] [role=tabpanel]:visible", "Second panel (preselected)"],
+    ["expect-attr", "[data-test=disabled-tab]", "aria-disabled", "true"],
+    ["click", "[data-test=disabled-tab]", { "force": true }],
+    ["expect-attr", "[data-test=disabled-tab]", "aria-selected", "false"],
+    ["expect-attr", "[data-test=disabled-tabs] [role=tab] >> nth=0", "aria-selected", "true"],
+    ["screenshot", "01-details-selected"],
+    ["aria", "01-tabs", "[data-test=basic-tabs]"]
+  ]
+}
