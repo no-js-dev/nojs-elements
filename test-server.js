@@ -3,6 +3,8 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = parseInt(process.env.TEST_PORT, 10) || 3001;
+// TEST_HOST: interface to listen on (for example 127.0.0.1 for loopback only); unset listens on all interfaces
+const HOST = process.env.TEST_HOST || undefined;
 const ROOT = __dirname;
 
 const MIME = {
@@ -73,7 +75,7 @@ const server = http.createServer((req, res) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`\n  NoJS-Elements Test Server — http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`\n  NoJS-Elements Test Server — http://localhost:${PORT} (bound to ${server.address().address})`);
   console.log(`  Serving from: ${ROOT}\n`);
 });

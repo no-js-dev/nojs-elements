@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `drag-list` and `drag-multiple` run on the NoJS-Server plugin host API; no element is a host stub any more. `drag-list` declares a `list` contract member (NoJS-Server ADR-021 amendment 2026-11-20b): the server renders the rows and runs reorder, move and copy as actions; the mechanics decorate the server-rendered rows and report indices. `drag-multiple` keeps the selection client-side and drags the selected items' sealed references (`drop`'s `$drag` declares `sealed: { multiple: true, maxItems: 100 }`). `src/dnd/element.js` splits `drag-list` into a core and a host backend; core behavior is unchanged
 - The plugin contract declares those expression attributes and `sort`, and `toast` with `literalOn` (NoJS-Server ADR-021 amendment)
 - docs: a "Server-Rendered Hosts" section on every element page and in `llms-full.txt`
+- `test-server.js` (e2e and local verification server) accepts `TEST_HOST` to choose the interface it listens on, for example `TEST_HOST=127.0.0.1` for loopback only. Unset, it listens on all interfaces as before; the startup line now names the bound address
 
 ### Changed
 
