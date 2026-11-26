@@ -4,16 +4,19 @@
 // until $form.valid is true.  Backward navigation is never blocked.
 // ─────────────────────────────────────────────────────────────────────
 
+import { hostMarker } from "../_host.js";
+
 /**
  * Validity of a form on a compiled site (NoJS-Server host backend), where
  * `$form` does not exist in the browser: the server-rendered
  * `data-nj-form-state` marker. null when the marker is absent or invalid.
  *
  * @param {Element} form – The <form validate> element
+ * @param {object} [host] – The host API: the marker's served name (hostMarker)
  * @returns {boolean|null}
  */
-export function hostFormValid(form) {
-  const raw = form.getAttribute("data-nj-form-state");
+export function hostFormValid(form, host) {
+  const raw = form.getAttribute(hostMarker(host, "data-nj-form-state"));
   if (!raw) return null;
   try {
     const state = JSON.parse(raw);
@@ -29,9 +32,10 @@ export function hostFormValid(form) {
  * @param {Element}  stepEl  – The [step] element to validate
  * @param {Function} findCtx – NoJS.findContext (core backend); omit on a
  *                             compiled site to read the server marker
+ * @param {object} [host]    – The host API on a compiled site (hostMarker)
  * @returns {boolean} true if the step may advance
  */
-export function checkStepValidationGate(stepEl, findCtx) {
+export function checkStepValidationGate(stepEl, findCtx, host) {
   // Gate only applies when the attribute is present
   if (!stepEl.hasAttribute("stepper-validate")) return true;
 
@@ -39,7 +43,7 @@ export function checkStepValidationGate(stepEl, findCtx) {
   if (!form) return true; // no validated form → nothing to gate
 
   if (typeof findCtx !== "function") {
-    const valid = hostFormValid(form);
+    const valid = hostFormValid(form, host);
     return valid === null ? true : valid;
   }
 

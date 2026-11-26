@@ -431,6 +431,50 @@ describe('standalone fields and disposal', () => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// A site whose authors write the build's marker names (nojs-server ADR-030, nojs-elements#133):
+// the server serves its own under another prefix, the host resolves them, and an author attribute
+// with the old name steers nothing.
+describe('renamed markers (host.marker)', () => {
+  const prefix = 'data-nj0-';
+  const served = (name) => (name.startsWith('data-nj-') ? name.replace('data-nj-', prefix) : name);
+  const RENAMED_FORM = () => `
+    <form validate data-nj0-validate="vk-1" data-nj0-form-state='${state()}' data-nj0-validate-init
+          data-nj-validate="author-key" data-nj-form-state='${state({ valid: true })}'>
+      <input name="name" required>
+      <button type="submit" id="go">Go</button>
+    </form>`;
+
+  test('the action key, the state and the init flag come from the served names', async () => {
+    host.marker = jest.fn(served);
+    const form = mount(RENAMED_FORM());
+    initValidate(form);
+    expect(host.warn).not.toHaveBeenCalled();
+    // The served state (valid: false) drives the buttons, not the author's (valid: true).
+    expect(form.querySelector('#go').disabled).toBe(true);
+    await flushMicrotasks();
+    expect(host.exec).toHaveBeenCalledTimes(1);
+    expect(host.exec.mock.calls[0][0]).toBe('vk-1');
+    expect(host.exec.mock.calls[0][1].trigger).toBe('init');
+    // The in-flight marker is written under its served name; the author's attributes stay as written.
+    expect(form.hasAttribute('data-nj0-validate-pending')).toBe(true);
+    expect(form.hasAttribute('data-nj-validate-pending')).toBe(false);
+    expect(form.getAttribute('data-nj-validate')).toBe('author-key');
+    // The envelope: the morph drops the served in-flight marker and updates the served state.
+    form.removeAttribute('data-nj0-validate-pending');
+    form.setAttribute('data-nj0-form-state', state({ valid: true }));
+    await flushMicrotasks();
+    expect(form.querySelector('#go').disabled).toBe(false);
+  });
+
+  test('the stepper gate reads the served state marker', () => {
+    host.marker = jest.fn(served);
+    document.body.innerHTML = `<div step stepper-validate><form validate data-nj0-form-state='${state({ valid: false })}' data-nj-form-state='${state({ valid: true })}'></form></div>`;
+    expect(checkStepValidationGate(document.querySelector('[step]'), undefined, host)).toBe(false);
+    expect(hostFormValid(document.querySelector('form'), host)).toBe(false);
+  });
+});
+
 describe('stepper gate on a compiled site', () => {
   function step(marker) {
     document.body.innerHTML = `<div step stepper-validate><form validate ${marker == null ? '' : `data-nj-form-state='${marker}'`}></form></div>`;

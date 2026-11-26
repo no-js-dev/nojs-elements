@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Server-rendered hosts: `validate` (and the stepper's validation gate) and `drag-list` read the server's `data-nj-*` markers through `host.marker(name)`, the name the server serves them under. On a NoJS-Server site whose author writes an attribute with one of those names (`<p data-nj-validate="…">`), the server renames its own markers and keeps the author's; validation and drag-list stopped working there. Falls back to the literal names on a host without `marker` (#133)
 - stepper: each indicator tab links to its panel (`aria-controls`, `aria-labelledby`) from the first render. Core initializes the stepper before its `[step]` children, so the panels had no ids yet and the links appeared only after the first navigation; on compiled sites they were there from the start. Visible change on core pages: the attributes are present at load
 - dropdown: a menu without an `id` gets `nojs-dd-menu-<n>`, the lowest number no element of the page uses (was `nojs-dd-menu-<timestamp>-<running counter>`). Core re-creates loop rows on every render and a compiled site initializes them once, so the counter gave the same menu different ids on the two hosts. Visible change: shorter ids
 - popover: never initializes on a `[dropdown-menu]`. The dropdown toggle sets the menu's native `popover` attribute; outside loop rows (and always on compiled sites) the popover directive then also claimed the menu (`nojs-popover`, `data-popover-id`)
