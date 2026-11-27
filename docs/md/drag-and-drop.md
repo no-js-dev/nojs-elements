@@ -268,6 +268,7 @@ These directives also run on hosts that implement the NoJS plugin host API (`NoJ
 - `drop`: the statement runs on the server with the implicit variables the mechanics report (`$drag`, `$dropIndex`, `$source.index`, `$target.index`, `$dragType`, `$dragEffect`). `$el`, `$source.el` and `$target.el` are not available.
 - `drag-list`: the server renders the rows from the array (one `display: contents` wrapper per item, the template rendered with the item and `$index` / `$count` / `$first` / `$last` / `$even` / `$odd`) and runs the edits: reorder, move to another list (insert there, then remove here) and copy. Markup, keyboard support and classes are the same. The `nojs:dnd-reorder` / `-receive` / `-remove` events fire with `list` and `fromList` set to `null`, because the array lives on the server.
 - `drag-multiple`: selection works the same; dragging a selection sends the selected items (at most 100: a larger selection is refused by the server).
+- Markers: the host reads the server's `data-nj-list-*` markers through `host.marker(name)`, so an author attribute with one of those names is kept as written and never mistaken for the server's; with a host that has no `marker`, the literal names are read.
 
 ---
 

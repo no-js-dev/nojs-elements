@@ -331,6 +331,47 @@ function startRowDrag(ul, index) {
   ul.children[index].firstElementChild.dispatchEvent(evt);
 }
 
+// A site whose authors write the build's marker names: the server serves its own under another
+// prefix and the host resolves them (host.marker, nojs-server ADR-030 / nojs-elements#133).
+function renamed(ul, prefix) {
+  for (const el of [ul, ...ul.querySelectorAll('*')]) {
+    for (const a of [...el.attributes]) {
+      if (!a.name.startsWith('data-nj-list')) continue;
+      el.removeAttribute(a.name);
+      el.setAttribute(a.name.replace('data-nj-', prefix), a.value);
+    }
+  }
+  return ul;
+}
+const renamingHost = (prefix) => ({ ...createHost(), marker: (name) => (name.startsWith('data-nj-list') ? name.replace('data-nj-', prefix) : name) });
+
+describe('drag-list (host) under renamed markers', () => {
+  test('rows, item and move key come from the served names; an author attribute of the old name is ignored', () => {
+    const host = renamingHost('data-nj0-');
+    const ul = renamed(buildServerList('a', ['x', 'y', 'z']), 'data-nj0-');
+    // The author's own attributes with the build's names (kept as written by the server).
+    ul.setAttribute('data-nj-list-move', 'author-move');
+    const authorRow = document.createElement('p');
+    authorRow.setAttribute('data-nj-list-item', 'author-item');
+    document.body.appendChild(authorRow);
+    init('drag-list', ul, host);
+    startRowDrag(ul, 1);
+    expect(_dndState.dragging.item).toBe('v1.a-1');
+    ul.dispatchEvent(dragEvent('drop', 55));
+    expect(host.exec).toHaveBeenCalledWith('np-move-a', { $from: 1, $to: 2 });
+    expect(ul.getAttribute('data-nj-list-move')).toBe('author-move');
+  });
+
+  test('a host without marker() reads the names as written', () => {
+    const host = createHost();
+    const ul = buildServerList('a', ['x', 'y', 'z']);
+    init('drag-list', ul, host);
+    startRowDrag(ul, 0);
+    ul.dispatchEvent(dragEvent('drop', 55));
+    expect(host.exec).toHaveBeenCalledWith('np-move-a', { $from: 0, $to: 2 });
+  });
+});
+
 describe('drag-list (host)', () => {
   test('decorates the server-rendered rows as core renders them and drops the loop markers', () => {
     const ul = buildServerList('backlog', ['Spike SSE', 'Write docs'], { 'drag-list-copy': '' });

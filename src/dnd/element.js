@@ -1,7 +1,7 @@
 import { _dndState, _dragListRegistry } from "./state.js";
 import { _injectDndStyles } from "./styles.js";
 import { _internal, _markBound } from "../_compat.js";
-import { isHostBackend } from "../_host.js";
+import { hostMarker, isHostBackend } from "../_host.js";
 
 // Guarded helper: remove a core directive stub, warn on old cores that lack the API.
 function _removeCoreStub(NoJS, name) {
@@ -949,11 +949,13 @@ function _renderCoreRows(NoJS, el, ctx, listPath, setupRow, toggleEmpty) {
 // actions whose keys sit in data-nj-list-move / -insert / -remove. The
 // mechanics report indices; the server edits the list and re-renders it.
 function _hostDragListBackend(el, host) {
+  // The markers under the names the host serves them (renamed on a site whose authors write them).
+  const ITEM = hostMarker(host, "data-nj-list-item");
   const exec = (attr, payload) => {
-    const key = el.getAttribute(attr);
+    const key = el.getAttribute(hostMarker(host, attr));
     if (key) host.exec(key, payload);
   };
-  const rows = () => [...el.children].filter((c) => c.hasAttribute("data-nj-list-item"));
+  const rows = () => [...el.children].filter((c) => c.hasAttribute(ITEM));
   return {
     ctx: null,
     dragDisabled: () => !!host.value(el, "drag-disabled"),
@@ -962,7 +964,7 @@ function _hostDragListBackend(el, host) {
       const max = host.value(el, "drop-max");
       return typeof max === "number" && rows().length >= max;
     },
-    canEdit: () => el.hasAttribute("data-nj-list-move"),
+    canEdit: () => el.hasAttribute(hostMarker(host, "data-nj-list-move")),
     move(from, to) {
       exec("data-nj-list-move", { $from: from, $to: to });
       return null;
@@ -991,7 +993,7 @@ function _hostDragListBackend(el, host) {
       for (const node of [...el.childNodes]) if (node.nodeType === 8) node.remove();
       const all = rows();
       all.forEach((wrapper, i) => {
-        const item = wrapper.getAttribute("data-nj-list-item");
+        const item = wrapper.getAttribute(ITEM);
         setupRow(wrapper, i, item, null, null, (fn) => host.onDispose(wrapper, fn));
       });
       toggleEmpty(all.length === 0);

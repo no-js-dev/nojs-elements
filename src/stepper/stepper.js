@@ -181,7 +181,7 @@ export function registerStepper(NoJS) {
         if (!stepEl) return true;
 
         // 1. Check stepper-validate gate (NoJS Validation module integration)
-        if (!checkStepValidationGate(stepEl, be.host ? undefined : NoJS.findContext)) {
+        if (!checkStepValidationGate(stepEl, be.host ? undefined : NoJS.findContext, be.host)) {
           const form = stepEl.querySelector("form[validate]");
           if (form) {
             // Touch all fields so error messages become visible

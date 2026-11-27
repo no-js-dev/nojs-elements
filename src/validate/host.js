@@ -10,7 +10,9 @@
 //  templates are server-rendered; writing them here would be reverted by
 //  the next morph.
 //
-//  Wire markers (rendered by the compiler / server render):
+//  Wire markers (rendered by the compiler / server render), read under the
+//  names the host serves them (hostMarker: renamed on a site whose authors
+//  write one of these names, nojs-server ADR-030):
 //    data-nj-validate       binding key of the validate action
 //    data-nj-form-state     {"valid", "submitting", "pending", "reset"}
 //    data-nj-validate-init  present: send one `init` facts dispatch at boot
@@ -18,6 +20,7 @@
 
 import { VALIDITY_FLAGS } from "./engine.js";
 import { applyAutoDisable } from "./buttons.js";
+import { hostMarker } from "../_host.js";
 
 export const FACTS_DEBOUNCE_MS = 300;
 
@@ -75,12 +78,14 @@ function committedChange(target) {
 }
 
 function readState(form, host) {
-  const state = host.value(form, STATE_ATTR);
+  const state = host.value(form, hostMarker(host, STATE_ATTR));
   return state && typeof state === "object" ? state : null;
 }
 
 function initForm(el, host) {
-  const key = el.getAttribute(KEY_ATTR);
+  const STATE = hostMarker(host, STATE_ATTR);
+  const PENDING = hostMarker(host, PENDING_ATTR);
+  const key = el.getAttribute(hostMarker(host, KEY_ATTR));
   if (!key) {
     host.warn(
       "form[validate] has no validate action: the site was built without a validation engine; the server refuses its submits."
@@ -132,7 +137,7 @@ function initForm(el, host) {
     payload.values = values;
     if (Object.keys(native).length) payload.native = native;
     inflight = true;
-    el.setAttribute(PENDING_ATTR, "");
+    el.setAttribute(PENDING, "");
     host.exec(key, payload);
   }
 
@@ -200,12 +205,12 @@ function initForm(el, host) {
   // `disabled` the server never renders from the buttons; re-apply both.
   const observer = new view.MutationObserver((records) => {
     if (disposed) return;
-    if (inflight && !el.hasAttribute(PENDING_ATTR)) inflight = false;
-    if (records.some((r) => r.attributeName === STATE_ATTR)) onState();
+    if (inflight && !el.hasAttribute(PENDING)) inflight = false;
+    if (records.some((r) => r.attributeName === STATE)) onState();
     else applyButtons();
   });
-  observer.observe(el, { attributes: true, subtree: true, attributeFilter: [PENDING_ATTR, STATE_ATTR, "disabled"] });
-  host.watch(el, STATE_ATTR, onState);
+  observer.observe(el, { attributes: true, subtree: true, attributeFilter: [PENDING, STATE, "disabled"] });
+  host.watch(el, STATE, onState);
   host.onDispose(el, () => {
     disposed = true;
     observer.disconnect();
@@ -217,7 +222,7 @@ function initForm(el, host) {
 
   // Native messages replace the server's fallback ones. Sent after init so
   // PENDING_ATTR is not recorded as an attribute this plugin owns.
-  if (el.hasAttribute(INIT_ATTR)) {
+  if (el.hasAttribute(hostMarker(host, INIT_ATTR))) {
     queueMicrotask(() => {
       if (!disposed) immediate("init");
     });
@@ -226,7 +231,7 @@ function initForm(el, host) {
 
 // Standalone field (outside any form[validate]): its own validate action.
 function initField(el, host) {
-  const key = el.getAttribute(KEY_ATTR);
+  const key = el.getAttribute(hostMarker(host, KEY_ATTR));
   if (!key) return;
   const view = el.ownerDocument.defaultView;
   let timer = null;

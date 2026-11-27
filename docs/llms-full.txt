@@ -814,7 +814,7 @@ The `validate` directive blocks the submit while the form is invalid. On every s
 
 `validate` also runs on hosts that implement the NoJS plugin host API (`NoJS.hostApi >= 1`). There the validation engine this package ships (`dist/esm/validate-engine.mjs`) runs on the server with the same rules and messages, and the browser only reports field values and native validity. With the CDN core nothing on this page changes.
 
-The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`).
+The engine is a plain ES module with no DOM access. Plugin authors can import it from `src/validate/engine.js` (`evaluateForm`, `applyEvent`, `validateValue`, `emulateNative`). The host reads the server's markers (`data-nj-validate`, `data-nj-validate-init`, `data-nj-form-state`, `data-nj-validate-pending`) through `host.marker(name)`, so a page whose author writes an attribute with one of those names keeps it as written and validation still works; with a host that has no `marker`, the literal names are read.
 
 ### UI elements on server-rendered hosts
 
@@ -822,7 +822,7 @@ Every UI element runs on hosts that implement the NoJS plugin host API (`NoJS.ho
 
 - **accordion**: Markup and behavior are the same. A server re-render of the accordion's content re-initializes it on the new markup; the items keep the `open` state the server renders and the user's toggles while the content is unchanged.
 - **breadcrumb**: Manual mode is the same. Auto-track mode (no children) builds the trail from the page path and updates after each host navigation.
-- **dnd**: `drag` delivers the dragged value as an opaque reference; `drop` runs on the server with `$drag`, `$dropIndex`, `$source.index`, `$target.index`, `$dragType`, `$dragEffect` (no `$el`). `drag-list`: the server renders the rows (one `display: contents` wrapper per item) and runs reorder, move to another list and copy; the `nojs:dnd-*` events carry `list: null` and `fromList: null`. `drag-multiple`: same selection; a selection drag sends the selected items (at most 100).
+- **dnd**: `drag` delivers the dragged value as an opaque reference; `drop` runs on the server with `$drag`, `$dropIndex`, `$source.index`, `$target.index`, `$dragType`, `$dragEffect` (no `$el`). `drag-list`: the server renders the rows (one `display: contents` wrapper per item) and runs reorder, move to another list and copy; the `nojs:dnd-*` events carry `list: null` and `fromList: null`. `drag-multiple`: same selection; a selection drag sends the selected items (at most 100). The host reads the server's `data-nj-list-*` markers through `host.marker(name)`, so an author attribute with one of those names is kept as written.
 - **dropdown**: Markup and behavior are the same. `NoJS.dropdown` is available to page scripts. A menu without an `id` gets `nojs-dd-menu-<n>` (lowest free number, the same on both hosts); the popover directive never initializes on a dropdown menu.
 - **modal**: Markup and behavior are the same. `NoJS.modal` is available to page scripts.
 - **popover**: Markup and behavior are the same. `NoJS.popover` is available to page scripts.
